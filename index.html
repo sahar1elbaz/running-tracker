@@ -1,1823 +1,2530 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="he" dir="rtl" data-style="bento">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>סהר – מעקב חצי מרתון</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מעקב ריצה — תכנון וביצוע</title>
 
-<style>
-/* ── CSS Tokens ── */
-:root {
-  --bg: #f7f8fa;
-  --surface: #ffffff;
-  --surface2: #f0f2f6;
-  --border: #e2e6ed;
-  --fg: #111827;
-  --fg2: #4b5563;
-  --fg3: #9ca3af;
-  --accent: #2563eb;
-  --accent-soft: rgba(37,99,235,0.08);
-  --success: #16a34a;
-  --success-soft: rgba(22,163,74,0.1);
-  --warn: #d97706;
-  --warn-soft: rgba(217,119,6,0.1);
-  --danger: #dc2626;
-  --muted: #9ca3af;
-  color-scheme: light;
-}
-[data-theme="dark"] {
-  --bg: #0f1117;
-  --surface: #1a1d27;
-  --surface2: #242938;
-  --border: #2d3448;
-  --fg: #e8eaf0;
-  --fg2: #8b8fa8;
-  --fg3: #5a5f7a;
-  --accent: #6c8fff;
-  --accent-soft: rgba(108,143,255,0.08);
-  --success: #4ade80;
-  --success-soft: rgba(74,222,128,0.1);
-  --warn: #fbbf24;
-  --warn-soft: rgba(251,191,36,0.1);
-  --danger: #f87171;
-  --muted: #8b8fa8;
-  color-scheme: dark;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0f1117; --surface: #1a1d27; --surface2: #242938;
-    --border: #2d3448; --fg: #e8eaf0; --fg2: #8b8fa8; --fg3: #5a5f7a;
-    --accent: #6c8fff; --accent-soft: rgba(108,143,255,0.08);
-    --success: #4ade80; --success-soft: rgba(74,222,128,0.1);
-    --warn: #fbbf24; --warn-soft: rgba(251,191,36,0.1);
-    --danger: #f87171; --muted: #8b8fa8;
-    color-scheme: dark;
-  }
-}
+  <!-- Google Fonts: Heebo, Frank Ruhl Libre, Rubik, Space Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@400;500;700;900&family=Rubik:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
-/* ═══ 9 ערכות עיצוב (data-skin) — דורסות את הפלטה הבסיסית ═══ */
-/* bento = ברירת המחדל, היחידה שמכבדת את מתג כהה/בהיר */
+  <!-- Tailwind CSS for responsive layout grid & spacing -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-/* 1. BENTO — נקי, מרווח, פינות מעוגלות */
-[data-skin="bento"] .card, [data-skin="bento"] .chart-card { border-radius: 16px; }
+  <style>
+    /* ==========================================================================
+       BASE RESET & SHARED LAYOUT PRIMITIVES
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
 
-/* 2. GLASS — שקיפות וטשטוש */
-[data-skin="glass"] {
-  --bg: #0b1020; --surface: rgba(255,255,255,0.07); --surface2: rgba(255,255,255,0.12);
-  --border: rgba(255,255,255,0.18); --fg: #f1f5ff; --fg2: #b9c3e0; --fg3: #7f8aab;
-  --accent: #7dd3fc; --accent-soft: rgba(125,211,252,0.14);
-  --success: #6ee7b7; --warn: #fcd34d; --danger: #fda4af;
-  --success-soft: rgba(110,231,183,0.14); --warn-soft: rgba(252,211,77,0.14);
-  color-scheme: dark;
-}
-[data-skin="glass"] body {
-  background: radial-gradient(1000px 600px at 15% -10%, #1e3a8a 0%, transparent 60%),
-              radial-gradient(900px 500px at 95% 10%, #0e7490 0%, transparent 55%), #0b1020;
-}
-[data-skin="glass"] .card, [data-skin="glass"] .chart-card {
-  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-  border-radius: 18px; box-shadow: 0 8px 32px rgba(0,0,0,.35);
-}
-[data-skin="glass"] .header { backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+    :root {
+      --font-body: 'Heebo', sans-serif;
+      --font-heading: 'Heebo', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+    }
 
-/* 3. SWISS — שטוח, אדום, בלי פינות */
-[data-skin="swiss"] {
-  --bg: #ffffff; --surface: #ffffff; --surface2: #f2f2f2; --border: #111111;
-  --fg: #111111; --fg2: #444444; --fg3: #777777;
-  --accent: #e2231a; --accent-soft: rgba(226,35,26,0.07);
-  --success: #0a7d32; --warn: #b45309; --danger: #e2231a;
-  --success-soft: rgba(10,125,50,0.08); --warn-soft: rgba(180,83,9,0.08);
-  color-scheme: light;
-}
-[data-skin="swiss"] .card, [data-skin="swiss"] .chart-card,
-[data-skin="swiss"] .metric-tile, [data-skin="swiss"] .score-block,
-[data-skin="swiss"] .workout-segment { border-radius: 0; box-shadow: none; }
-[data-skin="swiss"] .card, [data-skin="swiss"] .chart-card { border-width: 2px; }
-[data-skin="swiss"] .card-title, [data-skin="swiss"] .chart-name {
-  color: var(--fg); letter-spacing: .12em; font-weight: 700;
-}
+    html {
+      scroll-behavior: smooth;
+    }
 
-/* 4. TELEMETRY — כהה, מונוספייס, ציאן */
-[data-skin="telemetry"] {
-  --bg: #070b12; --surface: #0d1420; --surface2: #121c2c; --border: #1e2d42;
-  --fg: #d7e6f5; --fg2: #7f9bbb; --fg3: #4f6480;
-  --accent: #22d3ee; --accent-soft: rgba(34,211,238,0.10);
-  --success: #34d399; --warn: #fbbf24; --danger: #fb7185;
-  --success-soft: rgba(52,211,153,0.10); --warn-soft: rgba(251,191,36,0.10);
-  color-scheme: dark;
-}
-[data-skin="telemetry"] body,
-[data-skin="telemetry"] .card-title, [data-skin="telemetry"] .chart-name,
-[data-skin="telemetry"] .metric-val, [data-skin="telemetry"] .score-num,
-[data-skin="telemetry"] th { font-family: 'JetBrains Mono', monospace; }
-[data-skin="telemetry"] .card, [data-skin="telemetry"] .chart-card { border-radius: 4px; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-body);
+      background-color: var(--bg);
+      background-image: var(--bg-image, none);
+      background-size: var(--bg-size, auto);
+      background-attachment: var(--bg-attach, scroll);
+      color: var(--ink);
+      line-height: 1.5;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
 
-/* 5. EDITORIAL — נייר, סריפים, קווים דקים */
-[data-skin="editorial"] {
-  --bg: #faf7f0; --surface: #fffdf8; --surface2: #f2ece0; --border: #ddd4c2;
-  --fg: #1c1a17; --fg2: #57524a; --fg3: #918a7d;
-  --accent: #8c2f1f; --accent-soft: rgba(140,47,31,0.07);
-  --success: #44632f; --warn: #9a6b1e; --danger: #8c2f1f;
-  --success-soft: rgba(68,99,47,0.08); --warn-soft: rgba(154,107,30,0.08);
-  color-scheme: light;
-}
-[data-skin="editorial"] .header-title, [data-skin="editorial"] .score-num,
-[data-skin="editorial"] .metric-val, [data-skin="editorial"] .card-title,
-[data-skin="editorial"] .chart-name { font-family: Georgia, 'Times New Roman', serif; }
-[data-skin="editorial"] .card-title, [data-skin="editorial"] .chart-name {
-  text-transform: none; letter-spacing: .02em; font-size: .95rem; color: var(--fg);
-}
-[data-skin="editorial"] .card, [data-skin="editorial"] .chart-card { border-radius: 2px; box-shadow: none; }
+    h1, h2, h3, .ds-heading {
+      font-family: var(--font-heading);
+      letter-spacing: var(--heading-tracking, -0.01em);
+    }
 
-/* 6. NEUMORPHISM — אפור רך, צללים רכים */
-[data-skin="neumorphism"] {
-  --bg: #e6e9ef; --surface: #e6e9ef; --surface2: #e6e9ef; --border: transparent;
-  --fg: #3b4252; --fg2: #6b7280; --fg3: #9aa1ad;
-  --accent: #5b7cfa; --accent-soft: rgba(91,124,250,0.10);
-  --success: #2f9e63; --warn: #c58b1c; --danger: #d9534f;
-  --success-soft: rgba(47,158,99,0.10); --warn-soft: rgba(197,139,28,0.10);
-  color-scheme: light;
-}
-[data-skin="neumorphism"] .card, [data-skin="neumorphism"] .chart-card {
-  border-radius: 20px; border: none;
-  box-shadow: 8px 8px 18px #c9ccd3, -8px -8px 18px #ffffff;
-}
-[data-skin="neumorphism"] .metric-tile, [data-skin="neumorphism"] .score-block,
-[data-skin="neumorphism"] .workout-segment, [data-skin="neumorphism"] .week-item {
-  border: none; border-radius: 14px;
-  box-shadow: inset 4px 4px 9px #cfd2d9, inset -4px -4px 9px #ffffff;
-}
-[data-skin="neumorphism"] .header { box-shadow: 0 6px 16px #d2d5dc; }
+    .font-mono-num {
+      font-family: var(--font-mono);
+      direction: ltr;
+      display: inline-block;
+      font-variant-numeric: tabular-nums;
+    }
 
-/* 7. TERMINAL — שחור, ירוק פוספור */
-[data-skin="terminal"] {
-  --bg: #000000; --surface: #050a05; --surface2: #0b140b; --border: #1d3a1d;
-  --fg: #c8facc; --fg2: #58c45f; --fg3: #2f6b34;
-  --accent: #39ff14; --accent-soft: rgba(57,255,20,0.08);
-  --success: #39ff14; --warn: #ffd166; --danger: #ff5f56;
-  --success-soft: rgba(57,255,20,0.08); --warn-soft: rgba(255,209,102,0.08);
-  color-scheme: dark;
-}
-[data-skin="terminal"] body, [data-skin="terminal"] .score-num,
-[data-skin="terminal"] .metric-val, [data-skin="terminal"] .header-title,
-[data-skin="terminal"] th, [data-skin="terminal"] .card-title,
-[data-skin="terminal"] .chart-name { font-family: 'JetBrains Mono', monospace; }
-[data-skin="terminal"] .card, [data-skin="terminal"] .chart-card,
-[data-skin="terminal"] .metric-tile, [data-skin="terminal"] .score-block { border-radius: 0; }
-[data-skin="terminal"] .card-title::before, [data-skin="terminal"] .chart-name::before { content: "> "; }
+    /* ==========================================================================
+       STYLE 1: BENTO GRID (APPLE-INSPIRED MODULAR)
+       ========================================================================== */
+    [data-style="bento"] {
+      --bg: #f5f5f7;
+      --bg-image: none;
+      --surface: #ffffff;
+      --surface-2: #f9fafb;
+      --surface-hero: linear-gradient(135deg, #111827 0%, #1e293b 100%);
+      --hero-text: #ffffff;
+      --hero-muted: #94a3b8;
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --border-color: rgba(0, 0, 0, 0.08);
+      --border-w: 1px;
+      --radius-card: 24px;
+      --radius-sm: 14px;
+      --radius-pill: 999px;
+      --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.03);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+      --shadow-hover: 0 12px 28px rgba(0, 0, 0, 0.08);
+      --backdrop: none;
+      --font-body: 'Heebo', sans-serif;
+      --font-heading: 'Heebo', sans-serif;
+      --font-mono: 'Space Mono', monospace;
 
-/* 8. CLAY — פסטל, עגול מאוד */
-[data-skin="clay"] {
-  --bg: #f4f0ff; --surface: #ffffff; --surface2: #efe9ff; --border: #e0d6ff;
-  --fg: #2e2a44; --fg2: #635c82; --fg3: #9a93b8;
-  --accent: #8b5cf6; --accent-soft: rgba(139,92,246,0.10);
-  --success: #2bb673; --warn: #f0a33c; --danger: #f2667a;
-  --success-soft: rgba(43,182,115,0.12); --warn-soft: rgba(240,163,60,0.12);
-  color-scheme: light;
-}
-[data-skin="clay"] .card, [data-skin="clay"] .chart-card {
-  border-radius: 28px; box-shadow: 0 12px 26px rgba(139,92,246,.16);
-}
-[data-skin="clay"] .metric-tile, [data-skin="clay"] .score-block,
-[data-skin="clay"] .workout-segment { border-radius: 20px; }
+      --accent: #0071e3;
+      --accent-fg: #ffffff;
+      --accent-soft: rgba(0, 113, 227, 0.1);
+      --success: #16a34a;
+      --success-soft: #dcfce7;
+      --success-fg: #14532d;
+      --warn: #d97706;
+      --warn-soft: #fef3c7;
+      --warn-fg: #78350f;
+      --danger: #dc2626;
+      --danger-soft: #fee2e2;
+      --danger-fg: #7f1d1d;
 
-/* 9. NEUBRUTALIST — צהוב, מסגרות שחורות, צל קשיח */
-[data-skin="neubrutalist"] {
-  --bg: #ffe94d; --surface: #ffffff; --surface2: #fff8cc; --border: #000000;
-  --fg: #000000; --fg2: #1f1f1f; --fg3: #595959;
-  --accent: #1d4ed8; --accent-soft: #cfe0ff;
-  --success: #047857; --warn: #b45309; --danger: #dc2626;
-  --success-soft: #c7f5e4; --warn-soft: #ffe2b8;
-  color-scheme: light;
-}
-[data-skin="neubrutalist"] .card, [data-skin="neubrutalist"] .chart-card {
-  border: 3px solid #000; border-radius: 0; box-shadow: 7px 7px 0 #000;
-}
-[data-skin="neubrutalist"] .metric-tile, [data-skin="neubrutalist"] .score-block,
-[data-skin="neubrutalist"] .workout-segment, [data-skin="neubrutalist"] .week-item {
-  border: 2px solid #000; border-radius: 0;
-}
-[data-skin="neubrutalist"] .header { border-bottom: 3px solid #000; }
-[data-skin="neubrutalist"] .card-title, [data-skin="neubrutalist"] .chart-name { color: #000; font-weight: 700; }
+      --chart-1: #0071e3;
+      --chart-2: #16a34a;
+      --chart-3: #cbd5e1;
+      --chart-4: #f59e0b;
+      --chart-trend: #ef4444;
+      --chart-grid: rgba(0, 0, 0, 0.07);
+      --chart-axis: #94a3b8;
 
-/* ── בוחר ערכות ── */
-.skin-select {
-  background: var(--surface2); color: var(--fg2);
-  border: 1px solid var(--border); border-radius: 8px;
-  padding: 6px 8px; font-size: .8rem; font-family: inherit; cursor: pointer;
-}
+      --switcher-bg: rgba(255, 255, 255, 0.88);
+      --modal-bg: #ffffff;
+      --input-bg: #f5f5f7;
+      --table-head-bg: #f5f5f7;
+      --table-head-fg: #1d1d1f;
+      --table-current-bg: rgba(0, 113, 227, 0.08);
+      --table-current-fg: #1d1d1f;
+      --table-row-hover: #f9fafb;
+    }
 
-/* ── מסכי אימות ── */
-.auth-screen {
-  min-height: 100vh; display: none;
-  flex-direction: column; align-items: center; justify-content: center;
-  gap: 18px; padding: 32px 20px; text-align: center;
-}
-.auth-screen.show { display: flex; }
-.auth-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 16px; padding: 36px 32px; max-width: 420px; width: 100%;
-  display: flex; flex-direction: column; gap: 16px; align-items: center;
-}
-.auth-logo { font-size: 2.2rem; }
-.auth-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 700; }
-.auth-sub { font-size: .88rem; color: var(--fg2); line-height: 1.6; }
-.google-btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-  background: #fff; color: #1f1f1f; border: 1px solid #dadce0;
-  border-radius: 10px; padding: 12px 22px; font-size: .95rem; font-weight: 600;
-  font-family: inherit; cursor: pointer; width: 100%;
-}
-.google-btn:hover { background: #f6f7f9; }
-.ghost-btn {
-  background: none; border: 1px solid var(--border); border-radius: 10px;
-  padding: 10px 18px; color: var(--fg2); font-size: .85rem;
-  font-family: inherit; cursor: pointer;
-}
-.ghost-btn:hover { background: var(--surface2); }
-.auth-note {
-  font-size: .75rem; color: var(--fg3); background: var(--surface2);
-  border-radius: 8px; padding: 10px 14px; line-height: 1.6;
-}
+    /* ==========================================================================
+       STYLE 2: GLASSMORPHISM
+       ========================================================================== */
+    @keyframes meshShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    [data-style="glass"] {
+      --bg: #0f102b;
+      --bg-image:
+        radial-gradient(at 15% 15%, rgba(99, 102, 241, 0.55) 0px, transparent 50%),
+        radial-gradient(at 85% 20%, rgba(236, 72, 153, 0.45) 0px, transparent 50%),
+        radial-gradient(at 70% 80%, rgba(20, 184, 166, 0.45) 0px, transparent 55%),
+        radial-gradient(at 20% 85%, rgba(139, 92, 246, 0.5) 0px, transparent 50%),
+        linear-gradient(135deg, #0b0d24 0%, #1a103c 50%, #0d2438 100%);
+      --bg-size: 160% 160%;
+      --bg-attach: fixed;
+      --surface: rgba(255, 255, 255, 0.1);
+      --surface-2: rgba(255, 255, 255, 0.07);
+      --surface-hero: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(168, 85, 247, 0.22));
+      --hero-text: #ffffff;
+      --hero-muted: rgba(255, 255, 255, 0.78);
+      --ink: #f8fafc;
+      --muted: rgba(226, 232, 240, 0.76);
+      --border-color: rgba(255, 255, 255, 0.22);
+      --border-w: 1px;
+      --radius-card: 22px;
+      --radius-sm: 14px;
+      --radius-pill: 999px;
+      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      --shadow-hover: 0 14px 40px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+      --backdrop: blur(18px) saturate(160%);
+      --font-body: 'Rubik', 'Heebo', sans-serif;
+      --font-heading: 'Rubik', 'Heebo', sans-serif;
+      --font-mono: 'Space Mono', monospace;
 
-body {
-  font-family: 'Inter', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--fg);
-  direction: rtl;
-  min-height: 100vh;
-}
+      --accent: #38bdf8;
+      --accent-fg: #082f49;
+      --accent-soft: rgba(56, 189, 248, 0.22);
+      --success: #34d399;
+      --success-soft: rgba(52, 211, 153, 0.2);
+      --success-fg: #d1fae5;
+      --warn: #fbbf24;
+      --warn-soft: rgba(251, 191, 36, 0.22);
+      --warn-fg: #fef3c7;
+      --danger: #fb7185;
+      --danger-soft: rgba(251, 113, 133, 0.22);
+      --danger-fg: #ffe4e6;
 
-/* ── Header ── */
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 24px;
-}
-.header-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.header-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--accent);
-  flex-shrink: 0;
-}
-.header-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.runner-chip {
-  background: var(--surface2);
-  border-radius: 20px;
-  padding: 4px 12px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--fg2);
-}
-.theme-btn {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 6px 10px;
-  cursor: pointer;
-  color: var(--fg2);
-  font-size: 0.8rem;
-  font-family: inherit;
-}
-.theme-btn:hover { background: var(--border); }
-.last-update {
-  font-size: 0.72rem;
-  color: var(--fg3);
-}
+      --chart-1: #38bdf8;
+      --chart-2: #34d399;
+      --chart-3: rgba(255, 255, 255, 0.32);
+      --chart-4: #f472b6;
+      --chart-trend: #fbbf24;
+      --chart-grid: rgba(255, 255, 255, 0.14);
+      --chart-axis: rgba(255, 255, 255, 0.6);
 
-/* ── Main layout ── */
-.main {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 24px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
+      --switcher-bg: rgba(15, 16, 43, 0.72);
+      --modal-bg: rgba(18, 20, 52, 0.92);
+      --input-bg: rgba(255, 255, 255, 0.1);
+      --table-head-bg: rgba(255, 255, 255, 0.12);
+      --table-head-fg: #ffffff;
+      --table-current-bg: rgba(56, 189, 248, 0.22);
+      --table-current-fg: #ffffff;
+      --table-row-hover: rgba(255, 255, 255, 0.08);
+    }
 
-/* ── Loading / error ── */
-.loading-banner {
-  text-align: center;
-  padding: 40px;
-  color: var(--fg2);
-  font-size: 0.9rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-.spinner {
-  width: 32px; height: 32px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+    [data-style="glass"] body {
+      animation: meshShift 18s ease infinite;
+    }
 
-.error-banner {
-  background: var(--warn-soft);
-  border: 1px solid var(--warn);
-  border-radius: 10px;
-  padding: 16px 20px;
-  color: var(--warn);
-  font-size: 0.85rem;
-}
-.demo-banner {
-  background: var(--accent-soft);
-  border: 1px solid var(--accent);
-  border-radius: 10px;
-  padding: 10px 16px;
-  color: var(--accent);
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+    /* ==========================================================================
+       STYLE 3: SWISS / MINIMALIST
+       ========================================================================== */
+    [data-style="swiss"] {
+      --bg: #ffffff;
+      --bg-image: none;
+      --surface: #ffffff;
+      --surface-2: #f7f7f7;
+      --surface-hero: #0a0a0a;
+      --hero-text: #ffffff;
+      --hero-muted: #a3a3a3;
+      --ink: #0a0a0a;
+      --muted: #525252;
+      --border-color: #d4d4d4;
+      --border-w: 1px;
+      --radius-card: 2px;
+      --radius-sm: 2px;
+      --radius-pill: 2px;
+      --shadow-card: none;
+      --shadow-sm: none;
+      --shadow-hover: none;
+      --backdrop: none;
+      --font-body: 'Heebo', sans-serif;
+      --font-heading: 'Heebo', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+      --heading-tracking: -0.025em;
 
-/* ── Cards ── */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px 24px;
-}
-.card-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  color: var(--fg3);
-  margin-bottom: 16px;
-}
-.card.accent-card {
-  border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent-soft) 50%, var(--surface));
-}
-.card.accent-card .card-title { color: var(--accent); }
+      --accent: #e10600;
+      --accent-fg: #ffffff;
+      --accent-soft: rgba(225, 6, 0, 0.08);
+      --success: #0a0a0a;
+      --success-soft: #efefef;
+      --success-fg: #0a0a0a;
+      --warn: #e10600;
+      --warn-soft: rgba(225, 6, 0, 0.09);
+      --warn-fg: #b91c1c;
+      --danger: #e10600;
+      --danger-soft: rgba(225, 6, 0, 0.12);
+      --danger-fg: #991b1b;
 
-/* ── Hero: Score + Target ── */
-.hero-grid {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 20px;
-  align-items: start;
-}
-@media (max-width: 600px) { .hero-grid { grid-template-columns: 1fr; } }
+      --chart-1: #0a0a0a;
+      --chart-2: #e10600;
+      --chart-3: #d4d4d4;
+      --chart-4: #525252;
+      --chart-trend: #e10600;
+      --chart-grid: rgba(0, 0, 0, 0.08);
+      --chart-axis: #0a0a0a;
 
-.score-block {
-  background: var(--accent-soft);
-  border: 1px solid var(--accent);
-  border-radius: 10px;
-  padding: 18px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.score-label {
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.score-num {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 3.5rem;
-  font-weight: 700;
-  color: var(--accent);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-.score-num sup { font-size: 1.5rem; }
-.score-desc { font-size: 0.78rem; color: var(--fg2); line-height: 1.4; }
+      --switcher-bg: rgba(255, 255, 255, 0.96);
+      --modal-bg: #ffffff;
+      --input-bg: #f7f7f7;
+      --table-head-bg: #0a0a0a;
+      --table-head-fg: #ffffff;
+      --table-current-bg: rgba(225, 6, 0, 0.07);
+      --table-current-fg: #0a0a0a;
+      --table-row-hover: #f5f5f5;
+    }
 
-.info-btn {
-  background: none;
-  border: 1.5px solid currentColor;
-  border-radius: 50%;
-  width: 16px; height: 16px;
-  font-size: 9px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--accent);
-  flex-shrink: 0;
-  line-height: 1;
-  padding: 0;
-}
-.info-btn:hover { background: var(--accent-soft); }
+    [data-style="swiss"] .ds-card {
+      border-top: 2px solid #0a0a0a;
+    }
 
-.score-breakdown {
-  margin-top: 10px;
-  background: color-mix(in srgb, var(--accent-soft) 70%, transparent);
-  border: 1px solid var(--accent);
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.breakdown-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 8px;
-  color: var(--fg2);
-}
-.breakdown-val {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 600;
-  color: var(--accent);
-  white-space: nowrap;
-}
-.breakdown-formula {
-  font-size: 0.72rem;
-  color: var(--fg2);
-  border-top: 1px solid var(--border);
-  padding-top: 6px;
-  margin-top: 2px;
-  font-family: 'JetBrains Mono', monospace;
-}
+    /* ==========================================================================
+       STYLE 4: TELEMETRY / HUD
+       ========================================================================== */
+    [data-style="telemetry"] {
+      --bg: #05080f;
+      --bg-image:
+        linear-gradient(rgba(0, 240, 255, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.045) 1px, transparent 1px);
+      --bg-size: 28px 28px;
+      --surface: rgba(10, 17, 30, 0.88);
+      --surface-2: rgba(15, 25, 45, 0.9);
+      --surface-hero: linear-gradient(135deg, rgba(0, 240, 255, 0.12), rgba(10, 17, 30, 0.95));
+      --hero-text: #e0faff;
+      --hero-muted: #7dd3fc;
+      --ink: #e2e8f0;
+      --muted: #7c93b0;
+      --border-color: rgba(0, 240, 255, 0.35);
+      --border-w: 1px;
+      --radius-card: 4px;
+      --radius-sm: 3px;
+      --radius-pill: 3px;
+      --shadow-card: 0 0 20px rgba(0, 240, 255, 0.07), inset 0 0 18px rgba(0, 240, 255, 0.03);
+      --shadow-sm: 0 0 10px rgba(0, 240, 255, 0.06);
+      --shadow-hover: 0 0 24px rgba(0, 240, 255, 0.2);
+      --backdrop: blur(8px);
+      --font-body: 'Heebo', sans-serif;
+      --font-heading: 'Space Mono', 'Heebo', monospace;
+      --font-mono: 'Space Mono', monospace;
 
-.target-block {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.target-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.84rem;
-}
-.target-label { color: var(--fg2); }
-.target-val {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 500;
-  color: var(--fg);
-}
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-.chip.success { background: var(--success-soft); color: var(--success); }
-.chip.warn { background: var(--warn-soft); color: var(--warn); }
-.chip.danger { background: rgba(220,38,38,0.1); color: var(--danger); }
-.chip.accent { background: var(--accent-soft); color: var(--accent); }
+      --accent: #00f0ff;
+      --accent-fg: #041019;
+      --accent-soft: rgba(0, 240, 255, 0.14);
+      --success: #00ff9d;
+      --success-soft: rgba(0, 255, 157, 0.14);
+      --success-fg: #00ff9d;
+      --warn: #ffb800;
+      --warn-soft: rgba(255, 184, 0, 0.16);
+      --warn-fg: #ffb800;
+      --danger: #ff3b5c;
+      --danger-soft: rgba(255, 59, 92, 0.16);
+      --danger-fg: #ff6b85;
 
-.bar-wrap {
-  background: var(--surface2);
-  border-radius: 999px;
-  height: 6px;
-  overflow: hidden;
-  margin-top: 4px;
-}
-.bar-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: var(--accent);
-  transition: width .4s ease;
-}
+      --chart-1: #00f0ff;
+      --chart-2: #00ff9d;
+      --chart-3: rgba(0, 240, 255, 0.28);
+      --chart-4: #ffb800;
+      --chart-trend: #ff3b5c;
+      --chart-grid: rgba(0, 240, 255, 0.12);
+      --chart-axis: #00f0ff;
 
-/* ── Metrics tiles ── */
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-}
-@media (max-width: 640px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
+      --switcher-bg: rgba(5, 8, 15, 0.94);
+      --modal-bg: #08101d;
+      --input-bg: #0e192d;
+      --table-head-bg: rgba(0, 240, 255, 0.12);
+      --table-head-fg: #00f0ff;
+      --table-current-bg: rgba(255, 184, 0, 0.15);
+      --table-current-fg: #ffb800;
+      --table-row-hover: rgba(0, 240, 255, 0.06);
+    }
 
-.metric-tile {
-  background: var(--surface2);
-  border-radius: 8px;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.metric-label { font-size: 0.7rem; color: var(--fg3); font-weight: 500; }
-.metric-val {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: var(--fg);
-  font-variant-numeric: tabular-nums;
-  line-height: 1.1;
-}
-.metric-unit { font-size: 0.7rem; color: var(--fg2); }
-.metric-delta { font-size: 0.7rem; font-weight: 600; }
-.metric-delta.up { color: var(--danger); }
-.metric-delta.down { color: var(--success); }
-.metric-delta.neutral { color: var(--fg3); }
+    [data-style="telemetry"] .ds-card {
+      position: relative;
+    }
+    [data-style="telemetry"] .ds-card::before,
+    [data-style="telemetry"] .ds-card::after {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      pointer-events: none;
+    }
+    [data-style="telemetry"] .ds-card::before {
+      top: -1px;
+      right: -1px;
+      border-top: 2px solid #00f0ff;
+      border-right: 2px solid #00f0ff;
+    }
+    [data-style="telemetry"] .ds-card::after {
+      bottom: -1px;
+      left: -1px;
+      border-bottom: 2px solid #ffb800;
+      border-left: 2px solid #ffb800;
+    }
 
-/* ── Week status ── */
-.week-status-row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 12px;
-}
-.week-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.8rem;
-  color: var(--fg2);
-  background: var(--surface2);
-  border-radius: 20px;
-  padding: 4px 10px;
-}
+    /* ==========================================================================
+       STYLE 5: EDITORIAL / MAGAZINE
+       ========================================================================== */
+    [data-style="editorial"] {
+      --bg: #f7f4ee;
+      --bg-image: none;
+      --surface: #fcfaf5;
+      --surface-2: #f1ece1;
+      --surface-hero: #1f2421;
+      --hero-text: #f7f4ee;
+      --hero-muted: #c6c0b4;
+      --ink: #1c1917;
+      --muted: #57534e;
+      --border-color: #292524;
+      --border-w: 1px;
+      --radius-card: 0px;
+      --radius-sm: 0px;
+      --radius-pill: 2px;
+      --shadow-card: none;
+      --shadow-sm: none;
+      --shadow-hover: none;
+      --backdrop: none;
+      --font-body: 'Heebo', sans-serif;
+      --font-heading: 'Frank Ruhl Libre', serif;
+      --font-mono: 'Space Mono', monospace;
 
-/* ── Next workout card ── */
-.workout-flow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 12px;
-}
-.workout-segment {
-  background: var(--surface2);
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 12px;
-  text-align: center;
-  min-width: 80px;
-}
-.workout-segment.main {
-  background: var(--accent-soft);
-  border-color: var(--accent);
-}
-.seg-label { font-size: 0.65rem; color: var(--fg3); margin-bottom: 2px; }
-.workout-segment.main .seg-label { color: var(--accent); }
-.seg-val { font-size: 0.85rem; font-weight: 700; color: var(--fg); }
-.workout-segment.main .seg-val { color: var(--accent); }
-.seg-sub { font-size: 0.68rem; color: var(--fg3); margin-top: 1px; }
-.workout-segment.main .seg-sub { color: var(--accent); }
-.flow-arrow { color: var(--accent); font-size: 1.1rem; flex-shrink: 0; }
-.flow-rest { font-size: 0.72rem; color: var(--fg3); text-align: center; }
+      --accent: #b45309;
+      --accent-fg: #ffffff;
+      --accent-soft: rgba(180, 83, 9, 0.11);
+      --success: #1b4332;
+      --success-soft: rgba(27, 67, 50, 0.12);
+      --success-fg: #1b4332;
+      --warn: #9a3412;
+      --warn-soft: rgba(154, 52, 18, 0.12);
+      --warn-fg: #7c2d12;
+      --danger: #991b1b;
+      --danger-soft: rgba(153, 27, 27, 0.11);
+      --danger-fg: #7f1d1d;
 
-.workout-metrics {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 16px;
-  min-width: 160px;
-}
-.wm-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.82rem;
-}
-.wm-label { color: var(--fg2); }
-.wm-val {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 600;
-  color: var(--fg);
-}
-.workout-layout {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-  align-items: flex-start;
-}
-.workout-layout .workout-desc { flex: 1; min-width: 200px; }
+      --chart-1: #1b4332;
+      --chart-2: #b45309;
+      --chart-3: #d6cfc2;
+      --chart-4: #7c2d12;
+      --chart-trend: #991b1b;
+      --chart-grid: rgba(28, 25, 23, 0.12);
+      --chart-axis: #1c1917;
 
-.warning-chip {
-  margin-top: 10px;
-  background: var(--warn-soft);
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 0.75rem;
-  color: var(--warn);
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-}
+      --switcher-bg: rgba(247, 244, 238, 0.96);
+      --modal-bg: #fcfaf5;
+      --input-bg: #f1ece1;
+      --table-head-bg: #1c1917;
+      --table-head-fg: #f7f4ee;
+      --table-current-bg: #ebe3d3;
+      --table-current-fg: #1c1917;
+      --table-row-hover: #f3ede2;
+    }
 
-/* ── Charts ── */
-.charts-3col {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-@media (max-width: 700px) { .charts-3col { grid-template-columns: 1fr; } }
+    [data-style="editorial"] .ds-card {
+      border-left: none;
+      border-right: none;
+      border-top: 2px solid #1c1917;
+      border-bottom: 1px solid rgba(28, 25, 23, 0.25);
+    }
 
-.chart-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px 18px;
-}
-.chart-name {
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  color: var(--fg3);
-  margin-bottom: 10px;
-}
-.chart-svg { width: 100%; overflow: visible; display: block; }
+    /* ==========================================================================
+       STYLE 6: NEUMORPHISM
+       ========================================================================== */
+    [data-style="neumorphism"] {
+      --bg: #e6ebf2;
+      --bg-image: none;
+      --surface: #e6ebf2;
+      --surface-2: #e6ebf2;
+      --surface-hero: #e6ebf2;
+      --hero-text: #1e293b;
+      --hero-muted: #64748b;
+      --ink: #2c3e50;
+      --muted: #64748b;
+      --border-color: transparent;
+      --border-w: 0px;
+      --radius-card: 22px;
+      --radius-sm: 14px;
+      --radius-pill: 999px;
+      --shadow-card: 9px 9px 18px #c5cbd4, -9px -9px 18px #ffffff;
+      --shadow-sm: 5px 5px 10px #c5cbd4, -5px -5px 10px #ffffff;
+      --shadow-hover: 12px 12px 22px #bec5cf, -12px -12px 22px #ffffff;
+      --backdrop: none;
+      --font-body: 'Rubik', 'Heebo', sans-serif;
+      --font-heading: 'Rubik', 'Heebo', sans-serif;
+      --font-mono: 'Space Mono', monospace;
 
-/* ── Plan table ── */
-.table-scroll { overflow-x: auto; }
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.8rem;
-  font-variant-numeric: tabular-nums;
-}
-th {
-  text-align: start;
-  padding: 8px 10px;
-  color: var(--fg3);
-  font-weight: 500;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-}
-td {
-  padding: 9px 10px;
-  border-bottom: 1px solid var(--border);
-  color: var(--fg2);
-  vertical-align: middle;
-}
-tr.row-current td { background: var(--accent-soft); color: var(--fg); }
-tr.row-past td { color: var(--fg); }
-tr:last-child td { border-bottom: none; }
+      --accent: #4f46e5;
+      --accent-fg: #ffffff;
+      --accent-soft: #e6ebf2;
+      --success: #0d9488;
+      --success-soft: #e6ebf2;
+      --success-fg: #0f766e;
+      --warn: #d97706;
+      --warn-soft: #e6ebf2;
+      --warn-fg: #b45309;
+      --danger: #e11d48;
+      --danger-soft: #e6ebf2;
+      --danger-fg: #be123c;
 
-.pct-pill {
-  display: inline-flex;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.pct-pill.good { background: var(--success-soft); color: var(--success); }
-.pct-pill.warn { background: var(--warn-soft); color: var(--warn); }
-.pct-pill.na { background: var(--surface2); color: var(--fg3); }
-.pct-pill.current { background: var(--accent-soft); color: var(--accent); }
+      --chart-1: #4f46e5;
+      --chart-2: #0d9488;
+      --chart-3: #cbd5e1;
+      --chart-4: #f59e0b;
+      --chart-trend: #e11d48;
+      --chart-grid: rgba(44, 62, 80, 0.1);
+      --chart-axis: #64748b;
 
-/* ── Tooltip ── */
-.tooltip {
-  position: fixed;
-  pointer-events: none;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 0.78rem;
-  color: var(--fg);
-  box-shadow: 0 4px 16px rgba(0,0,0,.18);
-  z-index: 999;
-  display: none;
-  min-width: 110px;
-}
+      --switcher-bg: rgba(230, 235, 242, 0.94);
+      --modal-bg: #e6ebf2;
+      --input-bg: #e6ebf2;
+      --table-head-bg: #dce3ec;
+      --table-head-fg: #2c3e50;
+      --table-current-bg: #d9e2f2;
+      --table-current-fg: #1e293b;
+      --table-row-hover: #dfe6ef;
+    }
 
-/* ── Footer ── */
-.footer {
-  text-align: center;
-  padding: 24px;
-  font-size: 0.72rem;
-  color: var(--fg3);
-}
-</style>
+    [data-style="neumorphism"] .ds-inset,
+    [data-style="neumorphism"] .ds-input,
+    [data-style="neumorphism"] .ds-progress-track,
+    [data-style="neumorphism"] .style-pill.active {
+      box-shadow: inset 4px 4px 8px #c5cbd4, inset -4px -4px 8px #ffffff !important;
+      background: #e6ebf2 !important;
+    }
+    [data-style="neumorphism"] .style-pill.active {
+      color: var(--accent) !important;
+    }
+
+    /* ==========================================================================
+       STYLE 7: RETRO / TERMINAL
+       ========================================================================== */
+    [data-style="terminal"] {
+      --bg: #080c08;
+      --bg-image: none;
+      --surface: #0b120b;
+      --surface-2: #0e180e;
+      --surface-hero: #0e1a0e;
+      --hero-text: #33ff66;
+      --hero-muted: #1fa344;
+      --ink: #33ff66;
+      --muted: #22aa48;
+      --border-color: #33ff66;
+      --border-w: 1px;
+      --radius-card: 0px;
+      --radius-sm: 0px;
+      --radius-pill: 0px;
+      --shadow-card: 0 0 12px rgba(51, 255, 102, 0.12);
+      --shadow-sm: none;
+      --shadow-hover: 0 0 16px rgba(51, 255, 102, 0.28);
+      --backdrop: none;
+      --font-body: 'Space Mono', 'Heebo', monospace;
+      --font-heading: 'Space Mono', 'Heebo', monospace;
+      --font-mono: 'Space Mono', monospace;
+
+      --accent: #ffb000;
+      --accent-fg: #080c08;
+      --accent-soft: rgba(255, 176, 0, 0.15);
+      --success: #33ff66;
+      --success-soft: rgba(51, 255, 102, 0.12);
+      --success-fg: #33ff66;
+      --warn: #ffb000;
+      --warn-soft: rgba(255, 176, 0, 0.15);
+      --warn-fg: #ffb000;
+      --danger: #ff4444;
+      --danger-soft: rgba(255, 68, 68, 0.15);
+      --danger-fg: #ff6666;
+
+      --chart-1: #33ff66;
+      --chart-2: #ffb000;
+      --chart-3: rgba(51, 255, 102, 0.25);
+      --chart-4: #ffb000;
+      --chart-trend: #ffb000;
+      --chart-grid: rgba(51, 255, 102, 0.16);
+      --chart-axis: #33ff66;
+
+      --switcher-bg: rgba(8, 12, 8, 0.96);
+      --modal-bg: #080f08;
+      --input-bg: #0e1a0e;
+      --table-head-bg: #112211;
+      --table-head-fg: #ffb000;
+      --table-current-bg: rgba(51, 255, 102, 0.16);
+      --table-current-fg: #33ff66;
+      --table-row-hover: rgba(51, 255, 102, 0.08);
+    }
+
+    [data-style="terminal"] body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9000;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.18) 0px,
+        rgba(0, 0, 0, 0.18) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+    }
+
+    @keyframes blinkCursor {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+    .terminal-cursor { display: none; }
+    [data-style="terminal"] .terminal-cursor {
+      display: inline-block;
+      width: 10px;
+      height: 1.05em;
+      background: #33ff66;
+      vertical-align: middle;
+      margin-right: 6px;
+      animation: blinkCursor 1s infinite;
+    }
+
+    /* ==========================================================================
+       STYLE 8: CLAYMORPHISM
+       ========================================================================== */
+    [data-style="clay"] {
+      --bg: #eef2ff;
+      --bg-image: linear-gradient(135deg, #fce7f3 0%, #e0e7ff 50%, #dcfce7 100%);
+      --bg-attach: fixed;
+      --surface: #ffffff;
+      --surface-2: #f8faff;
+      --surface-hero: linear-gradient(135deg, #a78bfa 0%, #818cf8 100%);
+      --hero-text: #ffffff;
+      --hero-muted: #ede9fe;
+      --ink: #312e81;
+      --muted: #6366f1;
+      --border-color: rgba(255, 255, 255, 0.8);
+      --border-w: 2px;
+      --radius-card: 28px;
+      --radius-sm: 18px;
+      --radius-pill: 999px;
+      --shadow-card:
+        12px 14px 26px rgba(99, 102, 241, 0.16),
+        inset -6px -6px 14px rgba(129, 140, 248, 0.16),
+        inset 6px 6px 14px rgba(255, 255, 255, 0.95);
+      --shadow-sm:
+        6px 8px 14px rgba(99, 102, 241, 0.13),
+        inset -4px -4px 8px rgba(129, 140, 248, 0.14),
+        inset 4px 4px 8px rgba(255, 255, 255, 0.95);
+      --shadow-hover:
+        16px 18px 30px rgba(99, 102, 241, 0.22),
+        inset -6px -6px 14px rgba(129, 140, 248, 0.18),
+        inset 6px 6px 14px rgba(255, 255, 255, 1);
+      --backdrop: none;
+      --font-body: 'Rubik', 'Heebo', sans-serif;
+      --font-heading: 'Rubik', 'Heebo', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+
+      --accent: #7c3aed;
+      --accent-fg: #ffffff;
+      --accent-soft: #ede9fe;
+      --success: #10b981;
+      --success-soft: #d1fae5;
+      --success-fg: #065f46;
+      --warn: #f59e0b;
+      --warn-soft: #fef3c7;
+      --warn-fg: #92400e;
+      --danger: #f43f5e;
+      --danger-soft: #ffe4e6;
+      --danger-fg: #9f1239;
+
+      --chart-1: #7c3aed;
+      --chart-2: #10b981;
+      --chart-3: #c4b5fd;
+      --chart-4: #f59e0b;
+      --chart-trend: #f43f5e;
+      --chart-grid: rgba(99, 102, 241, 0.12);
+      --chart-axis: #6366f1;
+
+      --switcher-bg: rgba(255, 255, 255, 0.88);
+      --modal-bg: #ffffff;
+      --input-bg: #f5f3ff;
+      --table-head-bg: #ede9fe;
+      --table-head-fg: #312e81;
+      --table-current-bg: #fef3c7;
+      --table-current-fg: #78350f;
+      --table-row-hover: #f5f3ff;
+    }
+
+    /* ==========================================================================
+       STYLE 9: NEUBRUTALIST
+       ========================================================================== */
+    [data-style="neubrutalist"] {
+      --bg: #fffdf0;
+      --bg-image: radial-gradient(rgba(17, 17, 17, 0.15) 1.4px, transparent 1.4px);
+      --bg-size: 20px 20px;
+      --surface: #ffffff;
+      --surface-2: #fffbeb;
+      --surface-hero: #ffe500;
+      --hero-text: #111111;
+      --hero-muted: #111111;
+      --ink: #111111;
+      --muted: #374151;
+      --border-color: #111111;
+      --border-w: 3px;
+      --radius-card: 2px;
+      --radius-sm: 2px;
+      --radius-pill: 2px;
+      --shadow-card: 5px 5px 0px #111111;
+      --shadow-sm: 3px 3px 0px #111111;
+      --shadow-hover: 7px 7px 0px #111111;
+      --backdrop: none;
+      --font-body: 'Heebo', sans-serif;
+      --font-heading: 'Heebo', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+
+      --accent: #4cc9f0;
+      --accent-fg: #111111;
+      --accent-soft: #4cc9f0;
+      --success: #00e599;
+      --success-soft: #00e599;
+      --success-fg: #111111;
+      --warn: #ffe500;
+      --warn-soft: #ffe500;
+      --warn-fg: #111111;
+      --danger: #ff5e5b;
+      --danger-soft: #ff5e5b;
+      --danger-fg: #111111;
+
+      --chart-1: #4cc9f0;
+      --chart-2: #00e599;
+      --chart-3: #ffe500;
+      --chart-4: #ff5e5b;
+      --chart-trend: #ff5e5b;
+      --chart-grid: rgba(17, 17, 17, 0.16);
+      --chart-axis: #111111;
+
+      --switcher-bg: #fffdf0;
+      --modal-bg: #ffffff;
+      --input-bg: #fffdf0;
+      --table-head-bg: #111111;
+      --table-head-fg: #ffe500;
+      --table-current-bg: #ffe500;
+      --table-current-fg: #111111;
+      --table-row-hover: #fef9c3;
+    }
+
+    /* ==========================================================================
+       SHARED COMPONENT CLASSES
+       ========================================================================== */
+    .ds-card {
+      background: var(--surface);
+      border: var(--border-w) solid var(--border-color);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+      backdrop-filter: var(--backdrop);
+      -webkit-backdrop-filter: var(--backdrop);
+      transition: transform 0.18s ease, box-shadow 0.2s ease, background 0.25s ease, border-color 0.25s ease;
+    }
+
+    .ds-card-hover:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-2px);
+    }
+
+    .ds-subbox {
+      background: var(--surface-2);
+      border: var(--border-w) solid var(--border-color);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: var(--backdrop);
+      -webkit-backdrop-filter: var(--backdrop);
+    }
+
+    .ds-hero-top {
+      background: var(--surface-hero);
+      color: var(--hero-text);
+      border-bottom: var(--border-w) solid var(--border-color);
+    }
+
+    .ds-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border-radius: var(--radius-pill);
+      border: var(--border-w) solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      font-weight: 700;
+      padding: 0.28rem 0.7rem;
+      font-size: 0.8rem;
+      line-height: 1.25;
+      background: var(--surface-2);
+      color: var(--ink);
+    }
+
+    .ds-chip-accent { background: var(--accent); color: var(--accent-fg); }
+    .ds-chip-success { background: var(--success-soft); color: var(--success-fg); }
+    .ds-chip-warn { background: var(--warn-soft); color: var(--warn-fg); }
+    .ds-chip-danger { background: var(--danger-soft); color: var(--danger-fg); }
+
+    .ds-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      border-radius: var(--radius-pill);
+      border: var(--border-w) solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      background: var(--accent);
+      color: var(--accent-fg);
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, opacity 0.15s ease;
+    }
+
+    .ds-btn-secondary {
+      background: var(--surface);
+      color: var(--ink);
+    }
+
+    .ds-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    .ds-btn:active { transform: translateY(1px); }
+
+    .ds-input {
+      width: 100%;
+      background: var(--input-bg);
+      color: var(--ink);
+      border: max(var(--border-w), 1px) solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.55rem 0.75rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .ds-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .ds-progress-track {
+      width: 100%;
+      height: 12px;
+      background: var(--surface-2);
+      border: var(--border-w) solid var(--border-color);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+    }
+    .ds-progress-fill {
+      height: 100%;
+      border-radius: var(--radius-pill);
+      transition: width 0.5s ease;
+    }
+
+    /* Sticky Top Bar */
+    .switcher-bar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--switcher-bg);
+      border-bottom: var(--border-w) solid var(--border-color);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .style-pill {
+      border: var(--border-w) solid var(--border-color);
+      border-radius: var(--radius-pill);
+      background: var(--surface);
+      color: var(--ink);
+      padding: 0.3rem 0.72rem;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+      box-shadow: var(--shadow-sm);
+    }
+    .style-pill:hover { transform: translateY(-1px); }
+    .style-pill.active {
+      background: var(--accent);
+      color: var(--accent-fg);
+      border-color: var(--accent);
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(0, 0, 0, 0.58);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-backdrop.open {
+      display: flex;
+      animation: fadeSlide 0.16s ease-out;
+    }
+    .modal-box {
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: var(--modal-bg);
+      color: var(--ink);
+      border: max(var(--border-w), 1px) solid var(--border-color);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+    }
+
+    .theme-option-card {
+      background: var(--surface-2);
+      border: max(var(--border-w), 1px) solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem;
+      cursor: pointer;
+      text-align: right;
+      transition: transform 0.14s ease, border-color 0.15s ease;
+    }
+    .theme-option-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+    .theme-option-card.selected {
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .formula-panel {
+      display: none;
+      border-top: var(--border-w) solid var(--border-color);
+      background: var(--surface-2);
+    }
+    .formula-panel.open {
+      display: block;
+      animation: fadeSlide 0.18s ease-out;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Table */
+    .ds-table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius-card);
+      border: var(--border-w) solid var(--border-color);
+      box-shadow: var(--shadow-card);
+      background: var(--surface);
+      backdrop-filter: var(--backdrop);
+      -webkit-backdrop-filter: var(--backdrop);
+    }
+    .ds-table { width: 100%; border-collapse: collapse; min-width: 780px; }
+    .ds-table th {
+      background: var(--table-head-bg);
+      color: var(--table-head-fg);
+      font-weight: 800;
+      padding: 13px 12px;
+      text-align: right;
+      font-size: 0.85rem;
+      border-bottom: var(--border-w) solid var(--border-color);
+    }
+    .ds-table td {
+      padding: 11px 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .ds-table tr.row-current {
+      background: var(--table-current-bg) !important;
+      color: var(--table-current-fg) !important;
+      font-weight: 800;
+    }
+    .ds-table tr.row-future { opacity: 0.55; }
+    .ds-table tbody tr:not(.row-current):hover { background: var(--table-row-hover); }
+
+    /* Floating SVG Tooltip */
+    #chart-tooltip {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      background: #0f172a;
+      color: #f8fafc;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 8px;
+      padding: 6px 11px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      transition: opacity 0.1s ease;
+      white-space: nowrap;
+    }
+
+    .svg-point { cursor: pointer; transition: r 0.12s ease; }
+    .svg-point:hover { r: 7; }
+    .svg-bar { cursor: pointer; transition: opacity 0.12s ease; }
+    .svg-bar:hover { opacity: 0.82; }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+
+    /* ==========================================================================
+       APP-SPECIFIC ADDITIONS (auth screens, loaders) — theme-token driven
+       ========================================================================== */
+    .auth-screen {
+      min-height: 100vh;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.25rem;
+      text-align: center;
+    }
+    .auth-screen.show { display: flex; }
+
+    .google-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      width: 100%;
+      background: #ffffff;
+      color: #1f1f1f;
+      border: 1px solid #dadce0;
+      border-radius: var(--radius-pill);
+      box-shadow: var(--shadow-sm);
+      padding: 0.75rem 1.25rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .google-btn:hover { opacity: 0.92; }
+
+    .spinner {
+      width: 34px; height: 34px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .flow-arrow { color: var(--muted); font-weight: 700; font-size: 1.25rem; user-select: none; }
+  </style>
 </head>
-
 <body>
 
-<!-- Tooltip -->
-<div class="tooltip" id="tooltip"></div>
+  <!-- Floating Tooltip for SVG Charts -->
+  <div id="chart-tooltip"></div>
 
-<!-- ── מסך כניסה ── -->
-<div class="auth-screen" id="screen-login">
-  <div class="auth-card">
-    <div class="auth-logo">🏃</div>
-    <div class="auth-title">מעקב חצי מרתון</div>
-    <div class="auth-sub">התחבר כדי לראות את הנתונים והתוכנית שלך.</div>
-    <button class="google-btn" onclick="signInWithGoogle()">
-      <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.8-6.8C35.6 2.4 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.3 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-2.8-.4-4.1H24v8.4h12.7c-.3 2.1-1.6 5.2-4.6 7.3l7.7 6c4.5-4.2 6.7-10.3 6.7-17.6z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3.1-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C1 16.3 0 20 0 24s1 7.7 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.5-2 15.3-5.6l-7.7-6c-2.1 1.4-4.9 2.4-7.6 2.4-6.3 0-11.6-3.8-13.5-9.2l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
-      התחבר עם Google
-    </button>
-    <button class="ghost-btn" onclick="enterDemoMode()">צפה במצב הדגמה</button>
-    <div class="auth-note" id="login-note">חשבון חדש ממתין לאישור מנהל לפני הכניסה הראשונה.</div>
+  <!-- ========================================================================
+       LOGIN SCREEN
+       ======================================================================== -->
+  <div class="auth-screen" id="screen-login">
+    <div class="ds-card p-7 sm:p-8 max-w-md w-full space-y-4">
+      <div class="text-4xl">🏃</div>
+      <h1 class="text-2xl font-black">מעקב חצי מרתון</h1>
+      <p class="text-sm" style="color: var(--muted);">התחבר כדי לראות את הנתונים והתוכנית שלך.</p>
+      <button class="google-btn" id="google-signin-btn">
+        <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.8-6.8C35.6 2.4 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.3 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-2.8-.4-4.1H24v8.4h12.7c-.3 2.1-1.6 5.2-4.6 7.3l7.7 6c4.5-4.2 6.7-10.3 6.7-17.6z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3.1-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C1 16.3 0 20 0 24s1 7.7 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.5-2 15.3-5.6l-7.7-6c-2.1 1.4-4.9 2.4-7.6 2.4-6.3 0-11.6-3.8-13.5-9.2l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
+        התחבר עם Google
+      </button>
+      <button class="ds-btn ds-btn-secondary w-full px-4 py-2.5 text-sm" id="demo-mode-btn">צפה במצב הדגמה</button>
+      <p class="ds-subbox p-3 text-xs" id="login-note" style="color: var(--muted);">
+        חשבון חדש ממתין לאישור מנהל לפני הכניסה הראשונה.
+      </p>
+    </div>
   </div>
-</div>
 
-<!-- ── מסך המתנה לאישור ── -->
-<div class="auth-screen" id="screen-pending">
-  <div class="auth-card">
-    <div class="auth-logo">⏳</div>
-    <div class="auth-title">החשבון ממתין לאישור</div>
-    <div class="auth-sub" id="pending-sub">נרשמת בהצלחה. מנהל המערכת צריך לאשר את החשבון לפני הכניסה הראשונה.</div>
-    <div class="auth-note">לאחר האישור — רענן את הדף והנתונים שלך ייטענו.</div>
-    <button class="ghost-btn" onclick="location.reload()">בדוק שוב</button>
-    <button class="ghost-btn" onclick="signOut()">התנתק</button>
+  <!-- ========================================================================
+       PENDING APPROVAL SCREEN
+       ======================================================================== -->
+  <div class="auth-screen" id="screen-pending">
+    <div class="ds-card p-7 sm:p-8 max-w-md w-full space-y-4">
+      <div class="text-4xl">⏳</div>
+      <h1 class="text-2xl font-black">החשבון ממתין לאישור</h1>
+      <p class="text-sm" id="pending-sub" style="color: var(--muted);">
+        נרשמת בהצלחה. מנהל המערכת צריך לאשר את החשבון לפני הכניסה הראשונה.
+      </p>
+      <p class="ds-subbox p-3 text-xs" style="color: var(--muted);">לאחר האישור — רענן את הדף והנתונים שלך ייטענו.</p>
+      <div class="flex gap-2">
+        <button class="ds-btn ds-btn-secondary flex-1 px-4 py-2 text-xs" id="recheck-btn">בדוק שוב</button>
+        <button class="ds-btn ds-btn-secondary flex-1 px-4 py-2 text-xs" id="signout-btn-pending">התנתק</button>
+      </div>
+    </div>
   </div>
-</div>
 
-<!-- Header -->
-<header class="header" id="app-header" style="display:none">
-  <div class="header-title">
-    <div class="header-dot"></div>
-    מעקב חצי מרתון
-  </div>
-  <div class="header-meta">
-    <span class="last-update" id="last-update">טוען...</span>
-    <span class="runner-chip" id="runner-chip">סהר</span>
-    <select class="skin-select" id="skin-select" onchange="setSkin(this.value)" title="ערכת עיצוב">
-      <option value="bento">🍱 בנטו</option>
-      <option value="glass">🧊 זכוכית</option>
-      <option value="swiss">🔴 שוויצרי</option>
-      <option value="telemetry">📡 טלמטריה</option>
-      <option value="editorial">📰 עיתונאי</option>
-      <option value="neumorphism">🫧 ניאומורפי</option>
-      <option value="terminal">💻 טרמינל</option>
-      <option value="clay">🧸 חימר</option>
-      <option value="neubrutalist">🟨 ברוטליסטי</option>
-    </select>
-    <button class="theme-btn" onclick="toggleTheme()" title="כהה / בהיר — בערכת בנטו">🌙 / ☀️</button>
-    <button class="theme-btn" id="logout-btn" onclick="signOut()" style="display:none">יציאה</button>
-  </div>
-</header>
-
-<main class="main" id="main-content" style="display:none">
-  <div class="loading-banner" id="loading">
-    <div class="spinner"></div>
-    <span>טוען נתונים מ-Supabase...</span>
-  </div>
-</main>
-
-<div class="tooltip" id="tooltip2"></div>
-
-<footer class="footer" id="app-footer" style="display:none">
-  חצי מרתון ת״א · 26.02.2027 · יעד 1:42:00
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-// ═══════════════════════════════════════════════════════
-//  CONFIG
-// ═══════════════════════════════════════════════════════
-const SUPABASE_URL = 'https://mrhxhzddibgpfnlwzbiq.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1yaHhoemRkaWJncGZubHd6YmlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU0NTQwMDEsImV4cCI6MjExMTAzMDAwMX0.GTmXJQaw9NhM5TZ5sn992tR02Xm0pdZurer5VYCLysI';
-const RACE_DATE = new Date('2027-02-26');
-
-const SKINS = ['bento','glass','swiss','telemetry','editorial','neumorphism','terminal','clay','neubrutalist'];
-
-if (!window.supabase || !window.supabase.createClient) {
-  document.body.innerHTML =
-    '<div style="padding:60px 24px;text-align:center;font-family:system-ui;direction:rtl">' +
-    '<h2>לא ניתן לטעון את ספריית ההתחברות</h2>' +
-    '<p>בדוק חיבור לאינטרנט או חוסמי מודעות, ורענן את הדף.</p></div>';
-  throw new Error('supabase-js failed to load');
-}
-
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-let SESSION = null;    // Supabase session
-let PROFILE = null;    // שורת profiles של המשתמש
-let DEMO_MODE = false; // צפייה בלי התחברות
-
-// VDot scoring: 44 → 0%, 50 → 100%
-const VDOT_MIN = 44, VDOT_MAX = 50;
-
-// Training plan — 16 weeks from Nov 11 to Feb 26
-const PLAN = [
-  { week: 0, label: '0 – התאוששות', dates: '11–15.11', start: '2026-11-11', km: 11,  qual: null,          easy: '30 דק׳',      long: '40 דק׳',           cf: 3 },
-  { week: 1, label: '1',            dates: '16–20.11', start: '2026-11-16', km: 24,  qual: 'פארטלק 40 דק׳',  easy: '35 דק׳ + 4 סטריידים', long: '11 ק״מ קל', cf: 3 },
-  { week: 2, label: '2',            dates: '23–27.11', start: '2026-11-23', km: 27,  qual: '3×8 דק׳ ב-4:45', easy: '40 דק׳ + 6 סטריידים', long: '12 ק״מ קל', cf: 3 },
-  { week: 3, label: '3',            dates: '30.11–4.12', start: '2026-11-30', km: 28, qual: '6×800 מ׳ ב-4:15', easy: '40 דק׳ + 6 סטריידים', long: '13 ק״מ קל', cf: 3 },
-  { week: 4, label: '4 – הורדה + מבחן', dates: '7–11.12', start: '2026-12-07', km: 23, qual: 'מבחן 5 ק״מ', easy: '30 דק׳ קל', long: '10 ק״מ קל', cf: 3 },
-  { week: 5, label: '5',            dates: '14–18.12', start: '2026-12-14', km: 31,  qual: '2×15 דק׳ ב-4:40', easy: '45 דק׳ + 6 סטריידים', long: '14 ק״מ קל', cf: 3 },
-  { week: 6, label: '6',            dates: '21–25.12', start: '2026-12-21', km: 31,  qual: '5×1 ק״מ ב-4:15', easy: '45 דק׳ קל', long: '15 ק״מ, 3 אחרונים ב-4:50', cf: 3 },
-  { week: 7, label: '7',            dates: '28.12–1.1', start: '2026-12-28', km: 33,  qual: '3×2 ק״מ ב-4:40', easy: '45 דק׳ + 6 סטריידים', long: '16 ק״מ קל', cf: 3 },
-  { week: 8, label: '8 – הורדה',   dates: '4–8.1',    start: '2027-01-04', km: 25,  qual: '20 דק׳ רציף ב-4:40', easy: '35 דק׳ קל', long: '12 ק״מ קל', cf: 3 },
-  { week: 9, label: '9',            dates: '11–15.1',  start: '2027-01-11', km: 35,  qual: '4×2 ק״מ ב-4:40', easy: '50 דק׳ + 6 סטריידים', long: '17 ק״מ, 5 אחרונים ב-4:50', cf: 3 },
-  { week: 10, label: '10',          dates: '18–22.1',  start: '2027-01-18', km: 35,  qual: '6×1 ק״מ ב-4:10', easy: '50 דק׳ קל', long: '18 ק״מ קל', cf: 3 },
-  { week: 11, label: '11',          dates: '25–29.1',  start: '2027-01-25', km: 35,  qual: '3×3 ק״מ ב-4:47', easy: '45 דק׳ + 6 סטריידים', long: '16 ק״מ + 2×4 ק״מ ב-4:47', cf: 3 },
-  { week: 12, label: '12 – הורדה + מבחן', dates: '1–5.2', start: '2027-02-01', km: 27, qual: '4×1 ק״מ ב-4:20', easy: '40 דק׳ קל', long: 'מבחן 10 ק״מ', cf: 3 },
-  { week: 13, label: '13 – שיא',   dates: '8–12.2',   start: '2027-02-08', km: 38,  qual: '2×5 ק״מ ב-4:47', easy: '45 דק׳ קל', long: '18 ק״מ, 6 אחרונים ב-4:50', cf: 3 },
-  { week: 14, label: '14 – טייפר', dates: '15–19.2',  start: '2027-02-15', km: 27,  qual: '3×2 ק״מ ב-4:47', easy: '40 דק׳ קל', long: '12 ק״מ קל', cf: 2 },
-  { week: 15, label: '15 – מירוץ', dates: '22–26.2',  start: '2027-02-22', km: 32,  qual: '30 דק׳ קל עם 3×1 ק״מ', easy: '20 דק׳ + 4 סטריידים', long: 'המירוץ 21.1 ק״מ', cf: 1 },
-];
-
-// ═══════════════════════════════════════════════════════
-//  SUPABASE FETCH
-// ═══════════════════════════════════════════════════════
-// RLS כבר מסננת לפי auth.uid(), הסינון כאן מפורש לקראות עתיד של מאמן
-async function fetchRows() {
-  const { data, error } = await sb
-    .from('workout_rows')
-    .select('*')
-    .eq('user_id', SESSION.user.id)
-    .order('ts', { ascending: true });
-  if (error) throw new Error(error.message);
-  return data || [];
-}
-
-// ═══════════════════════════════════════════════════
-//  AUTH
-// ═══════════════════════════════════════════════════
-async function signInWithGoogle() {
-  const { error } = await sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.origin + window.location.pathname }
-  });
-  if (error) setLoginNote('⚠️ שגיאת התחברות: ' + error.message);
-}
-
-async function signOut() {
-  await sb.auth.signOut();
-  location.reload();
-}
-
-function setLoginNote(txt) {
-  const el = document.getElementById('login-note');
-  if (el) el.textContent = txt;
-}
-
-function showScreen(which) {
-  document.getElementById('screen-login').classList.toggle('show', which === 'login');
-  document.getElementById('screen-pending').classList.toggle('show', which === 'pending');
-  const isApp = which === 'app';
-  document.getElementById('app-header').style.display  = isApp ? 'flex'  : 'none';
-  document.getElementById('main-content').style.display = isApp ? 'flex' : 'none';
-  document.getElementById('app-footer').style.display   = isApp ? 'block': 'none';
-}
-
-function enterDemoMode() {
-  DEMO_MODE = true;
-  document.getElementById('runner-chip').textContent = 'הדגמה';
-  showScreen('app');
-  buildPage(getDemoRows(), true);
-}
-
-// ═══════════════════════════════════════════════════════
-//  DEMO DATA (shown if Supabase has 0 rows)
-// ═══════════════════════════════════════════════════════
-function getDemoRows() {
-  return [
-    // Week 0
-    { runner_id:'sahar', ts:'2026-11-13T06:30:00+02:00', type:'running_easy', distance_km:5.2, pace_avg:'6:45', avg_hr:142, rhr:56, vo2max:46 },
-    { runner_id:'sahar', ts:'2026-11-14T06:30:00+02:00', type:'running_long', distance_km:7.8, pace_avg:'6:50', avg_hr:144, rhr:55, vo2max:46 },
-    { runner_id:'sahar', ts:'2026-11-12T18:00:00+02:00', type:'crossfit', distance_km:null, pace_avg:null, avg_hr:155, rhr:57, vo2max:null },
-    // Week 1
-    { runner_id:'sahar', ts:'2026-11-17T06:30:00+02:00', type:'running_quality', distance_km:8.5, pace_avg:'4:38', avg_hr:168, rhr:55, vo2max:47 },
-    { runner_id:'sahar', ts:'2026-11-19T06:30:00+02:00', type:'running_easy', distance_km:3.0, pace_avg:'6:30', avg_hr:141, rhr:57, vo2max:46 },
-    { runner_id:'sahar', ts:'2026-11-16T18:00:00+02:00', type:'crossfit', distance_km:null, pace_avg:null, avg_hr:158, rhr:58, vo2max:null },
-    { runner_id:'sahar', ts:'2026-11-18T18:00:00+02:00', type:'crossfit', distance_km:null, pace_avg:null, avg_hr:160, rhr:56, vo2max:null },
-    // Week 2 (current - partial)
-    { runner_id:'sahar', ts:'2026-11-23T06:30:00+02:00', type:'running_easy', distance_km:8.96, pace_avg:'6:09', avg_hr:146, rhr:60, vo2max:46 },
-    { runner_id:'sahar', ts:'2026-11-23T18:00:00+02:00', type:'crossfit', distance_km:null, pace_avg:null, avg_hr:162, rhr:60, vo2max:null },
-  ];
-}
-
-// ═══════════════════════════════════════════════════════
-//  DATA PROCESSING
-// ═══════════════════════════════════════════════════════
-
-function parseDate(ts) {
-  return new Date(ts);
-}
-
-function getWeekOf(date) {
-  // which plan week does this date fall in?
-  for (let i = PLAN.length - 1; i >= 0; i--) {
-    if (date >= new Date(PLAN[i].start)) return i;
-  }
-  return 0;
-}
-
-function getCurrentWeekIndex() {
-  const today = new Date('2026-11-23'); // server date
-  return getWeekOf(today);
-}
-
-function groupByWeek(rows) {
-  const weeks = {};
-  rows.forEach(r => {
-    const d = parseDate(r.ts);
-    const wi = getWeekOf(d);
-    if (!weeks[wi]) weeks[wi] = [];
-    weeks[wi].push(r);
-  });
-  return weeks;
-}
-
-function latestRHR(rows) {
-  const withRHR = rows.filter(r => r.rhr).sort((a,b) => new Date(b.ts) - new Date(a.ts));
-  return withRHR.length ? withRHR[0].rhr : null;
-}
-
-function weekAvgRHR(rows) {
-  const withRHR = rows.filter(r => r.rhr);
-  if (!withRHR.length) return null;
-  return +(withRHR.reduce((s,r)=>s+r.rhr,0)/withRHR.length).toFixed(1);
-}
-
-function latestVO2(rows) {
-  const withVO2 = rows.filter(r => r.vo2max).sort((a,b) => new Date(b.ts)-new Date(a.ts));
-  return withVO2.length ? withVO2[0].vo2max : null;
-}
-
-function latestAvgHR(rows) {
-  const withHR = rows.filter(r => r.avg_hr).sort((a,b) => new Date(b.ts)-new Date(a.ts));
-  return withHR.length ? withHR[0].avg_hr : null;
-}
-
-function weekActualKm(rows) {
-  return rows.filter(r => r.type !== 'crossfit' && r.distance_km)
-             .reduce((s,r) => s + r.distance_km, 0);
-}
-
-function daysUntilRace() {
-  const today = new Date('2026-11-23');
-  return Math.ceil((RACE_DATE - today) / 86400000);
-}
-
-// Count completed activities in a week
-function weekCompletions(rows) {
-  return {
-    quality: rows.some(r => r.type === 'running_quality'),
-    easy: rows.some(r => r.type === 'running_easy'),
-    long: rows.some(r => r.type === 'running_long'),
-    cf: rows.filter(r => r.type === 'crossfit').length,
-  };
-}
-
-// ── Score calculation ──────────────────────────────────
-function calcScore(allRows, byWeek, currentWeekIdx) {
-  // 1) volume_adherence: planned vs actual across all past weeks
-  let totalPlanned = 0, totalActual = 0;
-  for (let i = 0; i <= currentWeekIdx; i++) {
-    totalPlanned += PLAN[i].km;
-    totalActual += weekActualKm(byWeek[i] || []);
-  }
-  const volumeAdherence = totalPlanned > 0 ? Math.min(1, totalActual / totalPlanned) : 0;
-
-  // 2) easy_run_trend: slope of pace over last 6 easy runs at same HR range
-  const easyRuns = allRows
-    .filter(r => r.type === 'running_easy' && r.pace_avg && r.avg_hr)
-    .sort((a,b) => new Date(a.ts)-new Date(b.ts))
-    .slice(-8);
-
-  let easyTrend = 0.5; // default neutral
-  if (easyRuns.length >= 3) {
-    const paces = easyRuns.map(r => paceToSeconds(r.pace_avg));
-    const n = paces.length;
-    const xs = paces.map((_,i) => i);
-    const meanX = xs.reduce((s,x)=>s+x,0)/n;
-    const meanY = paces.reduce((s,y)=>s+y,0)/n;
-    const slope = xs.reduce((s,x,i)=>(s+(x-meanX)*(paces[i]-meanY)),0) /
-                  xs.reduce((s,x)=>(s+(x-meanX)**2),0.001);
-    // negative slope = improving (pace going down = faster)
-    // map slope: -2 s/run = great (1.0), 0 = neutral (0.5), +2 = worse (0.0)
-    easyTrend = Math.max(0, Math.min(1, 0.5 - slope / 4));
-  }
-
-  // 3) test_score: from latest vo2max
-  const vo2 = latestVO2(allRows) || VDOT_MIN;
-  const testScore = Math.max(0, Math.min(1, (vo2 - VDOT_MIN) / (VDOT_MAX - VDOT_MIN)));
-
-  const score = 0.4 * volumeAdherence + 0.35 * easyTrend + 0.25 * testScore;
-
-  return {
-    score: Math.round(score * 100),
-    volumeAdherence: Math.round(volumeAdherence * 100),
-    easyTrend: Math.round(easyTrend * 100),
-    testScore: Math.round(testScore * 100),
-    totalPlanned: +totalPlanned.toFixed(1),
-    totalActual: +totalActual.toFixed(1),
-    vo2
-  };
-}
-
-function paceToSeconds(pace) {
-  if (!pace) return 400;
-  const [m,s] = pace.split(':').map(Number);
-  return m * 60 + (s || 0);
-}
-
-function secondsToPace(secs) {
-  const m = Math.floor(secs / 60);
-  const s = Math.round(secs % 60);
-  return `${m}:${s.toString().padStart(2,'0')}`;
-}
-
-// ═══════════════════════════════════════════════════════
-//  RENDER
-// ═══════════════════════════════════════════════════════
-
-function formatDate(ts) {
-  const d = parseDate(ts);
-  const days = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
-  const months = ['ינו׳','פבר׳','מרץ','אפר׳','מאי','יוני','יולי','אוג׳','ספט׳','אוק׳','נוב׳','דצמ׳'];
-  return `${d.getDate()} ${months[d.getMonth()]} (יום ${days[d.getDay()]})`;
-}
-
-function formatTs(ts) {
-  const d = parseDate(ts);
-  const h = d.getHours().toString().padStart(2,'0');
-  const m = d.getMinutes().toString().padStart(2,'0');
-  const months = ['ינו׳','פבר׳','מרץ','אפר׳','מאי','יוני','יולי','אוג׳','ספט׳','אוק׳','נוב׳','דצמ׳'];
-  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}, ${h}:${m}`;
-}
-
-function typeLabel(type) {
-  return { running_easy:'ריצה קלה', running_quality:'ריצת איכות', running_long:'ריצה ארוכה', crossfit:'קרוספיט' }[type] || type;
-}
-
-function typeIcon(type) {
-  return { running_easy:'🏃', running_quality:'⚡', running_long:'🏃‍♂️', crossfit:'💪' }[type] || '🏃';
-}
-
-function getNextWorkout(currentWeekIdx, completions, currentWeekRows) {
-  const plan = PLAN[currentWeekIdx];
-  if (!plan) return null;
-
-  // determine what's missing this week
-  const needQual = !completions.quality;
-  const needEasy = !completions.easy;
-  const needLong = !completions.long;
-
-  // priority order: quality > long > easy
-  if (needQual && plan.qual) {
-    return { type: 'ריצת איכות', desc: plan.qual, week: currentWeekIdx };
-  }
-  if (needLong) {
-    return { type: 'ריצה ארוכה', desc: plan.long, week: currentWeekIdx };
-  }
-  if (needEasy) {
-    return { type: 'ריצה קלה', desc: plan.easy, week: currentWeekIdx };
-  }
-
-  // next week
-  const nextPlan = PLAN[currentWeekIdx + 1];
-  if (nextPlan) {
-    return { type: 'ריצת איכות', desc: nextPlan.qual || nextPlan.easy, week: currentWeekIdx + 1 };
-  }
-  return null;
-}
-
-// ═══════════════════════════════════════════════════════
-//  SVG CHARTS
-// ═══════════════════════════════════════════════════════
-
-const tip = document.getElementById('tooltip');
-function showTip(e, html) { tip.innerHTML = html; tip.style.display = 'block'; moveTip(e); }
-function moveTip(e) {
-  const x = e.clientX + 14, y = e.clientY - 40;
-  tip.style.left = Math.min(x, window.innerWidth - 180) + 'px';
-  tip.style.top = Math.max(y, 8) + 'px';
-}
-function hideTip() { tip.style.display = 'none'; }
-function attachTip(el, label) {
-  el.addEventListener('mouseenter', e => showTip(e, label));
-  el.addEventListener('mousemove', moveTip);
-  el.addEventListener('mouseleave', hideTip);
-}
-
-function drawLineChart(svgEl, points, minV, maxV, color, labelFn) {
-  const W = 220, H = 90, pL = 26, pR = 6, pT = 8, pB = 20;
-  const iW = W - pL - pR, iH = H - pT - pB;
-  const n = points.length;
-  if (n === 0) { svgEl.innerHTML = `<text x="110" y="45" text-anchor="middle" font-size="10" fill="var(--fg3)">אין נתונים</text>`; return; }
-
-  const xS = i => pL + (n > 1 ? (i/(n-1)) * iW : iW/2);
-  const yS = v => pT + iH - ((v - minV) / (maxV - minV)) * iH;
-
-  // grid
-  let g = '';
-  [minV, Math.round((minV+maxV)/2), maxV].forEach(v => {
-    const y = yS(v);
-    g += `<line x1="${pL}" y1="${y}" x2="${W-pR}" y2="${y}" stroke="var(--border)" stroke-width=".5"/>`;
-    g += `<text x="${pL-3}" y="${y+3}" font-size="7" fill="var(--fg3)" text-anchor="end" font-family="'JetBrains Mono',monospace">${v}</text>`;
-  });
-
-  // area
-  let aPath = `M${xS(0)},${yS(points[0].v)}`;
-  points.forEach((p,i) => { aPath += ` L${xS(i)},${yS(p.v)}`; });
-  aPath += ` L${xS(n-1)},${pT+iH} L${xS(0)},${pT+iH} Z`;
-
-  // line
-  let lPath = `M${xS(0)},${yS(points[0].v)}`;
-  points.forEach((p,i) => { lPath += ` L${xS(i)},${yS(p.v)}`; });
-
-  // x labels
-  let xl = `<text x="${xS(0)}" y="${H-4}" font-size="7" fill="var(--fg3)" font-family="Inter,sans-serif">${points[0].d}</text>`;
-  if (n > 1) xl += `<text x="${xS(n-1)}" y="${H-4}" font-size="7" fill="var(--fg3)" text-anchor="end" font-family="Inter,sans-serif">${points[n-1].d}</text>`;
-
-  svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svgEl.innerHTML = g +
-    `<path d="${aPath}" fill="${color}" opacity=".1"/>` +
-    `<path d="${lPath}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>` +
-    xl;
-
-  // dots
-  points.forEach((p, i) => {
-    const cx = xS(i), cy = yS(p.v);
-    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-    c.setAttribute('cx', cx); c.setAttribute('cy', cy);
-    c.setAttribute('r', '3.5'); c.setAttribute('fill', color);
-    c.setAttribute('stroke', 'var(--surface)'); c.setAttribute('stroke-width', '1.5');
-    c.style.cursor = 'pointer';
-    attachTip(c, `${p.d}: ${labelFn(p)}`);
-    svgEl.appendChild(c);
-  });
-}
-
-function drawBarChart(svgEl, weeks) {
-  const W = 220, H = 90, pL = 26, pR = 6, pT = 8, pB = 20;
-  const iW = W - pL - pR, iH = H - pT - pB;
-  const n = weeks.length;
-  const maxV = Math.max(...weeks.map(w => Math.max(w.plan, w.actual || 0, 1)), 1);
-  const yS = v => pT + iH - (v / maxV) * iH;
-  const bW = Math.min(iW / n * 0.35, 14);
-
-  svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svgEl.innerHTML = '';
-
-  // grid
-  [0, Math.round(maxV/2), maxV].forEach(v => {
-    const y = yS(v);
-    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
-    line.setAttribute('x1',pL); line.setAttribute('y1',y);
-    line.setAttribute('x2',W-pR); line.setAttribute('y2',y);
-    line.setAttribute('stroke','var(--border)'); line.setAttribute('stroke-width','.5');
-    svgEl.appendChild(line);
-    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
-    t.setAttribute('x',pL-3); t.setAttribute('y',y+3);
-    t.setAttribute('font-size','7'); t.setAttribute('fill','var(--fg3)');
-    t.setAttribute('text-anchor','end'); t.setAttribute('font-family',"'JetBrains Mono',monospace");
-    t.textContent = v;
-    svgEl.appendChild(t);
-  });
-
-  weeks.forEach((w, i) => {
-    const cx = pL + (i + 0.5) / n * iW;
-
-    // plan bar
-    const ph = (w.plan / maxV) * iH;
-    const pr = document.createElementNS('http://www.w3.org/2000/svg','rect');
-    pr.setAttribute('x', cx - bW - 1); pr.setAttribute('y', yS(w.plan));
-    pr.setAttribute('width', bW); pr.setAttribute('height', ph);
-    pr.setAttribute('fill','var(--fg3)'); pr.setAttribute('opacity','.25');
-    pr.setAttribute('rx','2'); pr.style.cursor='pointer';
-    attachTip(pr, `ש׳${w.w}: תוכנית ${w.plan} ק״מ`);
-    svgEl.appendChild(pr);
-
-    // actual bar
-    if (w.actual > 0) {
-      const ah = (w.actual / maxV) * iH;
-      const col = w.actual >= w.plan ? 'var(--success)' : 'var(--accent)';
-      const ar = document.createElementNS('http://www.w3.org/2000/svg','rect');
-      ar.setAttribute('x', cx + 1); ar.setAttribute('y', yS(w.actual));
-      ar.setAttribute('width', bW); ar.setAttribute('height', ah);
-      ar.setAttribute('fill', col); ar.setAttribute('rx','2'); ar.style.cursor='pointer';
-      attachTip(ar, `ש׳${w.w}: בפועל ${w.actual.toFixed(1)} ק״מ`);
-      svgEl.appendChild(ar);
-    }
-
-    // label
-    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
-    t.setAttribute('x', cx); t.setAttribute('y', H-4);
-    t.setAttribute('font-size','7'); t.setAttribute('fill','var(--fg3)');
-    t.setAttribute('text-anchor','middle'); t.setAttribute('font-family','Inter,sans-serif');
-    t.textContent = `ש׳${w.w}`;
-    svgEl.appendChild(t);
-  });
-
-  // legend
-  const lg = document.createElementNS('http://www.w3.org/2000/svg','g');
-  lg.innerHTML = `
-    <rect x="${pL}" y="${pT}" width="7" height="7" fill="var(--fg3)" opacity=".4" rx="1"/>
-    <text x="${pL+9}" y="${pT+6}" font-size="7" fill="var(--fg3)" font-family="Inter,sans-serif">תוכנית</text>
-    <rect x="${pL+42}" y="${pT}" width="7" height="7" fill="var(--accent)" rx="1"/>
-    <text x="${pL+51}" y="${pT+6}" font-size="7" fill="var(--fg3)" font-family="Inter,sans-serif">בפועל</text>
-  `;
-  svgEl.appendChild(lg);
-}
-
-function drawEasyRunsChart(svgEl, easyRuns) {
-  if (easyRuns.length < 2) {
-    svgEl.innerHTML = `<text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="var(--fg3)" font-family="Inter,sans-serif">אין מספיק ריצות קלות עדיין</text>`;
-    return;
-  }
-
-  const W = 700, H = 120, pL = 44, pR = 20, pT = 18, pB = 24;
-  const iW = W - pL - pR, iH = H - pT - pB;
-  const n = easyRuns.length;
-
-  const paces = easyRuns.map(r => paceToSeconds(r.pace_avg));
-  const minP = Math.floor(Math.min(...paces) / 30) * 30 - 30;
-  const maxP = Math.ceil(Math.max(...paces) / 30) * 30 + 30;
-
-  const xS = i => pL + (n > 1 ? (i/(n-1)) * iW : iW/2);
-  const yS = v => pT + ((v - minP) / (maxP - minP)) * iH;
-
-  svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svgEl.innerHTML = '';
-
-  // grid
-  const gridVals = [minP, minP + (maxP-minP)/2, maxP].map(Math.round);
-  gridVals.forEach(v => {
-    const y = yS(v);
-    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
-    line.setAttribute('x1',pL); line.setAttribute('y1',y);
-    line.setAttribute('x2',W-pR); line.setAttribute('y2',y);
-    line.setAttribute('stroke','var(--border)'); line.setAttribute('stroke-width','.5');
-    svgEl.appendChild(line);
-    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
-    t.setAttribute('x',pL-5); t.setAttribute('y',y+3);
-    t.setAttribute('font-size','8'); t.setAttribute('fill','var(--fg3)');
-    t.setAttribute('text-anchor','end'); t.setAttribute('font-family',"'JetBrains Mono',monospace");
-    t.textContent = secondsToPace(v);
-    svgEl.appendChild(t);
-  });
-
-  // trend line
-  const pts = easyRuns.map((r,i) => ({x: xS(i), y: yS(paceToSeconds(r.pace_avg))}));
-  const meanX = pts.reduce((s,p)=>s+p.x,0)/n;
-  const meanY = pts.reduce((s,p)=>s+p.y,0)/n;
-  const denom = pts.reduce((s,p)=>s+(p.x-meanX)**2,0.001);
-  const slope = pts.reduce((s,p)=>(s+(p.x-meanX)*(p.y-meanY)),0) / denom;
-  const intcp = meanY - slope * meanX;
-  const tl = document.createElementNS('http://www.w3.org/2000/svg','line');
-  tl.setAttribute('x1',xS(0)); tl.setAttribute('y1',slope*xS(0)+intcp);
-  tl.setAttribute('x2',xS(n-1)); tl.setAttribute('y2',slope*xS(n-1)+intcp);
-  tl.setAttribute('stroke','var(--accent)'); tl.setAttribute('stroke-width','1.5');
-  tl.setAttribute('stroke-dasharray','4 3'); tl.setAttribute('opacity','.8');
-  svgEl.appendChild(tl);
-
-  // dots
-  easyRuns.forEach((r, i) => {
-    const cx = xS(i), cy = yS(paceToSeconds(r.pace_avg));
-    const hr = r.avg_hr || 145;
-    const fill = hr < 143 ? 'var(--success)' : hr < 147 ? 'var(--accent)' : 'var(--warn)';
-
-    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-    c.setAttribute('cx',cx); c.setAttribute('cy',cy);
-    c.setAttribute('r','6'); c.setAttribute('fill',fill);
-    c.setAttribute('stroke','var(--surface)'); c.setAttribute('stroke-width','1.5');
-    c.style.cursor='pointer';
-    const months = ['ינו׳','פבר׳','מרץ','אפר׳','מאי','יוני','יולי','אוג׳','ספט׳','אוק׳','נוב׳','דצמ׳'];
-    const d = parseDate(r.ts);
-    const dLabel = `${d.getDate()} ${months[d.getMonth()]}`;
-    attachTip(c, `${dLabel} · ${r.pace_avg}/ק״מ · דופק ${hr}`);
-    svgEl.appendChild(c);
-
-    // x label (every 2nd)
-    if (i % 2 === 0 || i === n-1) {
-      const t = document.createElementNS('http://www.w3.org/2000/svg','text');
-      t.setAttribute('x',cx); t.setAttribute('y',H-6);
-      t.setAttribute('font-size','7'); t.setAttribute('fill','var(--fg3)');
-      t.setAttribute('text-anchor','middle'); t.setAttribute('font-family','Inter,sans-serif');
-      t.textContent = dLabel;
-      svgEl.appendChild(t);
-    }
-  });
-
-  // legend
-  const lg = document.createElementNS('http://www.w3.org/2000/svg','g');
-  lg.innerHTML = `
-    <circle cx="${pL}" cy="${pT-5}" r="4" fill="var(--success)"/>
-    <text x="${pL+8}" y="${pT-2}" font-size="8" fill="var(--fg3)" font-family="Inter,sans-serif">דופק &lt;143</text>
-    <circle cx="${pL+68}" cy="${pT-5}" r="4" fill="var(--accent)"/>
-    <text x="${pL+76}" y="${pT-2}" font-size="8" fill="var(--fg3)" font-family="Inter,sans-serif">143–147</text>
-    <circle cx="${pL+136}" cy="${pT-5}" r="4" fill="var(--warn)"/>
-    <text x="${pL+144}" y="${pT-2}" font-size="8" fill="var(--fg3)" font-family="Inter,sans-serif">&gt;147</text>
-    <line x1="${pL+200}" y1="${pT-5}" x2="${pL+218}" y2="${pT-5}" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4 3"/>
-    <text x="${pL+222}" y="${pT-2}" font-size="8" fill="var(--fg3)" font-family="Inter,sans-serif">מגמה</text>
-  `;
-  svgEl.appendChild(lg);
-}
-
-// ═══════════════════════════════════════════════════════
-//  BUILD PAGE
-// ═══════════════════════════════════════════════════════
-
-function buildPage(rows, isDemo) {
-  const main = document.getElementById('main-content');
-  main.innerHTML = '';
-
-  if (isDemo) {
-    const banner = document.createElement('div');
-    banner.className = 'demo-banner';
-    banner.innerHTML = `<span>⚠️</span> מצב הדגמה — Supabase ריק. הנתונים המוצגים הם לדוגמה בלבד.`;
-    main.appendChild(banner);
-  }
-
-  const byWeek = groupByWeek(rows);
-  const curWi = getCurrentWeekIndex();
-  const curRows = byWeek[curWi] || [];
-  const completions = weekCompletions(curRows);
-  const scoreData = calcScore(rows, byWeek, curWi);
-  const rhr = latestRHR(rows);
-  const rhrWeek = weekAvgRHR(curRows.length ? curRows : rows.slice(-7));
-  const vo2 = latestVO2(rows);
-  const avgHR = latestAvgHR(rows);
-  const days = daysUntilRace();
-  const curPlan = PLAN[curWi];
-
-  // last update
-  const lastRow = rows.length ? rows.slice().sort((a,b) => new Date(b.ts)-new Date(a.ts))[0] : null;
-  document.getElementById('last-update').textContent = lastRow
-    ? `עדכון: ${formatTs(lastRow.ts)}`
-    : 'אין נתונים';
-
-  // ── 1. Hero Card ──
-  const heroCard = document.createElement('div');
-  heroCard.className = 'card';
-  const curWeekKm = weekActualKm(curRows);
-  const adherencePct = curPlan ? Math.min(100, Math.round(curWeekKm / curPlan.km * 100)) : 0;
-  const forecastChip = scoreData.score >= 70
-    ? `<span class="chip success">1:42 בהישג יד 🎯</span>`
-    : scoreData.score >= 50
-    ? `<span class="chip warn">~1:46–1:49</span>`
-    : `<span class="chip danger">יעד בסכנה</span>`;
-
-  heroCard.innerHTML = `
-    <div class="card-title">סטטוס נוכחי — שבוע ${curWi} מתוך 15 (${curPlan?.dates || ''})</div>
-    <div class="hero-grid">
-      <div class="score-block">
-        <div class="score-label">
-          סיכוי להגיע ליעד
-          <button class="info-btn" id="info-btn" title="איך מחושב?">ℹ</button>
+  <!-- ========================================================================
+       STICKY TOP BAR: THEME PILLS + THEME GALLERY + GOAL SETTINGS
+       ======================================================================== -->
+  <nav class="switcher-bar px-3 sm:px-6 py-2.5" id="app-switcher" style="display:none" aria-label="סרגל בקרה ראשי">
+    <div class="max-w-7xl mx-auto space-y-2">
+      <div class="flex items-center justify-between gap-2 flex-wrap">
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 flex-1 min-w-0">
+          <button id="open-theme-modal-btn" class="ds-btn px-3 py-1.5 text-xs shrink-0">
+            🎨 בחר ערכה (תחושה)
+          </button>
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar" id="style-pills-container">
+            <button class="style-pill" data-style-id="bento">Bento</button>
+            <button class="style-pill" data-style-id="glass">Glass</button>
+            <button class="style-pill" data-style-id="swiss">Swiss</button>
+            <button class="style-pill" data-style-id="telemetry">HUD</button>
+            <button class="style-pill" data-style-id="editorial">Editorial</button>
+            <button class="style-pill" data-style-id="neumorphism">Neumorphism</button>
+            <button class="style-pill" data-style-id="terminal">Terminal</button>
+            <button class="style-pill" data-style-id="clay">Clay</button>
+            <button class="style-pill" data-style-id="neubrutalist">Neubrutalist</button>
+          </div>
         </div>
-        <div class="score-num">${scoreData.score}<sup>%</sup></div>
-        <div class="score-desc">עמידה בנפח · מגמת ריצות קלות · VDot</div>
-        <div class="score-breakdown" id="score-breakdown" hidden>
-          <div class="breakdown-row">
-            <span>עמידה בנפח (40%)</span>
-            <span class="breakdown-val">${scoreData.volumeAdherence}% <small style="color:var(--fg3);font-size:.68rem">${scoreData.totalActual}/${scoreData.totalPlanned} ק״מ</small></span>
-          </div>
-          <div class="breakdown-row">
-            <span>מגמת ריצות קלות (35%)</span>
-            <span class="breakdown-val">${scoreData.easyTrend}%</span>
-          </div>
-          <div class="breakdown-row">
-            <span>מבחן VDot (25%)</span>
-            <span class="breakdown-val">${scoreData.testScore}% <small style="color:var(--fg3);font-size:.68rem">VDot ${scoreData.vo2}</small></span>
-          </div>
-          <div class="breakdown-formula">0.4×${scoreData.volumeAdherence} + 0.35×${scoreData.easyTrend} + 0.25×${scoreData.testScore} = <strong>${scoreData.score}%</strong></div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <button id="open-goal-modal-btn" class="ds-btn ds-btn-secondary px-3.5 py-1.5 text-xs">
+            🎯 הגדרת יעד
+          </button>
+          <button id="signout-btn" class="ds-btn ds-btn-secondary px-3 py-1.5 text-xs" style="display:none">יציאה</button>
         </div>
       </div>
-      <div class="target-block">
-        <div class="target-row">
-          <span class="target-label">יעד</span>
-          <span class="target-val">1:42:00</span>
-        </div>
-        <div class="target-row">
-          <span class="target-label">קצב נדרש</span>
-          <span class="target-val">4:50 / ק״מ</span>
-        </div>
-        <div class="target-row">
-          <span class="target-label">תחזית נוכחית</span>
-          ${forecastChip}
-        </div>
-        <div class="target-row">
-          <span class="target-label">עמידה שבוע זה</span>
-          <span class="target-val">${adherencePct}% (${curWeekKm.toFixed(1)} / ${curPlan?.km || '?'} ק״מ)</span>
-        </div>
+
+      <div class="flex items-center justify-between gap-2 text-xs" style="color: var(--muted);">
+        <p id="style-vibe-bar" class="font-medium truncate"></p>
+        <span id="active-goal-pill-bar" class="font-bold text-[11px] shrink-0 hidden sm:inline"></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========================================================================
+       MODAL 1: THEME GALLERY
+       ======================================================================== -->
+  <div id="theme-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="theme-modal-title">
+    <div class="modal-box max-w-4xl p-5 sm:p-6 space-y-5">
+      <div class="flex items-start justify-between gap-3">
         <div>
-          <div class="bar-wrap"><div class="bar-fill" style="width:${adherencePct}%"></div></div>
+          <h2 id="theme-modal-title" class="text-xl sm:text-2xl font-black">🎨 בחירת ערכת עיצוב</h2>
+          <p class="text-xs sm:text-sm mt-1" style="color: var(--muted);">
+            בחר את הסגנון המתאים לך לפי התחושה והאווירה — השינוי חל מיד ונשמר אוטומטית.
+          </p>
         </div>
-        <div class="target-row">
-          <span class="target-label">נותרו עד המירוץ</span>
-          <span class="target-val">${days} ימים</span>
-        </div>
+        <button id="close-theme-modal-btn" class="ds-btn ds-btn-secondary px-3 py-1 text-xs">✕ סגור</button>
       </div>
+      <div id="theme-gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
     </div>
-  `;
-  main.appendChild(heroCard);
-  heroCard.querySelector('#info-btn').addEventListener('click', () => {
-    const el = heroCard.querySelector('#score-breakdown');
-    el.hidden = !el.hidden;
+  </div>
+
+  <!-- ========================================================================
+       MODAL 2: GOAL & RACE SETTINGS (BIDIRECTIONAL TIME <-> PACE)
+       ======================================================================== -->
+  <div id="goal-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="goal-modal-title">
+    <div class="modal-box max-w-2xl p-5 sm:p-6 space-y-5">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <h2 id="goal-modal-title" class="text-xl sm:text-2xl font-black">🎯 הגדרת יעד ומירוץ</h2>
+          <p class="text-xs sm:text-sm mt-1" style="color: var(--muted);">
+            הגדר יעד חדש או ערוך יעד קיים. הזנת זמן יעד תחשב אוטומטית קצב לק״מ — ולהפך.
+          </p>
+        </div>
+        <button id="close-goal-modal-btn" class="ds-btn ds-btn-secondary px-3 py-1 text-xs">✕ סגור</button>
+      </div>
+
+      <div class="space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs font-bold" style="color: var(--muted);">יעדים שמורים:</span>
+          <button type="button" id="new-goal-draft-btn" class="text-xs font-extrabold underline cursor-pointer" style="color: var(--accent);">
+            + צור יעד חדש
+          </button>
+        </div>
+        <div id="saved-goals-list" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <form id="goal-form" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label for="input-runner-name" class="block text-xs font-bold mb-1" style="color: var(--muted);">שם הרץ</label>
+            <input id="input-runner-name" type="text" class="ds-input" placeholder="למשל: סהר" required />
+          </div>
+          <div>
+            <label for="input-race-name" class="block text-xs font-bold mb-1" style="color: var(--muted);">שם המירוץ</label>
+            <input id="input-race-name" type="text" class="ds-input" placeholder="למשל: חצי מרתון ת״א" required />
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-xs font-bold" style="color: var(--muted);">מרחק המירוץ (ק״מ)</label>
+          <div class="flex flex-wrap gap-1.5" id="distance-presets">
+            <button type="button" class="style-pill distance-preset-btn" data-km="5">5 ק״מ</button>
+            <button type="button" class="style-pill distance-preset-btn" data-km="10">10 ק״מ</button>
+            <button type="button" class="style-pill distance-preset-btn" data-km="21.0975">חצי מרתון (21.1)</button>
+            <button type="button" class="style-pill distance-preset-btn" data-km="42.195">מרתון (42.2)</button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+            <div>
+              <label for="input-distance-km" class="block text-[11px] font-bold mb-1" style="color: var(--muted);">מרחק מדויק בק״מ</label>
+              <input id="input-distance-km" type="number" step="0.0001" min="0.5" max="250" class="ds-input font-mono-num" required />
+            </div>
+            <div>
+              <label for="input-race-date" class="block text-[11px] font-bold mb-1" style="color: var(--muted);">תאריך המירוץ</label>
+              <input id="input-race-date" type="date" class="ds-input font-mono-num" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="ds-subbox p-4 space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <span class="text-xs font-extrabold">⏱ יעד — הזן זמן או קצב (השני יחושב אוטומטית)</span>
+            <span class="ds-chip ds-chip-accent text-[11px] py-0.5 px-2">חישוב דו-כיווני פעיל</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="input-target-time" class="text-xs font-bold" style="color: var(--muted);">זמן יעד (ש׳:דק׳:שנ׳)</label>
+                <span id="time-auto-tag" class="text-[10px] font-bold px-1.5 py-0.5 rounded hidden" style="background: var(--success-soft); color: var(--success-fg);">חושב אוטומטית</span>
+              </div>
+              <input id="input-target-time" type="text" class="ds-input font-mono-num text-base" placeholder="1:42:00" dir="ltr" />
+              <p class="text-[11px] mt-1" style="color: var(--muted);">פורמט: 1:42:00 או 45:00</p>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="input-target-pace" class="text-xs font-bold" style="color: var(--muted);">קצב יעד (דק׳:שנ׳ / ק״מ)</label>
+                <span id="pace-auto-tag" class="text-[10px] font-bold px-1.5 py-0.5 rounded hidden" style="background: var(--success-soft); color: var(--success-fg);">חושב אוטומטית</span>
+              </div>
+              <input id="input-target-pace" type="text" class="ds-input font-mono-num text-base" placeholder="4:50" dir="ltr" />
+              <p class="text-[11px] mt-1" style="color: var(--muted);">פורמט: 4:50 (דקות:שניות לק״מ)</p>
+            </div>
+          </div>
+
+          <div id="goal-calc-summary" class="text-xs font-bold pt-1" style="color: var(--accent);"></div>
+          <div id="goal-form-error" class="text-xs font-bold hidden" style="color: var(--danger);"></div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-2">
+          <div class="flex items-center gap-2">
+            <button type="button" id="delete-goal-btn" class="ds-btn ds-btn-secondary px-3 py-2 text-xs hidden" style="color: var(--danger);">
+              🗑 מחק יעד
+            </button>
+            <button type="button" id="reset-goals-btn" class="text-xs font-bold underline cursor-pointer" style="color: var(--muted);">
+              איפוס לברירת מחדל
+            </button>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" id="cancel-goal-btn" class="ds-btn ds-btn-secondary px-4 py-2 text-xs">ביטול</button>
+            <button type="submit" class="ds-btn px-5 py-2 text-xs">💾 שמור והחל יעד</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MAIN DASHBOARD
+       ======================================================================== -->
+  <main class="max-w-7xl mx-auto p-3 sm:p-5 md:p-8 space-y-6" id="main-content" style="display:none">
+    <div class="flex flex-col items-center gap-3 py-16" id="loading">
+      <div class="spinner"></div>
+      <span class="text-sm" style="color: var(--muted);">טוען נתונים מ-Supabase...</span>
+    </div>
+  </main>
+
+  <footer class="text-center py-4 text-xs" id="app-footer" style="display:none; color: var(--muted);">
+    מעקב אימוני ריצה · 9 ערכות עיצוב · חישוב יעד דו-כיווני · Pure Inline SVG · Supabase
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  /* ========================================================================
+     1. THEME CATALOG
+     ======================================================================== */
+  const THEME_CATALOG = [
+    { id: 'bento', name: 'Bento Grid (בנטו גריד)', vibe: 'מסודר, מודרני, קריא מאוד לדשבורד עם הרבה מדדים (סטייל Apple).', swatches: ['#f5f5f7', '#0071e3', '#1d1d1f'] },
+    { id: 'glass', name: 'Glassmorphism (גלסמורפיזם)', vibe: 'עתידני, אלגנטי וקליל — כרטיסים שקופים עם טשטוש רקע וגרדיאנט חי.', swatches: ['#1a103c', '#38bdf8', '#ec4899'] },
+    { id: 'swiss', name: 'Swiss / Minimalist (שוויצרי)', vibe: 'מקצועי, מדויק, אפס רעש ויזואלי — טיפוגרפיה חדה וקווי גריד נקיים.', swatches: ['#ffffff', '#e10600', '#0a0a0a'] },
+    { id: 'telemetry', name: 'Telemetry / HUD (טלמטריה)', vibe: 'כמו תא טייס, שעון ספורט מתקדם או מסך בקרה (Whoop / Garmin Pro).', swatches: ['#05080f', '#00f0ff', '#ffb800'] },
+    { id: 'editorial', name: 'Editorial / Magazine (מגזיני)', vibe: 'יוקרתי, רגוע, מרגיש כמו כתבה ב-New York Times על נייר חמים.', swatches: ['#f7f4ee', '#b45309', '#1b4332'] },
+    { id: 'neumorphism', name: 'Neumorphism (נאומורפיזם)', vibe: 'רך, פיזי ונקי — אלמנטים מובלטים ושקועים בעזרת הצללות רכות.', swatches: ['#e6ebf2', '#4f46e5', '#0d9488'] },
+    { id: 'terminal', name: 'Retro / Terminal (רטרו / טרמינל)', vibe: 'נוסטלגי, האקרי וייחודי — מסך טרמינל ירוק זרחני עם קווי סריקה.', swatches: ['#080c08', '#33ff66', '#ffb000'] },
+    { id: 'clay', name: 'Claymorphism (קליימורפיזם)', vibe: 'ידידותי, משחקי ורך — כרטיסים תלת-ממדיים מנופחים בצבעי פסטל.', swatches: ['#fce7f3', '#7c3aed', '#10b981'] },
+    { id: 'neubrutalist', name: 'Neubrutalist (ניאו-ברוטליזם)', vibe: 'נועז, חד ובעל נוכחות גבוהה — גבולות שחורים עבים, צללים קשיחים וצבעי יסוד.', swatches: ['#ffe500', '#4cc9f0', '#111111'] }
+  ];
+  const STYLE_IDS = THEME_CATALOG.map(t => t.id);
+
+  /* ========================================================================
+     2. SUPABASE CONFIG + APP STATE
+     ======================================================================== */
+  const SUPABASE_URL = 'https://mrhxhzddibgpfnlwzbiq.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1yaHhoemRkaWJncGZubHd6YmlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU0NTQwMDEsImV4cCI6MjExMTAzMDAwMX0.GTmXJQaw9NhM5TZ5sn992tR02Xm0pdZurer5VYCLysI';
+
+  const VDOT_MIN = 44, VDOT_MAX = 50;
+
+  let sb = null;
+  let SESSION = null;
+  let PROFILE = null;
+  let DEMO_MODE = false;
+  let LAST_ROWS = [];
+  let IS_DEMO = false;
+
+  if (window.supabase && window.supabase.createClient) {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+
+  /* ========================================================================
+     3. TRAINING PLAN (16 weeks, unchanged)
+     ======================================================================== */
+  const PLAN = [
+    { week: 0, label: '0 – התאוששות', dates: '11–15.11', start: '2026-11-11', km: 11,  qual: null,              easy: '30 דק׳',               long: '40 דק׳',                     cf: 3 },
+    { week: 1, label: '1',            dates: '16–20.11', start: '2026-11-16', km: 24,  qual: 'פארטלק 40 דק׳',    easy: '35 דק׳ + 4 סטריידים',  long: '11 ק״מ קל',                  cf: 3 },
+    { week: 2, label: '2',            dates: '23–27.11', start: '2026-11-23', km: 27,  qual: '3×8 דק׳ ב-4:45',   easy: '40 דק׳ + 6 סטריידים',  long: '12 ק״מ קל',                  cf: 3 },
+    { week: 3, label: '3',            dates: '30.11–4.12', start: '2026-11-30', km: 28, qual: '6×800 מ׳ ב-4:15', easy: '40 דק׳ + 6 סטריידים',  long: '13 ק״מ קל',                  cf: 3 },
+    { week: 4, label: '4 – הורדה + מבחן', dates: '7–11.12', start: '2026-12-07', km: 23, qual: 'מבחן 5 ק״מ',    easy: '30 דק׳ קל',            long: '10 ק״מ קל',                  cf: 3 },
+    { week: 5, label: '5',            dates: '14–18.12', start: '2026-12-14', km: 31,  qual: '2×15 דק׳ ב-4:40',  easy: '45 דק׳ + 6 סטריידים',  long: '14 ק״מ קל',                  cf: 3 },
+    { week: 6, label: '6',            dates: '21–25.12', start: '2026-12-21', km: 31,  qual: '5×1 ק״מ ב-4:15',   easy: '45 דק׳ קל',            long: '15 ק״מ, 3 אחרונים ב-4:50',   cf: 3 },
+    { week: 7, label: '7',            dates: '28.12–1.1', start: '2026-12-28', km: 33, qual: '3×2 ק״מ ב-4:40',   easy: '45 דק׳ + 6 סטריידים',  long: '16 ק״מ קל',                  cf: 3 },
+    { week: 8, label: '8 – הורדה',    dates: '4–8.1',    start: '2027-01-04', km: 25,  qual: '20 דק׳ רציף ב-4:40', easy: '35 דק׳ קל',          long: '12 ק״מ קל',                  cf: 3 },
+    { week: 9, label: '9',            dates: '11–15.1',  start: '2027-01-11', km: 35,  qual: '4×2 ק״מ ב-4:40',   easy: '50 דק׳ + 6 סטריידים',  long: '17 ק״מ, 5 אחרונים ב-4:50',   cf: 3 },
+    { week: 10, label: '10',          dates: '18–22.1',  start: '2027-01-18', km: 35,  qual: '6×1 ק״מ ב-4:10',   easy: '50 דק׳ קל',            long: '18 ק״מ קל',                  cf: 3 },
+    { week: 11, label: '11',          dates: '25–29.1',  start: '2027-01-25', km: 35,  qual: '3×3 ק״מ ב-4:47',   easy: '45 דק׳ + 6 סטריידים',  long: '16 ק״מ + 2×4 ק״מ ב-4:47',    cf: 3 },
+    { week: 12, label: '12 – הורדה + מבחן', dates: '1–5.2', start: '2027-02-01', km: 27, qual: '4×1 ק״מ ב-4:20', easy: '40 דק׳ קל',            long: 'מבחן 10 ק״מ',                cf: 3 },
+    { week: 13, label: '13 – שיא',    dates: '8–12.2',   start: '2027-02-08', km: 38,  qual: '2×5 ק״מ ב-4:47',   easy: '45 דק׳ קל',            long: '18 ק״מ, 6 אחרונים ב-4:50',   cf: 3 },
+    { week: 14, label: '14 – טייפר',  dates: '15–19.2',  start: '2027-02-15', km: 27,  qual: '3×2 ק״מ ב-4:47',   easy: '40 דק׳ קל',            long: '12 ק״מ קל',                  cf: 2 },
+    { week: 15, label: '15 – מירוץ',  dates: '22–26.2',  start: '2027-02-22', km: 32,  qual: '30 דק׳ קל עם 3×1 ק״מ', easy: '20 דק׳ + 4 סטריידים', long: 'המירוץ 21.1 ק״מ',        cf: 1 }
+  ];
+
+  /* ========================================================================
+     4. TIME / PACE / DATE HELPERS
+     ======================================================================== */
+  function parseTimeToSec(str) {
+    if (!str) return null;
+    const parts = str.trim().split(':').map(p => Number(p));
+    if (parts.some(n => Number.isNaN(n) || n < 0)) return null;
+    if (parts.length === 3) {
+      if (parts[1] >= 60 || parts[2] >= 60) return null;
+      return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    }
+    if (parts.length === 2) {
+      if (parts[1] >= 60) return null;
+      return parts[0] * 60 + parts[1];
+    }
+    return null;
+  }
+
+  function formatTotalTime(totalSec) {
+    const s = Math.max(0, Math.round(totalSec));
+    const hrs = Math.floor(s / 3600);
+    const mins = Math.floor((s % 3600) / 60);
+    const secs = s % 60;
+    const pad = n => (n < 10 ? '0' : '') + n;
+    return hrs > 0 ? hrs + ':' + pad(mins) + ':' + pad(secs) : mins + ':' + pad(secs);
+  }
+
+  function formatPace(secPerKm) {
+    const s = Math.max(0, Math.round(secPerKm));
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+
+  function paceToSeconds(pace) {
+    if (!pace) return 400;
+    const parts = pace.split(':').map(Number);
+    return parts[0] * 60 + (parts[1] || 0);
+  }
+
+  function formatDateIL(isoDate) {
+    if (!isoDate) return '—';
+    const p = isoDate.split('-');
+    return p[2] + '.' + p[1] + '.' + p[0];
+  }
+
+  function todayStart() {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  function calcDaysUntil(isoDate) {
+    if (!isoDate) return 0;
+    const target = new Date(isoDate + 'T00:00:00');
+    return Math.ceil((target - todayStart()) / 86400000);
+  }
+
+  const HE_MONTHS = ['ינו׳','פבר׳','מרץ','אפר׳','מאי','יוני','יולי','אוג׳','ספט׳','אוק׳','נוב׳','דצמ׳'];
+  const HE_DAYS = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+
+  function shortDate(ts) {
+    const d = new Date(ts);
+    return d.getDate() + ' ' + HE_MONTHS[d.getMonth()];
+  }
+  function formatDate(ts) {
+    const d = new Date(ts);
+    return d.getDate() + ' ' + HE_MONTHS[d.getMonth()] + ' (יום ' + HE_DAYS[d.getDay()] + ')';
+  }
+  function formatTs(ts) {
+    const d = new Date(ts);
+    const pad = n => (n < 10 ? '0' : '') + n;
+    return d.getDate() + ' ' + HE_MONTHS[d.getMonth()] + ' ' + d.getFullYear() + ', ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+
+  /* ========================================================================
+     5. GOALS (localStorage + bidirectional time <-> pace)
+     ======================================================================== */
+  const GOALS_STORAGE_KEY = 'sahar-tracker-goals-v1';
+  const DEFAULT_GOALS = [{
+    id: 'default-tlv-hm-2027',
+    runnerName: 'סהר',
+    raceName: 'חצי מרתון ת״א',
+    distanceKm: 21.0975,
+    raceDate: '2027-02-26',
+    targetTimeSec: 6120,
+    targetPaceSec: 290
+  }];
+
+  let goalsState = { goals: DEFAULT_GOALS.slice(), activeId: DEFAULT_GOALS[0].id };
+  let editingGoalId = null;
+  let lastEditedMetric = 'time';
+
+  function loadGoalsState() {
+    try {
+      const raw = localStorage.getItem(GOALS_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && Array.isArray(parsed.goals) && parsed.goals.length > 0) {
+          goalsState = parsed;
+          if (!goalsState.goals.some(g => g.id === goalsState.activeId)) {
+            goalsState.activeId = goalsState.goals[0].id;
+          }
+        }
+      }
+    } catch (e) { console.warn('Could not load saved goals:', e); }
+  }
+
+  function saveGoalsState() {
+    try { localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(goalsState)); }
+    catch (e) { console.warn('Could not save goals:', e); }
+  }
+
+  function getActiveGoal() {
+    return goalsState.goals.find(g => g.id === goalsState.activeId) || goalsState.goals[0];
+  }
+
+  const inRunner = document.getElementById('input-runner-name');
+  const inRace = document.getElementById('input-race-name');
+  const inDist = document.getElementById('input-distance-km');
+  const inDate = document.getElementById('input-race-date');
+  const inTime = document.getElementById('input-target-time');
+  const inPace = document.getElementById('input-target-pace');
+  const timeAutoTag = document.getElementById('time-auto-tag');
+  const paceAutoTag = document.getElementById('pace-auto-tag');
+  const calcSummary = document.getElementById('goal-calc-summary');
+  const formError = document.getElementById('goal-form-error');
+  const deleteGoalBtn = document.getElementById('delete-goal-btn');
+  const savedGoalsList = document.getElementById('saved-goals-list');
+  const goalModal = document.getElementById('goal-modal');
+
+  function updateAutoTags(autoField) {
+    timeAutoTag.classList.toggle('hidden', autoField !== 'time');
+    paceAutoTag.classList.toggle('hidden', autoField !== 'pace');
+  }
+
+  function updateCalcPreview() {
+    const dist = parseFloat(inDist.value);
+    const tSec = parseTimeToSec(inTime.value);
+    const pSec = parseTimeToSec(inPace.value);
+    const days = calcDaysUntil(inDate.value);
+    if (dist > 0 && tSec > 0 && pSec > 0) {
+      formError.classList.add('hidden');
+      const dText = days >= 0 ? 'נותרו ' + days + ' ימים' : 'תאריך בעבר';
+      calcSummary.textContent = 'סיכום: ' + Number(dist.toFixed(2)) + ' ק״מ בקצב ' + formatPace(pSec) +
+        ' דק׳/ק״מ = ' + formatTotalTime(tSec) + ' · ' + dText;
+    } else {
+      calcSummary.textContent = '';
+    }
+  }
+
+  function recalcFromTime() {
+    lastEditedMetric = 'time';
+    const dist = parseFloat(inDist.value);
+    const tSec = parseTimeToSec(inTime.value);
+    if (dist > 0 && tSec && tSec > 0) {
+      inPace.value = formatPace(Math.round(tSec / dist));
+      updateAutoTags('pace');
+    }
+    updateCalcPreview();
+  }
+
+  function recalcFromPace() {
+    lastEditedMetric = 'pace';
+    const dist = parseFloat(inDist.value);
+    const pSec = parseTimeToSec(inPace.value);
+    if (dist > 0 && pSec && pSec > 0) {
+      inTime.value = formatTotalTime(Math.round(pSec * dist));
+      updateAutoTags('time');
+    }
+    updateCalcPreview();
+  }
+
+  function highlightDistancePreset(km) {
+    document.querySelectorAll('.distance-preset-btn').forEach(btn => {
+      btn.classList.toggle('active', Math.abs(parseFloat(btn.dataset.km) - km) < 0.05);
+    });
+  }
+
+  function populateGoalForm(goal) {
+    editingGoalId = goal ? goal.id : null;
+    if (goal) {
+      inRunner.value = goal.runnerName;
+      inRace.value = goal.raceName;
+      inDist.value = goal.distanceKm;
+      inDate.value = goal.raceDate;
+      inTime.value = formatTotalTime(goal.targetTimeSec);
+      inPace.value = formatPace(goal.targetPaceSec);
+      deleteGoalBtn.classList.toggle('hidden', goalsState.goals.length <= 1);
+    } else {
+      const active = getActiveGoal();
+      inRunner.value = active.runnerName;
+      inRace.value = '';
+      inDist.value = 10;
+      const future = new Date();
+      future.setDate(future.getDate() + 90);
+      inDate.value = future.toISOString().split('T')[0];
+      inTime.value = '48:00';
+      inPace.value = '4:48';
+      deleteGoalBtn.classList.add('hidden');
+    }
+    updateAutoTags(null);
+    highlightDistancePreset(parseFloat(inDist.value));
+    updateCalcPreview();
+  }
+
+  function renderSavedGoalsList() {
+    savedGoalsList.innerHTML = goalsState.goals.map(g =>
+      '<button type="button" class="style-pill ' + (g.id === editingGoalId ? 'active' : '') + '" data-goal-id="' + g.id + '">' +
+      '🏁 ' + g.raceName + ' (' + formatTotalTime(g.targetTimeSec) + ')</button>'
+    ).join('');
+    savedGoalsList.querySelectorAll('[data-goal-id]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const found = goalsState.goals.find(x => x.id === btn.dataset.goalId);
+        if (found) {
+          goalsState.activeId = found.id;
+          saveGoalsState();
+          populateGoalForm(found);
+          renderSavedGoalsList();
+          rerender();
+        }
+      });
+    });
+  }
+
+  function openGoalModal() {
+    populateGoalForm(getActiveGoal());
+    renderSavedGoalsList();
+    goalModal.classList.add('open');
+  }
+  function closeGoalModal() { goalModal.classList.remove('open'); }
+
+  inTime.addEventListener('input', recalcFromTime);
+  inPace.addEventListener('input', recalcFromPace);
+  inDate.addEventListener('change', updateCalcPreview);
+  inDist.addEventListener('input', () => {
+    highlightDistancePreset(parseFloat(inDist.value));
+    if (lastEditedMetric === 'pace') recalcFromPace(); else recalcFromTime();
+  });
+  document.querySelectorAll('.distance-preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      inDist.value = btn.dataset.km;
+      highlightDistancePreset(parseFloat(btn.dataset.km));
+      if (lastEditedMetric === 'pace') recalcFromPace(); else recalcFromTime();
+    });
   });
 
-  // ── 2. Metrics ──
-  const metricsCard = document.createElement('div');
-  metricsCard.className = 'card';
-  const rhrDelta = rhr && rhrWeek ? rhr - rhrWeek : 0;
-  const rhrDeltaHtml = rhrDelta > 0
-    ? `<span class="metric-delta up">+${rhrDelta}</span>`
-    : rhrDelta < 0
-    ? `<span class="metric-delta down">${rhrDelta}</span>`
-    : '';
-  metricsCard.innerHTML = `
-    <div class="card-title">מדדים עכשוויים</div>
-    <div class="metrics-grid">
-      <div class="metric-tile">
-        <div class="metric-label">דופק מנוחה היום</div>
-        <div class="metric-val">${rhr ?? '—'} ${rhrDeltaHtml}</div>
-        <div class="metric-unit">פעימות / דקה</div>
-      </div>
-      <div class="metric-tile">
-        <div class="metric-label">ממוצע RHR (שבוע)</div>
-        <div class="metric-val">${rhrWeek ?? '—'}</div>
-        <div class="metric-unit">פעימות / דקה</div>
-      </div>
-      <div class="metric-tile">
-        <div class="metric-label">VO2max</div>
-        <div class="metric-val">${vo2 ?? '—'}</div>
-        <div class="metric-unit">מ״ל / ק״ג / דקה</div>
-      </div>
-      <div class="metric-tile">
-        <div class="metric-label">דופק ממוצע — פעילות אחרונה</div>
-        <div class="metric-val">${avgHR ?? '—'}</div>
-        <div class="metric-unit">פעימות / דקה</div>
-      </div>
-    </div>
-  `;
-  main.appendChild(metricsCard);
+  document.getElementById('new-goal-draft-btn').addEventListener('click', () => {
+    populateGoalForm(null);
+    renderSavedGoalsList();
+    inRace.focus();
+  });
 
-  // ── 3. Last activity + week status ──
-  if (lastRow) {
-    const actCard = document.createElement('div');
-    actCard.className = 'card';
-    const weekItems = [
+  deleteGoalBtn.addEventListener('click', () => {
+    if (!editingGoalId || goalsState.goals.length <= 1) return;
+    goalsState.goals = goalsState.goals.filter(g => g.id !== editingGoalId);
+    goalsState.activeId = goalsState.goals[0].id;
+    saveGoalsState();
+    populateGoalForm(getActiveGoal());
+    renderSavedGoalsList();
+    rerender();
+  });
+
+  document.getElementById('reset-goals-btn').addEventListener('click', () => {
+    goalsState = { goals: DEFAULT_GOALS.slice(), activeId: DEFAULT_GOALS[0].id };
+    saveGoalsState();
+    populateGoalForm(getActiveGoal());
+    renderSavedGoalsList();
+    rerender();
+  });
+
+  document.getElementById('goal-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const runnerName = inRunner.value.trim();
+    const raceName = inRace.value.trim();
+    const distanceKm = parseFloat(inDist.value);
+    const raceDate = inDate.value;
+    let targetTimeSec = parseTimeToSec(inTime.value);
+    let targetPaceSec = parseTimeToSec(inPace.value);
+
+    if (!runnerName || !raceName || !(distanceKm > 0) || !raceDate) {
+      formError.textContent = 'נא למלא שם רץ, שם מירוץ, מרחק תקין ותאריך.';
+      formError.classList.remove('hidden');
+      return;
+    }
+    if (!targetTimeSec && targetPaceSec) targetTimeSec = Math.round(targetPaceSec * distanceKm);
+    else if (targetTimeSec && !targetPaceSec) targetPaceSec = Math.round(targetTimeSec / distanceKm);
+
+    if (!targetTimeSec || !targetPaceSec) {
+      formError.textContent = 'נא להזין זמן יעד תקין (למשל 1:42:00) או קצב לק״מ (למשל 4:50).';
+      formError.classList.remove('hidden');
+      return;
+    }
+
+    if (editingGoalId) {
+      const idx = goalsState.goals.findIndex(g => g.id === editingGoalId);
+      if (idx >= 0) {
+        goalsState.goals[idx] = { id: editingGoalId, runnerName, raceName, distanceKm, raceDate, targetTimeSec, targetPaceSec };
+        goalsState.activeId = editingGoalId;
+      }
+    } else {
+      const newId = 'goal-' + Date.now();
+      goalsState.goals.push({ id: newId, runnerName, raceName, distanceKm, raceDate, targetTimeSec, targetPaceSec });
+      goalsState.activeId = newId;
+    }
+    saveGoalsState();
+    closeGoalModal();
+    rerender();
+  });
+
+  document.getElementById('open-goal-modal-btn').addEventListener('click', openGoalModal);
+  document.getElementById('close-goal-modal-btn').addEventListener('click', closeGoalModal);
+  document.getElementById('cancel-goal-btn').addEventListener('click', closeGoalModal);
+  goalModal.addEventListener('click', e => { if (e.target === goalModal) closeGoalModal(); });
+
+  /* ========================================================================
+     6. THEME PICKER
+     ======================================================================== */
+  const themeModal = document.getElementById('theme-modal');
+  const themeGalleryGrid = document.getElementById('theme-gallery-grid');
+  const stylePills = document.querySelectorAll('#style-pills-container .style-pill');
+  const styleVibeBar = document.getElementById('style-vibe-bar');
+
+  function renderThemeGallery(activeStyleId) {
+    themeGalleryGrid.innerHTML = THEME_CATALOG.map(t => {
+      const isSel = t.id === activeStyleId;
+      const dots = t.swatches.map(c =>
+        '<span class="w-4 h-4 rounded-full inline-block border border-black/25" style="background:' + c + ';"></span>'
+      ).join('');
+      return '<button type="button" class="theme-option-card ' + (isSel ? 'selected' : '') + '" data-pick-style="' + t.id + '">' +
+        '<div class="flex items-center justify-between gap-2 mb-2">' +
+          '<span class="font-extrabold text-sm">' + t.name + '</span>' +
+          '<div class="flex items-center gap-1 shrink-0">' + dots + '</div>' +
+        '</div>' +
+        '<p class="text-xs leading-relaxed" style="color: var(--muted);">' +
+          '<strong style="color: var(--ink);">תחושה:</strong> ' + t.vibe +
+        '</p>' +
+        (isSel ? '<div class="mt-2.5"><span class="ds-chip ds-chip-accent text-[10px] py-0.5 px-2">✓ ערכה פעילה</span></div>' : '') +
+      '</button>';
+    }).join('');
+
+    themeGalleryGrid.querySelectorAll('[data-pick-style]').forEach(btn => {
+      btn.addEventListener('click', () => setStyle(btn.dataset.pickStyle));
+    });
+  }
+
+  function applyDesignStyle(styleId) {
+    const found = THEME_CATALOG.find(t => t.id === styleId) || THEME_CATALOG[0];
+    document.documentElement.setAttribute('data-style', found.id);
+    try { localStorage.setItem('sahar-tracker-style', found.id); } catch (e) {}
+    stylePills.forEach(btn => btn.classList.toggle('active', btn.dataset.styleId === found.id));
+    styleVibeBar.textContent = 'ערכה פעילה: ' + found.name + ' — תחושה: ' + found.vibe;
+    renderThemeGallery(found.id);
+    requestAnimationFrame(() => redrawCharts());
+    return found.id;
+  }
+
+  // Applies + persists to profiles.theme_id when signed in
+  async function setStyle(styleId) {
+    const applied = applyDesignStyle(styleId);
+    if (sb && SESSION && PROFILE) {
+      const { error } = await sb.from('profiles').update({ theme_id: applied }).eq('id', SESSION.user.id);
+      if (error) console.warn('שמירת ערכת העיצוב נכשלה:', error.message);
+      else PROFILE.theme_id = applied;
+    }
+  }
+
+  stylePills.forEach(btn => btn.addEventListener('click', () => setStyle(btn.dataset.styleId)));
+  document.getElementById('open-theme-modal-btn').addEventListener('click', () => themeModal.classList.add('open'));
+  document.getElementById('close-theme-modal-btn').addEventListener('click', () => themeModal.classList.remove('open'));
+  themeModal.addEventListener('click', e => { if (e.target === themeModal) themeModal.classList.remove('open'); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { themeModal.classList.remove('open'); goalModal.classList.remove('open'); }
+  });
+
+  /* ========================================================================
+     7. AUTH
+     ======================================================================== */
+  async function signInWithGoogle() {
+    if (!sb) return;
+    const { error } = await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + window.location.pathname }
+    });
+    if (error) setLoginNote('⚠️ שגיאת התחברות: ' + error.message);
+  }
+
+  async function signOut() {
+    if (sb) await sb.auth.signOut();
+    location.reload();
+  }
+
+  function setLoginNote(txt) {
+    const el = document.getElementById('login-note');
+    if (el) el.textContent = txt;
+  }
+
+  function showScreen(which) {
+    document.getElementById('screen-login').classList.toggle('show', which === 'login');
+    document.getElementById('screen-pending').classList.toggle('show', which === 'pending');
+    const isApp = which === 'app';
+    document.getElementById('app-switcher').style.display = isApp ? 'block' : 'none';
+    document.getElementById('main-content').style.display = isApp ? 'block' : 'none';
+    document.getElementById('app-footer').style.display = isApp ? 'block' : 'none';
+  }
+
+  document.getElementById('google-signin-btn').addEventListener('click', signInWithGoogle);
+  document.getElementById('signout-btn').addEventListener('click', signOut);
+  document.getElementById('signout-btn-pending').addEventListener('click', signOut);
+  document.getElementById('recheck-btn').addEventListener('click', () => location.reload());
+  document.getElementById('demo-mode-btn').addEventListener('click', () => {
+    DEMO_MODE = true;
+    showScreen('app');
+    LAST_ROWS = getDemoRows();
+    IS_DEMO = true;
+    buildPage(LAST_ROWS, true);
+  });
+
+  /* ========================================================================
+     8. SUPABASE FETCH + DEMO DATA
+     ======================================================================== */
+  async function fetchRows() {
+    const { data, error } = await sb
+      .from('workout_rows')
+      .select('*')
+      .eq('user_id', SESSION.user.id)
+      .order('ts', { ascending: true });
+    if (error) throw new Error(error.message);
+    return data || [];
+  }
+
+  function getDemoRows() {
+    return [
+      { runner_id:'sahar', ts:'2026-11-12T18:00:00+02:00', type:'crossfit',        distance_km:null, pace_avg:null,   avg_hr:155, rhr:57, vo2max:null },
+      { runner_id:'sahar', ts:'2026-11-13T06:30:00+02:00', type:'running_easy',    distance_km:5.2,  pace_avg:'6:45', avg_hr:142, rhr:56, vo2max:46 },
+      { runner_id:'sahar', ts:'2026-11-14T06:30:00+02:00', type:'running_long',    distance_km:7.8,  pace_avg:'6:50', avg_hr:144, rhr:55, vo2max:46 },
+      { runner_id:'sahar', ts:'2026-11-16T18:00:00+02:00', type:'crossfit',        distance_km:null, pace_avg:null,   avg_hr:158, rhr:58, vo2max:null },
+      { runner_id:'sahar', ts:'2026-11-17T06:30:00+02:00', type:'running_quality', distance_km:8.5,  pace_avg:'4:38', avg_hr:168, rhr:55, vo2max:47 },
+      { runner_id:'sahar', ts:'2026-11-18T18:00:00+02:00', type:'crossfit',        distance_km:null, pace_avg:null,   avg_hr:160, rhr:56, vo2max:null },
+      { runner_id:'sahar', ts:'2026-11-19T06:30:00+02:00', type:'running_easy',    distance_km:3.0,  pace_avg:'6:30', avg_hr:141, rhr:57, vo2max:46 },
+      { runner_id:'sahar', ts:'2026-11-23T06:30:00+02:00', type:'running_easy',    distance_km:8.96, pace_avg:'6:09', avg_hr:146, rhr:60, vo2max:46 },
+      { runner_id:'sahar', ts:'2026-11-23T18:00:00+02:00', type:'crossfit',        distance_km:null, pace_avg:null,   avg_hr:162, rhr:60, vo2max:null },
+      { runner_id:'sahar', ts:'2026-11-25T06:30:00+02:00', type:'running_easy',    distance_km:6.4,  pace_avg:'6:05', avg_hr:144, rhr:59, vo2max:46 }
+    ];
+  }
+
+  /* ========================================================================
+     9. DATA PROCESSING (unchanged logic)
+     ======================================================================== */
+  function getWeekOf(date) {
+    for (let i = PLAN.length - 1; i >= 0; i--) {
+      if (date >= new Date(PLAN[i].start + 'T00:00:00')) return i;
+    }
+    return 0;
+  }
+  function getCurrentWeekIndex() { return getWeekOf(todayStart()); }
+
+  function groupByWeek(rows) {
+    const weeks = {};
+    rows.forEach(r => {
+      const wi = getWeekOf(new Date(r.ts));
+      if (!weeks[wi]) weeks[wi] = [];
+      weeks[wi].push(r);
+    });
+    return weeks;
+  }
+
+  function latestBy(rows, field) {
+    const withVal = rows.filter(r => r[field]).sort((a, b) => new Date(b.ts) - new Date(a.ts));
+    return withVal.length ? withVal[0][field] : null;
+  }
+  function weekAvgRHR(rows) {
+    const withRHR = rows.filter(r => r.rhr);
+    if (!withRHR.length) return null;
+    return +(withRHR.reduce((s, r) => s + r.rhr, 0) / withRHR.length).toFixed(1);
+  }
+  function weekActualKm(rows) {
+    return rows.filter(r => r.type !== 'crossfit' && r.distance_km).reduce((s, r) => s + r.distance_km, 0);
+  }
+  function weekCompletions(rows) {
+    return {
+      quality: rows.some(r => r.type === 'running_quality'),
+      easy: rows.some(r => r.type === 'running_easy'),
+      long: rows.some(r => r.type === 'running_long'),
+      cf: rows.filter(r => r.type === 'crossfit').length
+    };
+  }
+
+  function calcScore(allRows, byWeek, currentWeekIdx) {
+    let totalPlanned = 0, totalActual = 0;
+    for (let i = 0; i <= currentWeekIdx; i++) {
+      totalPlanned += PLAN[i].km;
+      totalActual += weekActualKm(byWeek[i] || []);
+    }
+    const volumeAdherence = totalPlanned > 0 ? Math.min(1, totalActual / totalPlanned) : 0;
+
+    const easyRuns = allRows
+      .filter(r => r.type === 'running_easy' && r.pace_avg && r.avg_hr)
+      .sort((a, b) => new Date(a.ts) - new Date(b.ts))
+      .slice(-8);
+
+    let easyTrend = 0.5;
+    if (easyRuns.length >= 3) {
+      const paces = easyRuns.map(r => paceToSeconds(r.pace_avg));
+      const n = paces.length;
+      const xs = paces.map((_, i) => i);
+      const meanX = xs.reduce((s, x) => s + x, 0) / n;
+      const meanY = paces.reduce((s, y) => s + y, 0) / n;
+      const slope = xs.reduce((s, x, i) => s + (x - meanX) * (paces[i] - meanY), 0) /
+                    xs.reduce((s, x) => s + Math.pow(x - meanX, 2), 0.001);
+      easyTrend = Math.max(0, Math.min(1, 0.5 - slope / 4));
+    }
+
+    const vo2 = latestBy(allRows, 'vo2max') || VDOT_MIN;
+    const testScore = Math.max(0, Math.min(1, (vo2 - VDOT_MIN) / (VDOT_MAX - VDOT_MIN)));
+    const score = 0.4 * volumeAdherence + 0.35 * easyTrend + 0.25 * testScore;
+
+    return {
+      score: Math.round(score * 100),
+      volumeAdherence: Math.round(volumeAdherence * 100),
+      easyTrend: Math.round(easyTrend * 100),
+      testScore: Math.round(testScore * 100),
+      totalPlanned: +totalPlanned.toFixed(1),
+      totalActual: +totalActual.toFixed(1),
+      vo2
+    };
+  }
+
+  function typeLabel(t) {
+    return { running_easy:'ריצה קלה', running_quality:'ריצת איכות', running_long:'ריצה ארוכה', crossfit:'קרוספיט' }[t] || t;
+  }
+  function typeIcon(t) {
+    return { running_easy:'🏃', running_quality:'⚡', running_long:'🏃‍♂️', crossfit:'💪' }[t] || '🏃';
+  }
+
+  function getNextWorkout(currentWeekIdx, completions) {
+    const plan = PLAN[currentWeekIdx];
+    if (!plan) return null;
+    if (!completions.quality && plan.qual) return { type:'ריצת איכות', desc: plan.qual, week: currentWeekIdx };
+    if (!completions.long) return { type:'ריצה ארוכה', desc: plan.long, week: currentWeekIdx };
+    if (!completions.easy) return { type:'ריצה קלה', desc: plan.easy, week: currentWeekIdx };
+    const nextPlan = PLAN[currentWeekIdx + 1];
+    if (nextPlan) return { type:'ריצת איכות', desc: nextPlan.qual || nextPlan.easy, week: currentWeekIdx + 1 };
+    return null;
+  }
+
+  /* ========================================================================
+     10. SVG CHARTS (theme-aware palette)
+     ======================================================================== */
+  const tooltip = document.getElementById('chart-tooltip');
+  function showTooltip(e, text) { tooltip.textContent = text; tooltip.style.opacity = '1'; moveTooltip(e); }
+  function moveTooltip(e) {
+    tooltip.style.left = Math.min(e.clientX + 14, window.innerWidth - 200) + 'px';
+    tooltip.style.top = Math.max(e.clientY - 36, 10) + 'px';
+  }
+  function hideTooltip() { tooltip.style.opacity = '0'; }
+
+  function getChartPalette() {
+    const cs = getComputedStyle(document.documentElement);
+    const get = v => cs.getPropertyValue(v).trim();
+    const styleId = document.documentElement.getAttribute('data-style');
+    return {
+      c1: get('--chart-1') || '#0071e3',
+      c2: get('--chart-2') || '#16a34a',
+      c3: get('--chart-3') || '#cbd5e1',
+      c4: get('--chart-4') || '#f59e0b',
+      trend: get('--chart-trend') || '#ef4444',
+      grid: get('--chart-grid') || 'rgba(0,0,0,0.08)',
+      axis: get('--chart-axis') || '#64748b',
+      ink: get('--ink') || '#111111',
+      muted: get('--muted') || '#64748b',
+      strokeW: styleId === 'neubrutalist' ? 3 : 2.2,
+      barRadius: ['bento','clay','neumorphism','glass'].includes(styleId) ? 5 : 0
+    };
+  }
+
+  function emptyChart(container, msg) {
+    const p = getChartPalette();
+    container.innerHTML = '<svg viewBox="0 0 520 220" class="w-full h-auto"><text x="260" y="110" text-anchor="middle" ' +
+      'fill="' + p.muted + '" font-family="Heebo" font-size="14">' + msg + '</text></svg>';
+  }
+
+  function renderLineAreaChart(containerId, data, lineColor, unitLabel, decimals) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    if (!data.length) { emptyChart(container, 'אין נתונים להצגה'); return; }
+
+    const p = getChartPalette();
+    const W = 520, H = 220;
+    const pad = { top: 18, right: 18, bottom: 32, left: 42 };
+    const plotW = W - pad.left - pad.right, plotH = H - pad.top - pad.bottom;
+
+    const vals = data.map(d => d.val);
+    let yMin = Math.min.apply(null, vals), yMax = Math.max.apply(null, vals);
+    const span = yMax - yMin;
+    const margin = span === 0 ? Math.max(1, Math.abs(yMax) * 0.05) : span * 0.25;
+    yMin -= margin; yMax += margin;
+
+    const xStep = data.length > 1 ? plotW / (data.length - 1) : 0;
+    const getX = i => data.length > 1 ? pad.left + i * xStep : pad.left + plotW / 2;
+    const getY = v => pad.top + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
+
+    const pts = data.map((d, i) => ({ x: getX(i), y: getY(d.val), label: d.label, val: d.val }));
+    const linePath = pts.map((pt, i) => (i === 0 ? 'M' : 'L') + ' ' + pt.x + ' ' + pt.y).join(' ');
+    const areaPath = linePath + ' L ' + pts[pts.length - 1].x + ' ' + (pad.top + plotH) +
+                     ' L ' + pts[0].x + ' ' + (pad.top + plotH) + ' Z';
+    const gradId = 'grad-' + containerId;
+
+    let gridHtml = '';
+    for (let i = 0; i <= 3; i++) {
+      const val = yMin + ((yMax - yMin) / 3) * i;
+      const y = getY(val);
+      gridHtml += '<line x1="' + pad.left + '" y1="' + y + '" x2="' + (W - pad.right) + '" y2="' + y +
+        '" stroke="' + p.grid + '" stroke-width="1" stroke-dasharray="4 4" />';
+      gridHtml += '<text x="' + (pad.left - 8) + '" y="' + (y + 4) + '" text-anchor="end" fill="' + p.muted +
+        '" font-family="Space Mono" font-size="10.5">' + val.toFixed(decimals || 0) + '</text>';
+    }
+
+    const stepLabel = data.length > 8 ? Math.ceil(data.length / 6) : 1;
+    let xLabelsHtml = '';
+    pts.forEach((pt, i) => {
+      if (i % stepLabel === 0 || i === pts.length - 1) {
+        xLabelsHtml += '<text x="' + pt.x + '" y="' + (H - 8) + '" text-anchor="middle" fill="' + p.muted +
+          '" font-family="Space Mono" font-size="10">' + pt.label + '</text>';
+      }
+    });
+
+    const dotsHtml = pts.map(pt =>
+      '<circle class="svg-point" cx="' + pt.x + '" cy="' + pt.y + '" r="4.8" fill="' + lineColor +
+      '" stroke="' + p.ink + '" stroke-width="1.8" data-tip="' + pt.label + ': ' + pt.val + ' ' + unitLabel + '" />'
+    ).join('');
+
+    container.innerHTML =
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" class="w-full h-auto overflow-visible" dir="ltr">' +
+        '<defs><linearGradient id="' + gradId + '" x1="0" y1="0" x2="0" y2="1">' +
+          '<stop offset="0%" stop-color="' + lineColor + '" stop-opacity="0.32" />' +
+          '<stop offset="100%" stop-color="' + lineColor + '" stop-opacity="0.02" />' +
+        '</linearGradient></defs>' +
+        gridHtml +
+        '<path d="' + areaPath + '" fill="url(#' + gradId + ')" />' +
+        '<path d="' + linePath + '" fill="none" stroke="' + lineColor + '" stroke-width="' + p.strokeW +
+          '" stroke-linejoin="round" stroke-linecap="round" />' +
+        '<line x1="' + pad.left + '" y1="' + (pad.top + plotH) + '" x2="' + (W - pad.right) + '" y2="' + (pad.top + plotH) +
+          '" stroke="' + p.axis + '" stroke-width="1.5" />' +
+        xLabelsHtml + dotsHtml +
+      '</svg>';
+  }
+
+  function renderVolumeBarChart(data) {
+    const container = document.getElementById('chart-volume');
+    if (!container) return;
+    if (!data.length) { emptyChart(container, 'אין נתונים להצגה'); return; }
+
+    const p = getChartPalette();
+    const W = 520, H = 220;
+    const pad = { top: 18, right: 18, bottom: 32, left: 42 };
+    const plotW = W - pad.left - pad.right, plotH = H - pad.top - pad.bottom;
+    const rawMax = Math.max.apply(null, data.map(d => Math.max(d.planned, d.actual || 0)));
+    const yMax = Math.max(10, Math.ceil(rawMax / 10) * 10);
+    const groupW = plotW / data.length;
+    const barW = Math.min(24, groupW * 0.34);
+    const getY = v => pad.top + plotH - (v / yMax) * plotH;
+
+    let gridHtml = '';
+    for (let i = 0; i <= 4; i++) {
+      const v = (yMax / 4) * i;
+      const y = getY(v);
+      gridHtml += '<line x1="' + pad.left + '" y1="' + y + '" x2="' + (W - pad.right) + '" y2="' + y +
+        '" stroke="' + p.grid + '" stroke-width="1" stroke-dasharray="4 4" />';
+      gridHtml += '<text x="' + (pad.left - 8) + '" y="' + (y + 4) + '" text-anchor="end" fill="' + p.muted +
+        '" font-family="Space Mono" font-size="10.5">' + Math.round(v) + '</text>';
+    }
+
+    const strokeAttr = document.documentElement.getAttribute('data-style') === 'neubrutalist'
+      ? 'stroke="#111111" stroke-width="2"' : 'stroke="none"';
+
+    const barsHtml = data.map((d, i) => {
+      const cx = pad.left + i * groupW + groupW / 2;
+      const yP = getY(d.planned), hP = pad.top + plotH - yP;
+      let out = '<rect class="svg-bar" x="' + (cx - barW - 2) + '" y="' + yP + '" width="' + barW + '" height="' + hP +
+        '" rx="' + p.barRadius + '" fill="' + p.c3 + '" ' + strokeAttr +
+        ' data-tip="שבוע ' + d.week + ' מתוכנן: ' + d.planned + ' ק״מ" />';
+      if (d.actual > 0) {
+        const yA = getY(d.actual), hA = pad.top + plotH - yA;
+        const col = d.actual >= d.planned ? p.c2 : p.c1;
+        out += '<rect class="svg-bar" x="' + (cx + 2) + '" y="' + yA + '" width="' + barW + '" height="' + hA +
+          '" rx="' + p.barRadius + '" fill="' + col + '" ' + strokeAttr +
+          ' data-tip="שבוע ' + d.week + ' בפועל: ' + d.actual.toFixed(1) + ' ק״מ" />';
+      }
+      out += '<text x="' + cx + '" y="' + (H - 8) + '" text-anchor="middle" fill="' + p.muted +
+        '" font-family="Heebo" font-size="11" font-weight="700">ש׳ ' + d.week + '</text>';
+      return out;
+    }).join('');
+
+    container.innerHTML =
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" class="w-full h-auto overflow-visible" dir="ltr">' +
+        gridHtml + barsHtml +
+        '<line x1="' + pad.left + '" y1="' + (pad.top + plotH) + '" x2="' + (W - pad.right) + '" y2="' + (pad.top + plotH) +
+          '" stroke="' + p.axis + '" stroke-width="1.5" />' +
+      '</svg>';
+  }
+
+  function renderEasyScatterChart(data) {
+    const container = document.getElementById('chart-easy');
+    if (!container) return;
+    if (data.length < 2) { emptyChart(container, 'אין מספיק ריצות קלות עדיין'); return; }
+
+    const p = getChartPalette();
+    const W = 520, H = 220;
+    const pad = { top: 18, right: 18, bottom: 32, left: 48 };
+    const plotW = W - pad.left - pad.right, plotH = H - pad.top - pad.bottom;
+
+    const paces = data.map(d => d.paceSec);
+    const yMin = Math.floor((Math.min.apply(null, paces) - 10) / 10) * 10;
+    const yMax = Math.ceil((Math.max.apply(null, paces) + 10) / 10) * 10;
+
+    const xStep = plotW / (data.length - 1);
+    const getX = i => pad.left + i * xStep;
+    const getY = sec => pad.top + plotH - ((sec - yMin) / (yMax - yMin)) * plotH;
+
+    const n = data.length;
+    let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+    data.forEach((d, i) => { sumX += i; sumY += d.paceSec; sumXY += i * d.paceSec; sumXX += i * i; });
+    const slope = (n * sumXY - sumX * sumY) / Math.max(0.0001, n * sumXX - sumX * sumX);
+    const intercept = (sumY - slope * sumX) / n;
+
+    let gridHtml = '';
+    for (let i = 0; i <= 4; i++) {
+      const sec = yMin + ((yMax - yMin) / 4) * i;
+      const y = getY(sec);
+      gridHtml += '<line x1="' + pad.left + '" y1="' + y + '" x2="' + (W - pad.right) + '" y2="' + y +
+        '" stroke="' + p.grid + '" stroke-width="1" stroke-dasharray="4 4" />';
+      gridHtml += '<text x="' + (pad.left - 8) + '" y="' + (y + 4) + '" text-anchor="end" fill="' + p.muted +
+        '" font-family="Space Mono" font-size="10">' + formatPace(sec) + '</text>';
+    }
+
+    let dotsHtml = '', xLabelsHtml = '';
+    data.forEach((d, i) => {
+      const x = getX(i), y = getY(d.paceSec);
+      const fill = d.hr <= 143 ? p.c2 : d.hr <= 146 ? p.c4 : p.trend;
+      dotsHtml += '<circle class="svg-point" cx="' + x + '" cy="' + y + '" r="5.5" fill="' + fill +
+        '" stroke="' + p.ink + '" stroke-width="1.8" data-tip="' + d.label + ' · קצב ' + formatPace(d.paceSec) +
+        ' · דופק ' + d.hr + '" />';
+      if (i % 2 === 0 || i === n - 1) {
+        xLabelsHtml += '<text x="' + x + '" y="' + (H - 8) + '" text-anchor="middle" fill="' + p.muted +
+          '" font-family="Space Mono" font-size="10">' + d.label + '</text>';
+      }
+    });
+
+    container.innerHTML =
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" class="w-full h-auto overflow-visible" dir="ltr">' +
+        gridHtml +
+        '<line x1="' + getX(0) + '" y1="' + getY(intercept) + '" x2="' + getX(n - 1) + '" y2="' + getY(intercept + slope * (n - 1)) +
+          '" stroke="' + p.trend + '" stroke-width="2.5" stroke-dasharray="6 4" />' +
+        '<line x1="' + pad.left + '" y1="' + (pad.top + plotH) + '" x2="' + (W - pad.right) + '" y2="' + (pad.top + plotH) +
+          '" stroke="' + p.axis + '" stroke-width="1.5" />' +
+        xLabelsHtml + dotsHtml +
+      '</svg>';
+  }
+
+  function bindTooltips() {
+    document.querySelectorAll('[data-tip]').forEach(el => {
+      el.addEventListener('mouseenter', e => showTooltip(e, el.getAttribute('data-tip')));
+      el.addEventListener('mousemove', moveTooltip);
+      el.addEventListener('mouseleave', hideTooltip);
+    });
+  }
+
+  let CHART_DATA = { rhr: [], vo2: [], volume: [], easy: [] };
+
+  function redrawCharts() {
+    if (!document.getElementById('chart-rhr')) return;
+    const p = getChartPalette();
+    renderLineAreaChart('chart-rhr', CHART_DATA.rhr, p.c2, 'פעימות/דק׳', 0);
+    renderLineAreaChart('chart-vo2', CHART_DATA.vo2, p.c4, 'VO2max', 1);
+    renderVolumeBarChart(CHART_DATA.volume);
+    renderEasyScatterChart(CHART_DATA.easy);
+    bindTooltips();
+  }
+
+  /* ========================================================================
+     11. WORKOUT FLOW BUILDER (unchanged parsing)
+     ======================================================================== */
+  function buildWorkoutFlow(desc, type) {
+    if (!desc) return '';
+    const seg = (label, val, sub, main) =>
+      '<div class="' + (main ? 'flex-[1.6] ds-subbox p-3.5' : 'flex-1 ds-subbox p-3') + ' text-center"' +
+      (main ? ' style="background: var(--accent); color: var(--accent-fg);"' : '') + '>' +
+        '<div class="text-xs font-bold"' + (main ? '' : ' style="color: var(--muted);"') + '>' + label + '</div>' +
+        '<div class="font-mono-num text-lg font-bold mt-1">' + val + '</div>' +
+        '<div class="text-xs mt-0.5"' + (main ? ' style="opacity:.9"' : ' style="color: var(--muted);"') + '>' + sub + '</div>' +
+      '</div>';
+    const arrow = '<div class="flow-arrow text-center">←</div>';
+
+    if (type === 'ריצה ארוכה') {
+      const kmMatch = desc.match(/(\d+) ק[״"]מ/);
+      const km = kmMatch ? kmMatch[1] : '?';
+      return seg('חימום', '10 דק׳', 'קל') + arrow +
+             seg('ריצה', km + ' ק״מ', 'דופק &lt;145', true) + arrow +
+             seg('שחרור', '5 דק׳', 'קל');
+    }
+
+    if (type === 'ריצה קלה') {
+      const minMatch = desc.match(/(\d+) דק[׳']/);
+      const mins = minMatch ? minMatch[1] : '40';
+      const hasStrides = desc.indexOf('סטריידים') !== -1;
+      return seg('ריצה', mins + ' דק׳', 'דופק &lt;145', true) +
+             (hasStrides ? arrow + seg('סטריידים', '4–6 × 20״', 'מהיר ורגוע') : '');
+    }
+
+    const timesMatch = desc.match(/(\d+)×(\d+) דק[׳']/);
+    const kmMatch = desc.match(/(\d+)×(\d+) ק[״"]מ/);
+    const paceMatch = desc.match(/ב-(\d+:\d+)/);
+    const pace = paceMatch ? paceMatch[1] : '4:45';
+
+    if (timesMatch) {
+      return seg('חימום', '15 דק׳', 'קל, 6:30+') + arrow +
+             seg('×' + timesMatch[1] + ' חזרות', timesMatch[2] + ' דק׳', 'קצב ' + pace, true) + arrow +
+             seg('שחרור', '10 דק׳', 'קל');
+    }
+    if (kmMatch) {
+      return seg('חימום', '15 דק׳', 'קל') + arrow +
+             seg('×' + kmMatch[1] + ' חזרות', kmMatch[2] + ' ק״מ', 'קצב ' + pace, true) + arrow +
+             seg('שחרור', '10 דק׳', 'קל');
+    }
+    return '<div class="ds-subbox p-3 text-sm font-bold flex-1">' + desc + '</div>';
+  }
+
+  /* ========================================================================
+     12. BUILD PAGE
+     ======================================================================== */
+  function rerender() {
+    if (document.getElementById('main-content').style.display !== 'none') {
+      buildPage(LAST_ROWS, IS_DEMO);
+    }
+  }
+
+  function buildPage(rows, isDemo) {
+    const main = document.getElementById('main-content');
+    const goal = getActiveGoal();
+    const targetTimeStr = formatTotalTime(goal.targetTimeSec);
+    const targetPaceStr = formatPace(goal.targetPaceSec);
+    const raceDateIL = formatDateIL(goal.raceDate);
+    const daysLeft = calcDaysUntil(goal.raceDate);
+    const distDisplay = Number(goal.distanceKm.toFixed(1));
+
+    document.title = goal.runnerName + ' – ' + goal.raceName;
+    document.getElementById('active-goal-pill-bar').textContent =
+      '🎯 ' + goal.raceName + ' · יעד ' + targetTimeStr + ' (' + targetPaceStr + '/ק״מ)';
+
+    const byWeek = groupByWeek(rows);
+    const curWi = getCurrentWeekIndex();
+    const curRows = byWeek[curWi] || [];
+    const completions = weekCompletions(curRows);
+    const s = calcScore(rows, byWeek, curWi);
+    const curPlan = PLAN[curWi];
+    const curWeekKm = weekActualKm(curRows);
+    const weekAdherence = curPlan ? Math.min(100, Math.round(curWeekKm / curPlan.km * 100)) : 0;
+
+    const rhr = latestBy(rows, 'rhr');
+    const rhrWeek = weekAvgRHR(curRows.length ? curRows : rows.slice(-7));
+    const vo2 = latestBy(rows, 'vo2max');
+    const avgHR = latestBy(rows, 'avg_hr');
+    const lastRow = rows.length ? rows.slice().sort((a, b) => new Date(b.ts) - new Date(a.ts))[0] : null;
+
+    // Current pace estimate from the most recent quality run
+    const qualityRuns = rows.filter(r => r.type === 'running_quality' && r.pace_avg)
+      .sort((a, b) => new Date(b.ts) - new Date(a.ts));
+    const curPaceStr = qualityRuns.length ? qualityRuns[0].pace_avg : '—';
+
+    // Forecast
+    let forecastChip, forecastText, forecastColor;
+    if (s.score >= 70) {
+      forecastChip = '<span class="ds-chip ds-chip-success text-xs">🎯 ' + targetTimeStr + ' בהישג יד</span>';
+      forecastText = targetTimeStr; forecastColor = 'var(--success)';
+    } else if (s.score >= 50) {
+      const est = Math.round(goal.targetTimeSec * 1.07);
+      forecastChip = '<span class="ds-chip ds-chip-warn text-xs">⚠️ תחזית ~' + formatTotalTime(est) + '</span>';
+      forecastText = '~' + formatTotalTime(est); forecastColor = 'var(--warn)';
+    } else {
+      forecastChip = '<span class="ds-chip ds-chip-danger text-xs">❌ היעד בסכנה</span>';
+      forecastText = 'בסכנה'; forecastColor = 'var(--danger)';
+    }
+
+    const daysLabel = daysLeft > 0 ? 'נותרו ' + daysLeft + ' ימים'
+      : daysLeft === 0 ? 'יום המירוץ היום! 🏁' : 'עברו ' + Math.abs(daysLeft) + ' ימים';
+
+    const statusChip = isDemo
+      ? '<span class="ds-chip ds-chip-warn">⚡ מצב הדגמה</span>'
+      : '<span class="ds-chip ds-chip-success">🟢 מחובר ל-Supabase</span>';
+
+    const demoBanner = isDemo ? (
+      '<div class="ds-subbox px-4 py-2.5 flex items-center justify-between gap-3 text-xs sm:text-sm">' +
+        '<div class="flex flex-wrap items-center gap-2">' +
+          '<span class="ds-chip ds-chip-warn text-[11px] py-0.5 px-2">DEMO MODE</span>' +
+          '<span style="color: var(--ink);">מוצגים נתוני הדגמה — טבלת <code class="font-mono-num">workout_rows</code> ריקה או שאין חיבור.</span>' +
+        '</div>' +
+        '<button id="dismiss-demo-btn" class="text-xs font-bold px-2 py-1 opacity-75 hover:opacity-100 cursor-pointer" style="color: var(--ink);" aria-label="סגור הודעת הדגמה">✕</button>' +
+      '</div>'
+    ) : '';
+
+    // ── metric card helper
+    const metricCard = (label, value, unit, color) =>
+      '<div class="ds-card ds-card-hover p-4 sm:p-5">' +
+        '<span class="text-xs font-bold" style="color: var(--muted);">' + label + '</span>' +
+        '<div class="mt-2 flex items-baseline gap-2">' +
+          '<span class="font-mono-num text-3xl sm:text-4xl font-bold" style="color: ' + color + ';">' + value + '</span>' +
+          '<span class="text-xs" style="color: var(--muted);">' + unit + '</span>' +
+        '</div>' +
+      '</div>';
+
+    // ── week status chips
+    const weekChips = [
       { done: completions.quality, label: 'ריצת איכות' },
       { done: completions.easy, label: 'ריצה קלה' },
-      { done: completions.long, label: `ריצה ארוכה ${curPlan?.long || ''}` },
-      { done: completions.cf >= (curPlan?.cf || 3), label: `קרוספיט ${completions.cf}/${curPlan?.cf || 3}` },
-    ];
-    const weekHtml = weekItems.map(w =>
-      `<div class="week-item"><span>${w.done ? '✅' : '⏳'}</span> ${w.label}</div>`
-    ).join('');
-    actCard.innerHTML = `
-      <div class="card-title">פעילות אחרונה ומצב שבוע ${curWi}</div>
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-        <span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.95rem">${typeIcon(lastRow.type)} ${typeLabel(lastRow.type)}</span>
-        ${lastRow.distance_km ? `<span style="font-size:.82rem;color:var(--fg2)"><strong>${lastRow.distance_km.toFixed(2)} ק״מ</strong></span>` : ''}
-        ${lastRow.pace_avg ? `<span style="font-size:.82rem;color:var(--fg2)">קצב <strong>${lastRow.pace_avg}/ק״מ</strong></span>` : ''}
-        ${lastRow.avg_hr ? `<span style="font-size:.82rem;color:var(--fg2)">דופק ממוצע <strong>${lastRow.avg_hr}</strong></span>` : ''}
-        <span style="font-size:.82rem;color:var(--fg3)">${formatDate(lastRow.ts)}</span>
-      </div>
-      <div class="week-status-row">${weekHtml}</div>
-    `;
-    main.appendChild(actCard);
+      { done: completions.long, label: 'ריצה ארוכה' },
+      { done: completions.cf >= (curPlan ? curPlan.cf : 3), label: 'קרוספיט ' + completions.cf + '/' + (curPlan ? curPlan.cf : 3) }
+    ].map(w => '<span class="ds-chip ' + (w.done ? 'ds-chip-success' : '') + '">' + (w.done ? '✅' : '⏳') + ' ' + w.label + '</span>').join('');
+
+    // ── next workout
+    const next = getNextWorkout(curWi, completions);
+    const nextPlan = next ? PLAN[next.week] : null;
+    const nextCard = next ? (
+      '<div class="lg:col-span-7 ds-card p-5 space-y-5">' +
+        '<div class="flex flex-wrap items-start justify-between gap-3">' +
+          '<div>' +
+            '<span class="ds-chip ds-chip-accent text-xs mb-1.5">האימון הבא 🏃</span>' +
+            '<h2 class="text-xl sm:text-2xl font-black mt-1">' + next.type + ' — שבוע ' + next.week + '</h2>' +
+          '</div>' +
+          '<div class="flex flex-wrap gap-2">' +
+            '<span class="ds-chip text-xs">📅 שבוע ' + (nextPlan ? nextPlan.dates : '') + '</span>' +
+            '<span class="ds-chip text-xs">📋 ' + next.desc + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div>' +
+          '<p class="text-xs font-bold uppercase mb-2.5" style="color: var(--muted);">מבנה האימון</p>' +
+          '<div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">' +
+            buildWorkoutFlow(next.desc, next.type) +
+          '</div>' +
+        '</div>' +
+        (next.type === 'ריצת איכות' ?
+          '<div class="ds-subbox p-3 text-xs sm:text-sm font-medium flex items-start gap-2" style="background: var(--warn-soft); color: var(--warn-fg);">' +
+            '<span>💡</span><span>חימום מלא של 15 דקות לפני האינטרוולים, ושתייה של 500 מ״ל לפחות.</span>' +
+          '</div>' : '') +
+      '</div>'
+    ) : '';
+
+    // ── chart data
+    const rhrSeen = {};
+    CHART_DATA.rhr = rows.filter(r => r.rhr).sort((a, b) => new Date(a.ts) - new Date(b.ts))
+      .reduce((acc, r) => {
+        const lbl = shortDate(r.ts);
+        if (!rhrSeen[lbl]) { rhrSeen[lbl] = true; acc.push({ label: lbl, val: r.rhr }); }
+        return acc;
+      }, []).slice(-14);
+
+    CHART_DATA.vo2 = Object.keys(byWeek).sort((a, b) => +a - +b).map(wi => {
+      const wRows = byWeek[wi].filter(r => r.vo2max);
+      if (!wRows.length) return null;
+      return { label: 'ש׳ ' + wi, val: +(wRows.reduce((s2, r) => s2 + r.vo2max, 0) / wRows.length).toFixed(1) };
+    }).filter(Boolean);
+
+    CHART_DATA.volume = PLAN.slice(0, Math.min(PLAN.length, curWi + 2)).map(pl => ({
+      week: pl.week, planned: pl.km, actual: weekActualKm(byWeek[pl.week] || [])
+    }));
+
+    CHART_DATA.easy = rows
+      .filter(r => r.type === 'running_easy' && r.pace_avg && r.avg_hr && r.avg_hr >= 135 && r.avg_hr <= 155)
+      .sort((a, b) => new Date(a.ts) - new Date(b.ts))
+      .map(r => ({ label: shortDate(r.ts), paceSec: paceToSeconds(r.pace_avg), hr: r.avg_hr }));
+
+    // ── plan table rows
+    const tableRows = PLAN.map(pl => {
+      const wRows = byWeek[pl.week] || [];
+      const actual = weekActualKm(wRows);
+      const comp = weekCompletions(wRows);
+      const isPast = pl.week < curWi, isCurrent = pl.week === curWi;
+      const rowClass = isCurrent ? 'row-current' : (isPast ? '' : 'row-future');
+      let adhCell = '<span class="font-mono-num opacity-60">—</span>';
+      if (isPast || isCurrent) {
+        const pct = Math.min(100, Math.round(actual / pl.km * 100));
+        const cls = pct >= 75 ? 'ds-chip-success' : pct >= 50 ? 'ds-chip-warn' : 'ds-chip-danger';
+        adhCell = '<span class="ds-chip ' + cls + ' font-mono-num text-xs py-0.5 px-2">' + pct + '%</span>';
+      }
+      const mark = v => (isPast || isCurrent) ? (v ? '✅' : '❌') : '⏳';
+      return '<tr class="' + rowClass + '">' +
+        '<td class="font-bold" style="white-space:nowrap">' + pl.label + '</td>' +
+        '<td class="font-mono-num text-xs" style="white-space:nowrap">' + pl.dates + '</td>' +
+        '<td class="font-mono-num">' + pl.km + ' ק״מ</td>' +
+        '<td class="font-mono-num">' + ((isPast || isCurrent) ? actual.toFixed(1) + ' ק״מ' : '—') + '</td>' +
+        '<td>' + mark(comp.quality) + '</td>' +
+        '<td>' + mark(comp.easy) + '</td>' +
+        '<td>' + (pl.week === 15 ? '🏁' : mark(comp.long)) + '</td>' +
+        '<td class="font-mono-num">' + ((isPast || isCurrent) ? comp.cf + '/' + pl.cf : '0/' + pl.cf) + '</td>' +
+        '<td>' + adhCell + '</td>' +
+      '</tr>';
+    }).join('');
+
+    main.innerHTML =
+      demoBanner +
+
+      /* HEADER */
+      '<header class="ds-card p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">' +
+        '<div class="space-y-2">' +
+          '<div class="flex flex-wrap items-center gap-3">' +
+            '<h1 class="text-2xl sm:text-4xl font-black">מעקב ' + goal.raceName + ' — ' + goal.runnerName +
+              '<span class="terminal-cursor"></span></h1>' +
+            '<span class="ds-chip ds-chip-accent text-xs">VDot ' + VDOT_MIN + ' → ' + VDOT_MAX + '</span>' +
+          '</div>' +
+          '<p class="text-xs sm:text-sm font-medium" style="color: var(--muted);">' +
+            'שבוע ' + curWi + ' מתוך 15 · ' + (lastRow ? 'עדכון אחרון: ' + formatTs(lastRow.ts) : 'אין נתונים') +
+            ' · ' + goal.raceName + ' · ' + raceDateIL + ' (' + distDisplay + ' ק״מ)' +
+          '</p>' +
+        '</div>' +
+        '<div class="flex flex-wrap items-center gap-2">' + statusChip +
+          '<span class="ds-chip">🏁 ' + daysLabel + '</span>' +
+        '</div>' +
+      '</header>' +
+
+      /* HERO + STATS */
+      '<section class="grid grid-cols-1 lg:grid-cols-12 gap-5">' +
+        '<div class="lg:col-span-5 ds-card overflow-hidden flex flex-col justify-between">' +
+          '<div class="ds-hero-top p-5 sm:p-6">' +
+            '<div class="flex items-start justify-between gap-2">' +
+              '<div>' +
+                '<p class="text-sm font-bold opacity-90">סיכוי להגיע ליעד</p>' +
+                '<p class="text-xs mt-0.5" style="color: var(--hero-muted);">עמידה בנפח · מגמת ריצות קלות · VDot</p>' +
+              '</div>' + forecastChip +
+            '</div>' +
+            '<div class="mt-5 flex items-baseline gap-3">' +
+              '<span class="font-mono-num text-6xl sm:text-7xl font-bold leading-none">' + s.score + '%</span>' +
+              '<span class="text-sm font-bold opacity-90">ליעד <span class="font-mono-num">' + targetTimeStr + '</span></span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="p-4 flex items-center justify-between gap-3">' +
+            '<span class="text-xs font-medium" style="color: var(--muted);">חישוב משוקלל בזמן אמת</span>' +
+            '<button id="toggle-formula-btn" class="ds-btn px-3.5 py-1.5 text-xs">ℹ️ פירוט הנוסחה</button>' +
+          '</div>' +
+          '<div id="formula-panel" class="formula-panel p-4 space-y-4">' +
+            '<div class="space-y-1.5">' +
+              '<div class="flex justify-between items-center text-xs sm:text-sm font-bold"><span>עמידה בנפח (40%)</span>' +
+                '<span class="font-mono-num">' + s.volumeAdherence + '%</span></div>' +
+              '<div class="ds-progress-track"><div class="ds-progress-fill" style="width: ' + s.volumeAdherence + '%; background: var(--accent);"></div></div>' +
+              '<p class="text-xs" style="color: var(--muted);">' + s.totalActual + ' / ' + s.totalPlanned + ' ק״מ</p>' +
+            '</div>' +
+            '<div class="space-y-1.5">' +
+              '<div class="flex justify-between items-center text-xs sm:text-sm font-bold"><span>מגמת ריצות קלות (35%)</span>' +
+                '<span class="font-mono-num">' + s.easyTrend + '%</span></div>' +
+              '<div class="ds-progress-track"><div class="ds-progress-fill" style="width: ' + s.easyTrend + '%; background: var(--success);"></div></div>' +
+              '<p class="text-xs" style="color: var(--muted);">שיפור קצב באותו דופק ב-8 הריצות הקלות האחרונות</p>' +
+            '</div>' +
+            '<div class="space-y-1.5">' +
+              '<div class="flex justify-between items-center text-xs sm:text-sm font-bold"><span>מבחן VDot (25%)</span>' +
+                '<span class="font-mono-num">' + s.testScore + '%</span></div>' +
+              '<div class="ds-progress-track"><div class="ds-progress-fill" style="width: ' + s.testScore + '%; background: var(--warn);"></div></div>' +
+              '<p class="text-xs" style="color: var(--muted);">VDot נוכחי ' + s.vo2 + ', יעד ' + VDOT_MAX + '</p>' +
+            '</div>' +
+            '<div class="ds-subbox ds-inset p-2.5 text-center text-xs font-mono-num font-bold">' +
+              '0.4×' + s.volumeAdherence + ' + 0.35×' + s.easyTrend + ' + 0.25×' + s.testScore + ' = ' + s.score + '%' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-4">' +
+          '<div class="ds-card ds-card-hover p-4 flex flex-col justify-between">' +
+            '<span class="text-xs font-bold" style="color: var(--muted);">יעד</span>' +
+            '<div class="mt-2 font-mono-num text-2xl sm:text-3xl font-bold">' + targetTimeStr + '</div>' +
+            '<span class="text-xs mt-1 truncate" style="color: var(--muted);">' + goal.raceName + ' (' + distDisplay + ' ק״מ)</span>' +
+          '</div>' +
+          '<div class="ds-card ds-card-hover p-4 flex flex-col justify-between">' +
+            '<span class="text-xs font-bold" style="color: var(--muted);">קצב נדרש</span>' +
+            '<div class="mt-2 font-mono-num text-2xl sm:text-3xl font-bold">' + targetPaceStr + '</div>' +
+            '<span class="text-xs mt-1" style="color: var(--muted);">דק׳ / ק״מ</span>' +
+          '</div>' +
+          '<div class="ds-card ds-card-hover p-4 flex flex-col justify-between">' +
+            '<span class="text-xs font-bold" style="color: var(--muted);">קצב ריצת איכות אחרונה</span>' +
+            '<div class="mt-2 font-mono-num text-2xl sm:text-3xl font-bold">' + curPaceStr + '</div>' +
+            '<span class="text-xs mt-1" style="color: var(--muted);">דק׳ / ק״מ</span>' +
+          '</div>' +
+          '<div class="ds-card ds-card-hover p-4 flex flex-col justify-between">' +
+            '<div class="flex items-center justify-between">' +
+              '<span class="text-xs font-bold" style="color: var(--muted);">תחזית נוכחית</span><span>📈</span>' +
+            '</div>' +
+            '<div class="mt-2 font-mono-num text-2xl sm:text-3xl font-bold" style="color: ' + forecastColor + ';">' + forecastText + '</div>' +
+            '<span class="text-xs mt-1" style="color: var(--muted);">לפי נפח, מגמה ו-VDot</span>' +
+          '</div>' +
+          '<div class="ds-card ds-card-hover p-4 flex flex-col justify-between">' +
+            '<div class="flex items-center justify-between">' +
+              '<span class="text-xs font-bold" style="color: var(--muted);">עמידה בשבוע ' + curWi + '</span>' +
+              '<span class="font-mono-num text-sm font-bold">' + weekAdherence + '%</span>' +
+            '</div>' +
+            '<div class="ds-progress-track my-2.5"><div class="ds-progress-fill" style="width: ' + weekAdherence + '%; background: var(--success);"></div></div>' +
+            '<span class="text-xs" style="color: var(--muted);">' + curWeekKm.toFixed(1) + ' / ' + (curPlan ? curPlan.km : '?') + ' ק״מ</span>' +
+          '</div>' +
+          '<div class="ds-card ds-card-hover p-4 flex flex-col justify-between">' +
+            '<span class="text-xs font-bold" style="color: var(--muted);">נותרו עד המירוץ</span>' +
+            '<div class="mt-2 font-mono-num text-2xl sm:text-3xl font-bold" style="color: var(--accent);">' + Math.max(0, daysLeft) + '</div>' +
+            '<span class="text-xs mt-1" style="color: var(--muted);">ימים ל-' + raceDateIL + '</span>' +
+          '</div>' +
+        '</div>' +
+      '</section>' +
+
+      /* METRICS */
+      '<section class="space-y-3">' +
+        '<h2 class="text-lg sm:text-xl font-black">מדדים נוכחיים</h2>' +
+        '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">' +
+          metricCard('דופק מנוחה היום', (rhr != null ? rhr : '—'), 'פעימות / דקה', 'var(--success)') +
+          metricCard('ממוצע RHR (שבוע)', (rhrWeek != null ? rhrWeek : '—'), 'פעימות / דקה', 'var(--accent)') +
+          metricCard('VO2max', (vo2 != null ? vo2 : '—'), 'מ״ל / ק״ג / דקה', 'var(--warn)') +
+          metricCard('דופק ממוצע — פעילות אחרונה', (avgHR != null ? avgHR : '—'), 'פעימות / דקה', 'var(--danger)') +
+        '</div>' +
+      '</section>' +
+
+      /* LAST ACTIVITY + NEXT WORKOUT */
+      '<section class="grid grid-cols-1 lg:grid-cols-12 gap-5">' +
+        '<div class="lg:col-span-5 ds-card p-5 flex flex-col justify-between space-y-5">' +
+          '<div class="space-y-4">' +
+            '<h2 class="text-lg sm:text-xl font-black">פעילות אחרונה ומצב שבוע ' + curWi + '</h2>' +
+            (lastRow ?
+              '<div class="ds-subbox p-4 space-y-2">' +
+                '<div class="flex items-center justify-between gap-2">' +
+                  '<span class="text-base sm:text-lg font-extrabold">' + typeIcon(lastRow.type) + ' ' + typeLabel(lastRow.type) + '</span>' +
+                  '<span class="ds-chip font-mono-num text-xs">' + shortDate(lastRow.ts) + '</span>' +
+                '</div>' +
+                '<div class="flex flex-wrap items-baseline gap-4 pt-1">' +
+                  (lastRow.distance_km ?
+                    '<div><span class="font-mono-num text-3xl font-bold" style="color: var(--accent);">' + lastRow.distance_km.toFixed(2) +
+                    '</span><span class="text-sm font-bold mr-1">ק״מ</span></div>' : '') +
+                  (lastRow.pace_avg ? '<div class="text-sm font-bold">קצב <span class="font-mono-num text-base">' + lastRow.pace_avg + '</span> / ק״מ</div>' : '') +
+                  (lastRow.avg_hr ? '<div class="text-sm font-bold">דופק <span class="font-mono-num text-base">' + lastRow.avg_hr + '</span></div>' : '') +
+                '</div>' +
+                '<p class="text-xs pt-1" style="color: var(--muted);">' + formatDate(lastRow.ts) + '</p>' +
+              '</div>'
+              : '<div class="ds-subbox p-4 text-sm" style="color: var(--muted);">אין עדיין פעילויות.</div>') +
+          '</div>' +
+          '<div class="space-y-2.5">' +
+            '<p class="text-xs font-bold uppercase" style="color: var(--muted);">מצב שבוע ' + curWi + '</p>' +
+            '<div class="flex flex-wrap gap-2">' + weekChips + '</div>' +
+          '</div>' +
+        '</div>' +
+        nextCard +
+      '</section>' +
+
+      /* CHARTS */
+      '<section class="space-y-3">' +
+        '<h2 class="text-lg sm:text-xl font-black">מגמות וגרפים</h2>' +
+        '<div class="grid grid-cols-1 lg:grid-cols-2 gap-5">' +
+          '<div class="ds-card p-5 space-y-3">' +
+            '<div class="flex items-center justify-between gap-2">' +
+              '<h3 class="text-base sm:text-lg font-extrabold">דופק מנוחה — RHR</h3>' +
+              '<span class="ds-chip ds-chip-success text-xs">14 מדידות אחרונות</span>' +
+            '</div><div id="chart-rhr" class="w-full"></div>' +
+          '</div>' +
+          '<div class="ds-card p-5 space-y-3">' +
+            '<div class="flex items-center justify-between gap-2">' +
+              '<h3 class="text-base sm:text-lg font-extrabold">VO2max</h3>' +
+              '<span class="ds-chip ds-chip-warn text-xs">לפי שבוע</span>' +
+            '</div><div id="chart-vo2" class="w-full"></div>' +
+          '</div>' +
+          '<div class="ds-card p-5 space-y-3">' +
+            '<div class="flex items-center justify-between flex-wrap gap-2">' +
+              '<h3 class="text-base sm:text-lg font-extrabold">נפח שבועי מול תוכנית</h3>' +
+              '<div class="flex items-center gap-3 text-xs font-bold" style="color: var(--muted);">' +
+                '<span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm inline-block" style="background: var(--chart-3); border: 1px solid var(--border-color);"></span>מתוכנן</span>' +
+                '<span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm inline-block" style="background: var(--chart-1); border: 1px solid var(--border-color);"></span>בפועל</span>' +
+              '</div>' +
+            '</div><div id="chart-volume" class="w-full"></div>' +
+          '</div>' +
+          '<div class="ds-card p-5 space-y-3">' +
+            '<div class="flex items-center justify-between flex-wrap gap-2">' +
+              '<h3 class="text-base sm:text-lg font-extrabold">ריצות קלות — קצב באותו דופק (135–155)</h3>' +
+              '<span class="ds-chip ds-chip-danger text-xs">קו מגמה</span>' +
+            '</div><div id="chart-easy" class="w-full"></div>' +
+            '<p class="text-xs font-medium" style="color: var(--muted);">הקו צפוי לרדת ככל שהסיבולת משתפרת — אותו דופק, קצב מהיר יותר</p>' +
+          '</div>' +
+        '</div>' +
+      '</section>' +
+
+      /* TABLE */
+      '<section class="space-y-3">' +
+        '<div class="flex flex-wrap items-center justify-between gap-2">' +
+          '<h2 class="text-lg sm:text-xl font-black">תכנון מול ביצוע — 16 שבועות</h2>' +
+          '<div class="flex flex-wrap items-center gap-2 text-xs">' +
+            '<span class="ds-chip ds-chip-accent text-[11px]">שבוע נוכחי (' + curWi + ')</span>' +
+            '<span class="ds-chip ds-chip-success text-[11px]">✅ בוצע</span>' +
+            '<span class="ds-chip ds-chip-danger text-[11px]">❌ פוספס</span>' +
+            '<span class="ds-chip text-[11px]">⏳ עתידי</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="ds-table-wrap"><table class="ds-table"><thead><tr>' +
+          '<th>שבוע</th><th>תאריכים</th><th>ק״מ מתוכנן</th><th>ק״מ בפועל</th>' +
+          '<th>ריצת איכות</th><th>ריצה קלה</th><th>ריצה ארוכה</th><th>CF</th><th>עמידה</th>' +
+        '</tr></thead><tbody>' + tableRows + '</tbody></table></div>' +
+      '</section>';
+
+    // ── wire up dynamic controls
+    const formulaBtn = document.getElementById('toggle-formula-btn');
+    if (formulaBtn) formulaBtn.addEventListener('click', () => {
+      document.getElementById('formula-panel').classList.toggle('open');
+    });
+    const dismissBtn = document.getElementById('dismiss-demo-btn');
+    if (dismissBtn) dismissBtn.addEventListener('click', e => {
+      e.target.closest('.ds-subbox').style.display = 'none';
+    });
+
+    requestAnimationFrame(() => redrawCharts());
   }
 
-  // ── 4. Charts row ──
-  const chartsDiv = document.createElement('div');
-  chartsDiv.className = 'charts-3col';
+  /* ========================================================================
+     13. INIT
+     ======================================================================== */
+  (async function init() {
+    loadGoalsState();
+    let savedStyle = 'bento';
+    try { savedStyle = localStorage.getItem('sahar-tracker-style') || 'bento'; } catch (e) {}
+    applyDesignStyle(STYLE_IDS.includes(savedStyle) ? savedStyle : 'bento');
 
-  // RHR chart data
-  const rhrPoints = rows
-    .filter(r => r.rhr)
-    .sort((a,b) => new Date(a.ts)-new Date(b.ts))
-    .reduce((acc, r) => {
-      const d = parseDate(r.ts);
-      const months = ['ינו׳','פבר׳','מרץ','אפר׳','מאי','יוני','יולי','אוג׳','ספט׳','אוק׳','נוב׳','דצמ׳'];
-      const lbl = `${d.getDate()} ${months[d.getMonth()]}`;
-      // deduplicate by date
-      const existing = acc.find(x => x.d === lbl);
-      if (!existing) acc.push({ d: lbl, v: r.rhr });
-      return acc;
-    }, []);
-
-  // VO2max points by week
-  const vo2Points = Object.keys(byWeek).sort((a,b)=>+a-+b).map(wi => {
-    const wRows = byWeek[wi].filter(r => r.vo2max);
-    if (!wRows.length) return null;
-    const avg = wRows.reduce((s,r)=>s+r.vo2max,0)/wRows.length;
-    return { d: `ש׳${wi}`, v: +avg.toFixed(1) };
-  }).filter(Boolean);
-
-  // Volume by week
-  const volWeeks = PLAN.slice(0, curWi+2).map(p => ({
-    w: p.week,
-    plan: p.km,
-    actual: weekActualKm(byWeek[p.week] || [])
-  }));
-
-  chartsDiv.innerHTML = `
-    <div class="chart-card"><div class="chart-name">דופק מנוחה — RHR</div><svg class="chart-svg" id="rhr-chart"></svg></div>
-    <div class="chart-card"><div class="chart-name">VO2max לפי שבוע</div><svg class="chart-svg" id="vo2-chart"></svg></div>
-    <div class="chart-card"><div class="chart-name">נפח שבועי מול תוכנית</div><svg class="chart-svg" id="vol-chart"></svg></div>
-  `;
-  main.appendChild(chartsDiv);
-
-  // draw after DOM insertion
-  requestAnimationFrame(() => {
-    if (rhrPoints.length) {
-      const minRHR = Math.min(...rhrPoints.map(p=>p.v)) - 3;
-      const maxRHR = Math.max(...rhrPoints.map(p=>p.v)) + 3;
-      drawLineChart(document.getElementById('rhr-chart'), rhrPoints, minRHR, maxRHR, 'var(--accent)', p => `${p.v} bpm`);
-    } else {
-      document.getElementById('rhr-chart').innerHTML = `<text x="110" y="45" text-anchor="middle" font-size="10" fill="var(--fg3)" font-family="Inter,sans-serif">אין נתוני RHR</text>`;
+    if (!sb) {
+      showScreen('login');
+      setLoginNote('⚠️ לא ניתן לטעון את ספריית ההתחברות. בדוק חיבור לאינטרנט או חוסמי מודעות ורענן.');
+      return;
     }
-    if (vo2Points.length) {
-      drawLineChart(document.getElementById('vo2-chart'), vo2Points, 40, 52, 'var(--success)', p => p.v);
-    } else {
-      document.getElementById('vo2-chart').innerHTML = `<text x="110" y="45" text-anchor="middle" font-size="10" fill="var(--fg3)" font-family="Inter,sans-serif">אין נתוני VO2max</text>`;
+
+    let session = null;
+    try {
+      const { data } = await sb.auth.getSession();
+      session = data.session;
+    } catch (e) { console.error(e); }
+
+    if (!session) { showScreen('login'); return; }
+    SESSION = session;
+
+    const { data: prof, error: profErr } = await sb
+      .from('profiles').select('*').eq('id', session.user.id).maybeSingle();
+
+    if (profErr || !prof) {
+      showScreen('login');
+      setLoginNote('⚠️ לא נמצא פרופיל לחשבון הזה. נסה להתחבר שוב או פנה למנהל.');
+      return;
     }
-    drawBarChart(document.getElementById('vol-chart'), volWeeks);
-  });
+    PROFILE = prof;
 
-  // ── 5. Easy runs chart ──
-  const easyCard = document.createElement('div');
-  easyCard.className = 'card';
-  const easyRuns = rows
-    .filter(r => r.type === 'running_easy' && r.pace_avg && r.avg_hr && r.avg_hr >= 135 && r.avg_hr <= 155)
-    .sort((a,b) => new Date(a.ts)-new Date(b.ts));
-  easyCard.innerHTML = `
-    <div class="card-title">ריצות קלות — שיפור קצב באותו דופק (135–155)</div>
-    <svg class="chart-svg" id="easy-chart" style="max-height:140px"></svg>
-    <div style="font-size:.75rem;color:var(--fg3);margin-top:6px">הקו צפוי לרדת ככל שהסיבולת משתפרת — אותו דופק, קצב מהיר יותר</div>
-  `;
-  main.appendChild(easyCard);
-  requestAnimationFrame(() => {
-    const easySvg = document.getElementById('easy-chart');
-    easySvg.setAttribute('viewBox','0 0 700 120');
-    drawEasyRunsChart(easySvg, easyRuns);
-  });
-
-  // ── 6. Next workout ──
-  const next = getNextWorkout(curWi, completions, curRows);
-  if (next) {
-    const nextCard = document.createElement('div');
-    nextCard.className = 'card accent-card';
-    const plan = PLAN[next.week];
-
-    // parse workout structure for visual display
-    const workoutFlow = buildWorkoutFlow(next.desc, next.type);
-
-    nextCard.innerHTML = `
-      <div class="card-title">האימון הבא 🏃</div>
-      <div class="workout-layout">
-        <div class="workout-desc">
-          <div style="font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:6px">${next.type} — שבוע ${next.week}</div>
-          <div style="font-size:.82rem;color:var(--fg2);margin-bottom:4px">📅 שבוע ${plan?.dates || ''}</div>
-          <div style="font-size:.82rem;color:var(--fg2);margin-bottom:12px">📋 ${next.desc}</div>
-          <div class="workout-flow">${workoutFlow}</div>
-          ${next.type === 'ריצת איכות' ? `<div class="warning-chip">💡 זכור: חימום מלא של 15 דקות לפני האינטרוולים. שתייה: 500 מ״ל לפחות.</div>` : ''}
-        </div>
-      </div>
-    `;
-    main.appendChild(nextCard);
-  }
-
-  // ── 7. Plan table ──
-  const tableCard = document.createElement('div');
-  tableCard.className = 'card';
-  tableCard.innerHTML = `
-    <div class="card-title">תכנון מול ביצוע — 16 שבועות</div>
-    <div class="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>שבוע</th>
-            <th>תאריכים</th>
-            <th>ק״מ תוכנית</th>
-            <th>ק״מ בפועל</th>
-            <th>ריצת איכות</th>
-            <th>ריצה קלה</th>
-            <th>ריצה ארוכה</th>
-            <th>CF</th>
-            <th>עמידה</th>
-          </tr>
-        </thead>
-        <tbody id="plan-tbody"></tbody>
-      </table>
-    </div>
-  `;
-  main.appendChild(tableCard);
-
-  const tbody = tableCard.querySelector('#plan-tbody');
-  PLAN.forEach(p => {
-    const wRows = byWeek[p.week] || [];
-    const actual = weekActualKm(wRows);
-    const comp = weekCompletions(wRows);
-    const isPast = p.week < curWi;
-    const isCurrent = p.week === curWi;
-
-    const pct = isPast || isCurrent
-      ? Math.min(100, Math.round(actual / p.km * 100))
-      : null;
-
-    let pctHtml = `<span class="pct-pill na">—</span>`;
-    if (pct !== null) {
-      const cls = isCurrent ? 'current' : pct >= 80 ? 'good' : 'warn';
-      pctHtml = `<span class="pct-pill ${cls}">${pct}%</span>`;
+    if (prof.approval_status !== 'approved') {
+      document.getElementById('pending-sub').textContent =
+        prof.approval_status === 'suspended'
+          ? 'החשבון הושהה. פנה למנהל המערכת.'
+          : 'נרשמת בהצלחה עם ' + prof.email + '. מנהל המערכת צריך לאשר את החשבון לפני הכניסה הראשונה.';
+      showScreen('pending');
+      return;
     }
 
-    const tr = document.createElement('tr');
-    if (isCurrent) tr.className = 'row-current';
-    else if (isPast) tr.className = 'row-past';
+    if (prof.theme_id && STYLE_IDS.includes(prof.theme_id)) applyDesignStyle(prof.theme_id);
+    document.getElementById('signout-btn').style.display = '';
+    showScreen('app');
 
-    const qualStatus = isPast || isCurrent ? (comp.quality ? '✅' : '❌') : '—';
-    const easyStatus = isPast || isCurrent ? (comp.easy ? '✅' : '❌') : '—';
-    const longStatus = isPast || isCurrent ? (comp.long ? '✅' : '❌') : '—';
-    const cfStatus = isPast || isCurrent ? `${comp.cf}/${p.cf}` : '—';
-
-    tr.innerHTML = `
-      <td style="font-weight:600;color:var(--fg);white-space:nowrap">${p.label}${isCurrent ? ' <span class="chip accent" style="font-size:.65rem;padding:2px 6px">עכשיו</span>' : ''}</td>
-      <td style="white-space:nowrap">${p.dates}</td>
-      <td>${p.km}</td>
-      <td>${(isPast || isCurrent) ? actual.toFixed(1) : '—'}</td>
-      <td>${qualStatus}</td>
-      <td>${easyStatus}</td>
-      <td>${longStatus}</td>
-      <td>${cfStatus}</td>
-      <td>${pctHtml}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-function buildWorkoutFlow(desc, type) {
-  if (!desc) return '';
-
-  if (type === 'ריצה ארוכה') {
-    const kmMatch = desc.match(/(\d+) ק[״"]מ/);
-    const km = kmMatch ? kmMatch[1] : '?';
-    return `
-      <div class="workout-segment"><div class="seg-label">חימום</div><div class="seg-val">10 דק׳</div><div class="seg-sub">קל</div></div>
-      <div class="flow-arrow">→</div>
-      <div class="workout-segment main"><div class="seg-label">ריצה</div><div class="seg-val">${km} ק״מ</div><div class="seg-sub">דופק &lt;145</div></div>
-      <div class="flow-arrow">→</div>
-      <div class="workout-segment"><div class="seg-label">שחרור</div><div class="seg-val">5 דק׳</div><div class="seg-sub">קל</div></div>
-    `;
-  }
-
-  if (type === 'ריצה קלה') {
-    const minMatch = desc.match(/(\d+) דק[׳']/);
-    const mins = minMatch ? minMatch[1] : '40';
-    const hasStrides = desc.includes('סטריידים');
-    return `
-      <div class="workout-segment main"><div class="seg-label">ריצה</div><div class="seg-val">${mins} דק׳</div><div class="seg-sub">דופק &lt;145</div></div>
-      ${hasStrides ? `<div class="flow-arrow">→</div><div class="workout-segment"><div class="seg-label">סטריידים</div><div class="seg-val">4–6 × 20"</div><div class="seg-sub">מהיר ורגוע</div></div>` : ''}
-    `;
-  }
-
-  // Quality run — parse intervals
-  const timesMatch = desc.match(/(\d+)×(\d+) דק[׳']/);
-  const kmMatch = desc.match(/(\d+)×(\d+) ק[״"]מ/);
-  const paceMatch = desc.match(/ב-(\d+:\d+)/);
-  const pace = paceMatch ? paceMatch[1] : '4:45';
-
-  if (timesMatch) {
-    const reps = timesMatch[1], dur = timesMatch[2];
-    return `
-      <div class="workout-segment"><div class="seg-label">חימום</div><div class="seg-val">15 דק׳</div><div class="seg-sub">קל, 6:30+</div></div>
-      <div class="flow-arrow">→</div>
-      <div class="workout-segment main"><div class="seg-label">×${reps} חזרות</div><div class="seg-val">${dur} דק׳</div><div class="seg-sub">קצב ${pace}</div></div>
-      <div class="flow-rest" style="font-size:.7rem;color:var(--fg3)">מנוחה 2 דק׳</div>
-      <div class="flow-arrow">→</div>
-      <div class="workout-segment"><div class="seg-label">שחרור</div><div class="seg-val">10 דק׳</div><div class="seg-sub">קל</div></div>
-    `;
-  }
-  if (kmMatch) {
-    const reps = kmMatch[1], dist = kmMatch[2];
-    return `
-      <div class="workout-segment"><div class="seg-label">חימום</div><div class="seg-val">15 דק׳</div><div class="seg-sub">קל</div></div>
-      <div class="flow-arrow">→</div>
-      <div class="workout-segment main"><div class="seg-label">×${reps} חזרות</div><div class="seg-val">${dist} ק״מ</div><div class="seg-sub">קצב ${pace}</div></div>
-      <div class="flow-rest" style="font-size:.7rem;color:var(--fg3)">מנוחה 2 דק׳</div>
-      <div class="flow-arrow">→</div>
-      <div class="workout-segment"><div class="seg-label">שחרור</div><div class="seg-val">10 דק׳</div><div class="seg-sub">קל</div></div>
-    `;
-  }
-
-  return `<div style="font-size:.82rem;color:var(--fg2)">${desc}</div>`;
-}
-
-// ═══════════════════════════════════════════════════════
-//  THEME + SKINS
-// ═══════════════════════════════════════════════════════
-function toggleTheme() {
-  const root = document.documentElement;
-  const cur = root.getAttribute('data-theme');
-  const next = cur === 'dark' ? 'light' : 'dark';
-  root.setAttribute('data-theme', next);
-  localStorage.setItem('theme', next);
-}
-
-// מחיל ערכת עיצוב מקומית בלבד
-function applySkin(skin) {
-  const s = SKINS.includes(skin) ? skin : 'bento';
-  document.documentElement.setAttribute('data-skin', s);
-  const sel = document.getElementById('skin-select');
-  if (sel) sel.value = s;
-  localStorage.setItem('skin', s);
-}
-
-// מחיל ושומר — גם ב-localStorage וגם ב-profiles.theme_id
-async function setSkin(skin) {
-  applySkin(skin);
-  if (SESSION && PROFILE) {
-    const { error } = await sb.from('profiles')
-      .update({ theme_id: skin })
-      .eq('id', SESSION.user.id);
-    if (error) console.warn('שמירת ערכת העיצוב נכשלה:', error.message);
-    else PROFILE.theme_id = skin;
-  }
-}
-
-(function initTheme() {
-  const saved = localStorage.getItem('theme');
-  if (saved) document.documentElement.setAttribute('data-theme', saved);
-  applySkin(localStorage.getItem('skin') || 'bento');
-})();
-
-// ═══════════════════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════════════════
-(async function init() {
-  // 1) יש session?
-  let session = null;
-  try {
-    const { data } = await sb.auth.getSession();
-    session = data.session;
-  } catch (e) { console.error(e); }
-
-  if (!session) { showScreen('login'); return; }
-  SESSION = session;
-
-  // 2) טעינת הפרופיל (ה-trigger ב-DB יוצר אותו בהרשמה)
-  const { data: prof, error: profErr } = await sb
-    .from('profiles').select('*').eq('id', session.user.id).maybeSingle();
-
-  if (profErr || !prof) {
-    showScreen('login');
-    setLoginNote('⚠️ לא נמצא פרופיל לחשבון הזה. נסה להתחבר שוב או פנה למנהל.');
-    return;
-  }
-  PROFILE = prof;
-
-  // 3) שער האישור
-  if (prof.approval_status !== 'approved') {
-    document.getElementById('pending-sub').textContent =
-      prof.approval_status === 'suspended'
-        ? 'החשבון הושהה. פנה למנהל המערכת.'
-        : `נרשמת בהצלחה עם ${prof.email}. מנהל המערכת צריך לאשר את החשבון לפני הכניסה הראשונה.`;
-    showScreen('pending');
-    return;
-  }
-
-  // 4) דשבורד אישי
-  applySkin(prof.theme_id || localStorage.getItem('skin') || 'bento');
-  document.getElementById('runner-chip').textContent =
-    (prof.full_name || prof.email).split(' ')[0];
-  document.getElementById('logout-btn').style.display = '';
-  showScreen('app');
-
-  try {
-    let rows = await fetchRows();
-    let isDemo = false;
-    if (rows.length === 0) { rows = getDemoRows(); isDemo = true; }
-    buildPage(rows, isDemo);
-  } catch (err) {
-    console.error(err);
-    buildPage(getDemoRows(), true);
-    const main = document.getElementById('main-content');
-    const errBanner = document.createElement('div');
-    errBanner.className = 'error-banner';
-    errBanner.textContent = `⚠️ לא ניתן לטעון נתונים (${err.message}). מוצגים נתוני הדגמה.`;
-    main.prepend(errBanner);
-  }
-})();
-</script>
-
+    try {
+      let rows = await fetchRows();
+      IS_DEMO = false;
+      if (!rows.length) { rows = getDemoRows(); IS_DEMO = true; }
+      LAST_ROWS = rows;
+      buildPage(rows, IS_DEMO);
+    } catch (err) {
+      console.error(err);
+      LAST_ROWS = getDemoRows();
+      IS_DEMO = true;
+      buildPage(LAST_ROWS, true);
+    }
+  })();
+  </script>
 </body>
 </html>
