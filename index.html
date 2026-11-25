@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>סהר – מעקב חצי מרתון</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+/* ── CSS Tokens ── */
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --surface2: #f0f2f6;
+  --border: #e2e6ed;
+  --fg: #111827;
+  --fg2: #4b5563;
+  --fg3: #9ca3af;
+  --accent: #2563eb;
+  --accent-soft: rgba(37,99,235,0.08);
+  --success: #16a34a;
+  --success-soft: rgba(22,163,74,0.1);
+  --warn: #d97706;
+  --warn-soft: rgba(217,119,6,0.1);
+  --danger: #dc2626;
+  --muted: #9ca3af;
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface2: #242938;
+  --border: #2d3448;
+  --fg: #e8eaf0;
+  --fg2: #8b8fa8;
+  --fg3: #5a5f7a;
+  --accent: #6c8fff;
+  --accent-soft: rgba(108,143,255,0.08);
+  --success: #4ade80;
+  --success-soft: rgba(74,222,128,0.1);
+  --warn: #fbbf24;
+  --warn-soft: rgba(251,191,36,0.1);
+  --danger: #f87171;
+  --muted: #8b8fa8;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #242938;
+    --border: #2d3448; --fg: #e8eaf0; --fg2: #8b8fa8; --fg3: #5a5f7a;
+    --accent: #6c8fff; --accent-soft: rgba(108,143,255,0.08);
+    --success: #4ade80; --success-soft: rgba(74,222,128,0.1);
+    --warn: #fbbf24; --warn-soft: rgba(251,191,36,0.1);
+    --danger: #f87171; --muted: #8b8fa8;
+    color-scheme: dark;
+  }
+}
+
+/* ═══ 9 ערכות עיצוב (data-skin) — דורסות את הפלטה הבסיסית ═══ */
+/* bento = ברירת המחדל, היחידה שמכבדת את מתג כהה/בהיר */
+
+/* 1. BENTO — נקי, מרווח, פינות מעוגלות */
+[data-skin="bento"] .card, [data-skin="bento"] .chart-card { border-radius: 16px; }
+
+/* 2. GLASS — שקיפות וטשטוש */
+[data-skin="glass"] {
+  --bg: #0b1020; --surface: rgba(255,255,255,0.07); --surface2: rgba(255,255,255,0.12);
+  --border: rgba(255,255,255,0.18); --fg: #f1f5ff; --fg2: #b9c3e0; --fg3: #7f8aab;
+  --accent: #7dd3fc; --accent-soft: rgba(125,211,252,0.14);
+  --success: #6ee7b7; --warn: #fcd34d; --danger: #fda4af;
+  --success-soft: rgba(110,231,183,0.14); --warn-soft: rgba(252,211,77,0.14);
+  color-scheme: dark;
+}
+[data-skin="glass"] body {
+  background: radial-gradient(1000px 600px at 15% -10%, #1e3a8a 0%, transparent 60%),
+              radial-gradient(900px 500px at 95% 10%, #0e7490 0%, transparent 55%), #0b1020;
+}
+[data-skin="glass"] .card, [data-skin="glass"] .chart-card {
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  border-radius: 18px; box-shadow: 0 8px 32px rgba(0,0,0,.35);
+}
+[data-skin="glass"] .header { backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+
+/* 3. SWISS — שטוח, אדום, בלי פינות */
+[data-skin="swiss"] {
+  --bg: #ffffff; --surface: #ffffff; --surface2: #f2f2f2; --border: #111111;
+  --fg: #111111; --fg2: #444444; --fg3: #777777;
+  --accent: #e2231a; --accent-soft: rgba(226,35,26,0.07);
+  --success: #0a7d32; --warn: #b45309; --danger: #e2231a;
+  --success-soft: rgba(10,125,50,0.08); --warn-soft: rgba(180,83,9,0.08);
+  color-scheme: light;
+}
+[data-skin="swiss"] .card, [data-skin="swiss"] .chart-card,
+[data-skin="swiss"] .metric-tile, [data-skin="swiss"] .score-block,
+[data-skin="swiss"] .workout-segment { border-radius: 0; box-shadow: none; }
+[data-skin="swiss"] .card, [data-skin="swiss"] .chart-card { border-width: 2px; }
+[data-skin="swiss"] .card-title, [data-skin="swiss"] .chart-name {
+  color: var(--fg); letter-spacing: .12em; font-weight: 700;
+}
+
+/* 4. TELEMETRY — כהה, מונוספייס, ציאן */
+[data-skin="telemetry"] {
+  --bg: #070b12; --surface: #0d1420; --surface2: #121c2c; --border: #1e2d42;
+  --fg: #d7e6f5; --fg2: #7f9bbb; --fg3: #4f6480;
+  --accent: #22d3ee; --accent-soft: rgba(34,211,238,0.10);
+  --success: #34d399; --warn: #fbbf24; --danger: #fb7185;
+  --success-soft: rgba(52,211,153,0.10); --warn-soft: rgba(251,191,36,0.10);
+  color-scheme: dark;
+}
+[data-skin="telemetry"] body,
+[data-skin="telemetry"] .card-title, [data-skin="telemetry"] .chart-name,
+[data-skin="telemetry"] .metric-val, [data-skin="telemetry"] .score-num,
+[data-skin="telemetry"] th { font-family: 'JetBrains Mono', monospace; }
+[data-skin="telemetry"] .card, [data-skin="telemetry"] .chart-card { border-radius: 4px; }
+
+/* 5. EDITORIAL — נייר, סריפים, קווים דקים */
+[data-skin="editorial"] {
+  --bg: #faf7f0; --surface: #fffdf8; --surface2: #f2ece0; --border: #ddd4c2;
+  --fg: #1c1a17; --fg2: #57524a; --fg3: #918a7d;
+  --accent: #8c2f1f; --accent-soft: rgba(140,47,31,0.07);
+  --success: #44632f; --warn: #9a6b1e; --danger: #8c2f1f;
+  --success-soft: rgba(68,99,47,0.08); --warn-soft: rgba(154,107,30,0.08);
+  color-scheme: light;
+}
+[data-skin="editorial"] .header-title, [data-skin="editorial"] .score-num,
+[data-skin="editorial"] .metric-val, [data-skin="editorial"] .card-title,
+[data-skin="editorial"] .chart-name { font-family: Georgia, 'Times New Roman', serif; }
+[data-skin="editorial"] .card-title, [data-skin="editorial"] .chart-name {
+  text-transform: none; letter-spacing: .02em; font-size: .95rem; color: var(--fg);
+}
+[data-skin="editorial"] .card, [data-skin="editorial"] .chart-card { border-radius: 2px; box-shadow: none; }
+
+/* 6. NEUMORPHISM — אפור רך, צללים רכים */
+[data-skin="neumorphism"] {
+  --bg: #e6e9ef; --surface: #e6e9ef; --surface2: #e6e9ef; --border: transparent;
+  --fg: #3b4252; --fg2: #6b7280; --fg3: #9aa1ad;
+  --accent: #5b7cfa; --accent-soft: rgba(91,124,250,0.10);
+  --success: #2f9e63; --warn: #c58b1c; --danger: #d9534f;
+  --success-soft: rgba(47,158,99,0.10); --warn-soft: rgba(197,139,28,0.10);
+  color-scheme: light;
+}
+[data-skin="neumorphism"] .card, [data-skin="neumorphism"] .chart-card {
+  border-radius: 20px; border: none;
+  box-shadow: 8px 8px 18px #c9ccd3, -8px -8px 18px #ffffff;
+}
+[data-skin="neumorphism"] .metric-tile, [data-skin="neumorphism"] .score-block,
+[data-skin="neumorphism"] .workout-segment, [data-skin="neumorphism"] .week-item {
+  border: none; border-radius: 14px;
+  box-shadow: inset 4px 4px 9px #cfd2d9, inset -4px -4px 9px #ffffff;
+}
+[data-skin="neumorphism"] .header { box-shadow: 0 6px 16px #d2d5dc; }
+
+/* 7. TERMINAL — שחור, ירוק פוספור */
+[data-skin="terminal"] {
+  --bg: #000000; --surface: #050a05; --surface2: #0b140b; --border: #1d3a1d;
+  --fg: #c8facc; --fg2: #58c45f; --fg3: #2f6b34;
+  --accent: #39ff14; --accent-soft: rgba(57,255,20,0.08);
+  --success: #39ff14; --warn: #ffd166; --danger: #ff5f56;
+  --success-soft: rgba(57,255,20,0.08); --warn-soft: rgba(255,209,102,0.08);
+  color-scheme: dark;
+}
+[data-skin="terminal"] body, [data-skin="terminal"] .score-num,
+[data-skin="terminal"] .metric-val, [data-skin="terminal"] .header-title,
+[data-skin="terminal"] th, [data-skin="terminal"] .card-title,
+[data-skin="terminal"] .chart-name { font-family: 'JetBrains Mono', monospace; }
+[data-skin="terminal"] .card, [data-skin="terminal"] .chart-card,
+[data-skin="terminal"] .metric-tile, [data-skin="terminal"] .score-block { border-radius: 0; }
+[data-skin="terminal"] .card-title::before, [data-skin="terminal"] .chart-name::before { content: "> "; }
+
+/* 8. CLAY — פסטל, עגול מאוד */
+[data-skin="clay"] {
+  --bg: #f4f0ff; --surface: #ffffff; --surface2: #efe9ff; --border: #e0d6ff;
+  --fg: #2e2a44; --fg2: #635c82; --fg3: #9a93b8;
+  --accent: #8b5cf6; --accent-soft: rgba(139,92,246,0.10);
+  --success: #2bb673; --warn: #f0a33c; --danger: #f2667a;
+  --success-soft: rgba(43,182,115,0.12); --warn-soft: rgba(240,163,60,0.12);
+  color-scheme: light;
+}
+[data-skin="clay"] .card, [data-skin="clay"] .chart-card {
+  border-radius: 28px; box-shadow: 0 12px 26px rgba(139,92,246,.16);
+}
+[data-skin="clay"] .metric-tile, [data-skin="clay"] .score-block,
+[data-skin="clay"] .workout-segment { border-radius: 20px; }
+
+/* 9. NEUBRUTALIST — צהוב, מסגרות שחורות, צל קשיח */
+[data-skin="neubrutalist"] {
+  --bg: #ffe94d; --surface: #ffffff; --surface2: #fff8cc; --border: #000000;
+  --fg: #000000; --fg2: #1f1f1f; --fg3: #595959;
+  --accent: #1d4ed8; --accent-soft: #cfe0ff;
+  --success: #047857; --warn: #b45309; --danger: #dc2626;
+  --success-soft: #c7f5e4; --warn-soft: #ffe2b8;
+  color-scheme: light;
+}
+[data-skin="neubrutalist"] .card, [data-skin="neubrutalist"] .chart-card {
+  border: 3px solid #000; border-radius: 0; box-shadow: 7px 7px 0 #000;
+}
+[data-skin="neubrutalist"] .metric-tile, [data-skin="neubrutalist"] .score-block,
+[data-skin="neubrutalist"] .workout-segment, [data-skin="neubrutalist"] .week-item {
+  border: 2px solid #000; border-radius: 0;
+}
+[data-skin="neubrutalist"] .header { border-bottom: 3px solid #000; }
+[data-skin="neubrutalist"] .card-title, [data-skin="neubrutalist"] .chart-name { color: #000; font-weight: 700; }
+
+/* ── בוחר ערכות ── */
+.skin-select {
+  background: var(--surface2); color: var(--fg2);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 6px 8px; font-size: .8rem; font-family: inherit; cursor: pointer;
+}
+
+/* ── מסכי אימות ── */
+.auth-screen {
+  min-height: 100vh; display: none;
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 18px; padding: 32px 20px; text-align: center;
+}
+.auth-screen.show { display: flex; }
+.auth-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 36px 32px; max-width: 420px; width: 100%;
+  display: flex; flex-direction: column; gap: 16px; align-items: center;
+}
+.auth-logo { font-size: 2.2rem; }
+.auth-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 700; }
+.auth-sub { font-size: .88rem; color: var(--fg2); line-height: 1.6; }
+.google-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  background: #fff; color: #1f1f1f; border: 1px solid #dadce0;
+  border-radius: 10px; padding: 12px 22px; font-size: .95rem; font-weight: 600;
+  font-family: inherit; cursor: pointer; width: 100%;
+}
+.google-btn:hover { background: #f6f7f9; }
+.ghost-btn {
+  background: none; border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 18px; color: var(--fg2); font-size: .85rem;
+  font-family: inherit; cursor: pointer;
+}
+.ghost-btn:hover { background: var(--surface2); }
+.auth-note {
+  font-size: .75rem; color: var(--fg3); background: var(--surface2);
+  border-radius: 8px; padding: 10px 14px; line-height: 1.6;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  direction: rtl;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+}
+.header-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.runner-chip {
+  background: var(--surface2);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--fg2);
+}
+.theme-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: var(--fg2);
+  font-size: 0.8rem;
+  font-family: inherit;
+}
+.theme-btn:hover { background: var(--border); }
+.last-update {
+  font-size: 0.72rem;
+  color: var(--fg3);
+}
+
+/* ── Main layout ── */
+.main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Loading / error ── */
+.loading-banner {
+  text-align: center;
+  padding: 40px;
+  color: var(--fg2);
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-banner {
+  background: var(--warn-soft);
+  border: 1px solid var(--warn);
+  border-radius: 10px;
+  padding: 16px 20px;
+  color: var(--warn);
+  font-size: 0.85rem;
+}
+.demo-banner {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 10px 16px;
+  color: var(--accent);
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Cards ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+.card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--fg3);
+  margin-bottom: 16px;
+}
+.card.accent-card {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent-soft) 50%, var(--surface));
+}
+.card.accent-card .card-title { color: var(--accent); }
+
+/* ── Hero: Score + Target ── */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 600px) { .hero-grid { grid-template-columns: 1fr; } }
+
+.score-block {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.score-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.score-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.score-num sup { font-size: 1.5rem; }
+.score-desc { font-size: 0.78rem; color: var(--fg2); line-height: 1.4; }
+
+.info-btn {
+  background: none;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  width: 16px; height: 16px;
+  font-size: 9px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  flex-shrink: 0;
+  line-height: 1;
+  padding: 0;
+}
+.info-btn:hover { background: var(--accent-soft); }
+
+.score-breakdown {
+  margin-top: 10px;
+  background: color-mix(in srgb, var(--accent-soft) 70%, transparent);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--fg2);
+}
+.breakdown-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.breakdown-formula {
+  font-size: 0.72rem;
+  color: var(--fg2);
+  border-top: 1px solid var(--border);
+  padding-top: 6px;
+  margin-top: 2px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.target-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.target-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.84rem;
+}
+.target-label { color: var(--fg2); }
+.target-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  color: var(--fg);
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.chip.success { background: var(--success-soft); color: var(--success); }
+.chip.warn { background: var(--warn-soft); color: var(--warn); }
+.chip.danger { background: rgba(220,38,38,0.1); color: var(--danger); }
+.chip.accent { background: var(--accent-soft); color: var(--accent); }
+
+.bar-wrap {
+  background: var(--surface2);
+  border-radius: 999px;
+  height: 6px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width .4s ease;
+}
+
+/* ── Metrics tiles ── */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+@media (max-width: 640px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.metric-tile {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.metric-label { font-size: 0.7rem; color: var(--fg3); font-weight: 500; }
+.metric-val {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.metric-unit { font-size: 0.7rem; color: var(--fg2); }
+.metric-delta { font-size: 0.7rem; font-weight: 600; }
+.metric-delta.up { color: var(--danger); }
+.metric-delta.down { color: var(--success); }
+.metric-delta.neutral { color: var(--fg3); }
+
+/* ── Week status ── */
+.week-status-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.week-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  color: var(--fg2);
+  background: var(--surface2);
+  border-radius: 20px;
+  padding: 4px 10px;
+}
+
+/* ── Next workout card ── */
+.workout-flow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.workout-segment {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  text-align: center;
+  min-width: 80px;
+}
+.workout-segment.main {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.seg-label { font-size: 0.65rem; color: var(--fg3); margin-bottom: 2px; }
+.workout-segment.main .seg-label { color: var(--accent); }
+.seg-val { font-size: 0.85rem; font-weight: 700; color: var(--fg); }
+.workout-segment.main .seg-val { color: var(--accent); }
+.seg-sub { font-size: 0.68rem; color: var(--fg3); margin-top: 1px; }
+.workout-segment.main .seg-sub { color: var(--accent); }
+.flow-arrow { color: var(--accent); font-size: 1.1rem; flex-shrink: 0; }
+.flow-rest { font-size: 0.72rem; color: var(--fg3); text-align: center; }
+
+.workout-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  min-width: 160px;
+}
+.wm-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+}
+.wm-label { color: var(--fg2); }
+.wm-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--fg);
+}
+.workout-layout {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.workout-layout .workout-desc { flex: 1; min-width: 200px; }
+
+.warning-chip {
+  margin-top: 10px;
+  background: var(--warn-soft);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  color: var(--warn);
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+/* ── Charts ── */
+.charts-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+@media (max-width: 700px) { .charts-3col { grid-template-columns: 1fr; } }
+
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.chart-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--fg3);
+  margin-bottom: 10px;
+}
+.chart-svg { width: 100%; overflow: visible; display: block; }
+
+/* ── Plan table ── */
+.table-scroll { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+th {
+  text-align: start;
+  padding: 8px 10px;
+  color: var(--fg3);
+  font-weight: 500;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--fg2);
+  vertical-align: middle;
+}
+tr.row-current td { background: var(--accent-soft); color: var(--fg); }
+tr.row-past td { color: var(--fg); }
+tr:last-child td { border-bottom: none; }
+
+.pct-pill {
+  display: inline-flex;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pct-pill.good { background: var(--success-soft); color: var(--success); }
+.pct-pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pct-pill.na { background: var(--surface2); color: var(--fg3); }
+.pct-pill.current { background: var(--accent-soft); color: var(--accent); }
+
+/* ── Tooltip ── */
+.tooltip {
+  position: fixed;
+  pointer-events: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  color: var(--fg);
+  box-shadow: 0 4px 16px rgba(0,0,0,.18);
+  z-index: 999;
+  display: none;
+  min-width: 110px;
+}
+
+/* ── Footer ── */
+.footer {
+  text-align: center;
+  padding: 24px;
+  font-size: 0.72rem;
+  color: var(--fg3);
+}
+</style>
+</head>
+
+<body>
+
+<!-- Tooltip -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- ── מסך כניסה ── -->
+<div class="auth-screen" id="screen-login">
+  <div class="auth-card">
+    <div class="auth-logo">🏃</div>
+    <div class="auth-title">מעקב חצי מרתון</div>
+    <div class="auth-sub">התחבר כדי לראות את הנתונים והתוכנית שלך.</div>
+    <button class="google-btn" onclick="signInWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.8-6.8C35.6 2.4 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.3 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-2.8-.4-4.1H24v8.4h12.7c-.3 2.1-1.6 5.2-4.6 7.3l7.7 6c4.5-4.2 6.7-10.3 6.7-17.6z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3.1-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C1 16.3 0 20 0 24s1 7.7 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.5-2 15.3-5.6l-7.7-6c-2.1 1.4-4.9 2.4-7.6 2.4-6.3 0-11.6-3.8-13.5-9.2l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
+      התחבר עם Google
+    </button>
+    <button class="ghost-btn" onclick="enterDemoMode()">צפה במצב הדגמה</button>
+    <div class="auth-note" id="login-note">חשבון חדש ממתין לאישור מנהל לפני הכניסה הראשונה.</div>
+  </div>
+</div>
+
+<!-- ── מסך המתנה לאישור ── -->
+<div class="auth-screen" id="screen-pending">
+  <div class="auth-card">
+    <div class="auth-logo">⏳</div>
+    <div class="auth-title">החשבון ממתין לאישור</div>
+    <div class="auth-sub" id="pending-sub">נרשמת בהצלחה. מנהל המערכת צריך לאשר את החשבון לפני הכניסה הראשונה.</div>
+    <div class="auth-note">לאחר האישור — רענן את הדף והנתונים שלך ייטענו.</div>
+    <button class="ghost-btn" onclick="location.reload()">בדוק שוב</button>
+    <button class="ghost-btn" onclick="signOut()">התנתק</button>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="header" id="app-header" style="display:none">
+  <div class="header-title">
+    <div class="header-dot"></div>
+    מעקב חצי מרתון
+  </div>
+  <div class="header-meta">
+    <span class="last-update" id="last-update">טוען...</span>
+    <span class="runner-chip" id="runner-chip">סהר</span>
+    <select class="skin-select" id="skin-select" onchange="setSkin(this.value)" title="ערכת עיצוב">
+      <option value="bento">🍱 בנטו</option>
+      <option value="glass">🧊 זכוכית</option>
+      <option value="swiss">🔴 שוויצרי</option>
+      <option value="telemetry">📡 טלמטריה</option>
+      <option value="editorial">📰 עיתונאי</option>
+      <option value="neumorphism">🫧 ניאומורפי</option>
+      <option value="terminal">💻 טרמינל</option>
+      <option value="clay">🧸 חימר</option>
+      <option value="neubrutalist">🟨 ברוטליסטי</option>
+    </select>
+    <button class="theme-btn" onclick="toggleTheme()" title="כהה / בהיר — בערכת בנטו">🌙 / ☀️</button>
+    <button class="theme-btn" id="logout-btn" onclick="signOut()" style="display:none">יציאה</button>
+  </div>
+</header>
+
+<main class="main" id="main-content" style="display:none">
+  <div class="loading-banner" id="loading">
+    <div class="spinner"></div>
+    <span>טוען נתונים מ-Supabase...</span>
+  </div>
+</main>
+
+<div class="tooltip" id="tooltip2"></div>
+
+<footer class="footer" id="app-footer" style="display:none">
+  חצי מרתון ת״א · 26.02.2027 · יעד 1:42:00
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ═══════════════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://mrhxhzddibgpfnlwzbiq.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1yaHhoemRkaWJncGZubHd6YmlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU0NTQwMDEsImV4cCI6MjExMTAzMDAwMX0.GTmXJQaw9NhM5TZ5sn992tR02Xm0pdZurer5VYCLysI';
+const RACE_DATE = new Date('2027-02-26');
+
+const SKINS = ['bento','glass','swiss','telemetry','editorial','neumorphism','terminal','clay','neubrutalist'];
+
+if (!window.supabase || !window.supabase.createClient) {
+  document.body.innerHTML =
+    '<div style="padding:60px 24px;text-align:center;font-family:system-ui;direction:rtl">' +
+    '<h2>לא ניתן לטעון את ספריית ההתחברות</h2>' +
+    '<p>בדוק חיבור לאינטרנט או חוסמי מודעות, ורענן את הדף.</p></div>';
+  throw new Error('supabase-js failed to load');
+}
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let SESSION = null;    // Supabase session
+let PROFILE = null;    // שורת profiles של המשתמש
+let DEMO_MODE = false; // צפייה בלי התחברות
+
+// VDot scoring: 44 → 0%, 50 → 100%
+const VDOT_MIN = 44, VDOT_MAX = 50;
+
+// Training plan — 16 weeks from Nov 11 to Feb 26
+const PLAN = [
+  { week: 0, label: '0 – התאוששות', dates: '11–15.11', start: '2026-11-11', km: 11,  qual: null,          easy: '30 דק׳',      long: '40 דק׳',           cf: 3 },
+  { week: 1, label: '1',            dates: '16–20.11', start: '2026-11-16', km: 24,  qual: 'פארטלק 40 דק׳',  easy: '35 דק׳ + 4 סטריידים', long: '11 ק״מ קל', cf: 3 },
+  { week: 2, label: '2',            dates: '23–27.11', start: '2026-11-23', km: 27,  qual: '3×8 דק׳ ב-4:45', easy: '40 דק׳ + 6 סטריידים', long: '12 ק״מ קל', cf: 3 },
+  { week: 3, label: '3',            dates: '30.11–4.12', start: '2026-11-30', km: 28, qual: '6×800 מ׳ ב-4:15', easy: '40 דק׳ + 6 סטריידים', long: '13 ק״מ קל', cf: 3 },
+  { week: 4, label: '4 – הורדה + מבחן', dates: '7–11.12', start: '2026-12-07', km: 23, qual: 'מבחן 5 ק״מ', easy: '30 דק׳ קל', long: '10 ק״מ קל', cf: 3 },
+  { week: 5, label: '5',            dates: '14–18.12', start: '2026-12-14', km: 31,  qual: '2×15 דק׳ ב-4:40', easy: '45 דק׳ + 6 סטריידים', long: '14 ק״מ קל', cf: 3 },
+  { week: 6, label: '6',            dates: '21–25.12', start: '2026-12-21', km: 31,  qual: '5×1 ק״מ ב-4:15', easy: '45 דק׳ קל', long: '15 ק״מ, 3 אחרונים ב-4:50', cf: 3 },
+  { week: 7, label: '7',            dates: '28.12–1.1', start: '2026-12-28', km: 33,  qual: '3×2 ק״מ ב-4:40', easy: '45 דק׳ + 6 סטריידים', long: '16 ק״מ קל', cf: 3 },
+  { week: 8, label: '8 – הורדה',   dates: '4–8.1',    start: '2027-01-04', km: 25,  qual: '20 דק׳ רציף ב-4:40', easy: '35 דק׳ קל', long: '12 ק״מ קל', cf: 3 },
+  { week: 9, label: '9',            dates: '11–15.1',  start: '2027-01-11', km: 35,  qual: '4×2 ק״מ ב-4:40', easy: '50 דק׳ + 6 סטריידים', long: '17 ק״מ, 5 אחרונים ב-4:50', cf: 3 },
+  { week: 10, label: '10',          dates: '18–22.1',  start: '2027-01-18', km: 35,  qual: '6×1 ק״מ ב-4:10', easy: '50 דק׳ קל', long: '18 ק״מ קל', cf: 3 },
+  { week: 11, label: '11',          dates: '25–29.1',  start: '2027-01-25', km: 35,  qual: '3×3 ק״מ ב-4:47', easy: '45 דק׳ + 6 סטריידים', long: '16 ק״מ + 2×4 ק״מ ב-4:47', cf: 3 },
+  { week: 12, label: '12 – הורדה + מבחן', dates: '1–5.2', start: '2027-02-01', km: 27, qual: '4×1 ק״מ ב-4:20', easy: '40 דק׳ קל', long: 'מבחן 10 ק״מ', cf: 3 },
+  { week: 13, label: '13 – שיא',   dates: '8–12.2',   start: '2027-02-08', km: 38,  qual: '2×5 ק״מ ב-4:47', easy: '45 דק׳ קל', long: '18 ק״מ, 6 אחרונים ב-4:50', cf: 3 },
+  { week: 14, label: '14 – טייפר', dates: '15–19.2',  start: '2027-02-15', km: 27,  qual: '3×2 ק״מ ב-4:47', easy: '40 דק׳ קל', long: '12 ק״מ קל', cf: 2 },
+  { week: 15, label: '15 – מירוץ', dates: '22–26.2',  start: '2027-02-22', km: 32,  qual: '30 דק׳ קל עם 3×1 ק״מ', easy: '20 דק׳ + 4 סטריידים', long: 'המירוץ 21.1 ק״מ', cf: 1 },
+];
+
+// ═══════════════════════════════════════════════════════
+//  SUPABASE FETCH
+// ═══════════════════════════════════════════════════════
+// RLS כבר מסננת לפי auth.uid(), הסינון כאן מפורש לקראות עתיד של מאמן
+async function fetchRows() {
+  const { data, error } = await sb
+    .from('workout_rows')
+    .select('*')
+    .eq('user_id', SESSION.user.id)
+    .order('ts', { ascending: true });
+  if (error) throw new Error(error.message);
+  return data || [];
+}
+
+// ═══════════════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════════════
+async function signInWithGoogle() {
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin + window.location.pathname }
+  });
+  if (error) setLoginNote('⚠️ שגיאת התחברות: ' + error.message);
+}
+
+async function signOut() {
+  await sb.auth.signOut();
+  location.reload();
+}
+
+function setLoginNote(txt) {
+  const el = document.getElementById('login-note');
+  if (el) el.textContent = txt;
+}
+
+function showScreen(which) {
+  document.getElementById('screen-login').classList.toggle('show', which === 'login');
+  document.getElementById('screen-pending').classList.toggle('show', which === 'pending');
+  const isApp = which === 'app';
+  document.getElementById('app-header').style.display  = isApp ? 'flex'  : 'none';
+  document.getElementById('main-content').style.display = isApp ? 'flex' : 'none';
+  document.getElementById('app-footer').style.display   = isApp ? 'block': 'none';
+}
+
+function enterDemoMode() {
+  DEMO_MODE = true;
+  document.getElementById('runner-chip').textContent = 'הדגמה';
+  showScreen('app');
+  buildPage(getDemoRows(), true);
+}
+
+// ═══════════════════════════════════════════════════════
+//  DEMO DATA (shown if Supabase has 0 rows)
+// ═══════════════════════════════════════════════════════
+function getDemoRows() {
+  return [
+    // Week 0
+    { runner_id:'sahar', ts:'2026-11-13T06:30:00+02:00', type:'running_easy', distance_km:5.2, pace_avg:'6:45', avg_hr:142, rhr:56, vo2max:46 },
+    { runner_id:'sahar', ts:'2026-11-14T06:30:00+02:00', type:'running_long', distance_km:7.8, pace_avg:'6:50', avg_hr:144, rhr:55, vo2max:46 },
+    { runner_id:'sahar', ts:'2026-11-12T18:00:00+02:00', type:'crossfit', distance_km:null, pace_avg:null, avg_hr:155, rhr:57, vo2max:null },
+    // Week 1
+    { runner_id:'sahar', ts:'2026-11-17T06:30:00+02:00', type:'running_quality', distance_km:8.5, pace_avg:'4:38', avg_hr:168, rhr:55, vo2max:47 },
+    { runner_id:'sahar', ts:'2026-11-19T06:30:00+02:00', type:'running_easy', distance_km:3.0, pace_avg:'6:30', avg_hr:141, rhr:57, vo2max:46 },
+    { runner_id:'sahar', ts:'2026-11-16T18:00:00+02:00', type:'crossfit', distance_km:null, pace_avg:null, avg_hr:158, rhr:58, vo2max:null },
+    { runner_id:'sahar', ts:'2026-11-18T18:00:00+02:00', type:'crossfit', distance_km:null, pace_avg:null, avg_hr:160, rhr:56, vo2max:null },
+    // Week 2 (current - partial)
+    { runner_id:'sahar', ts:'2026-11-23T06:30:00+02:00', type:'running_easy', distance_km:8.96, pace_avg:'6:09', avg_hr:146, rhr:60, vo2max:46 },
+    { runner_id:'sahar', ts:'2026-11-23T18:00:00+02:00', type:'crossfit', distance_km:null, pace_avg:null, avg_hr:162, rhr:60, vo2max:null },
+  ];
+}
+
+// ═══════════════════════════════════════════════════════
+//  DATA PROCESSING
+// ═══════════════════════════════════════════════════════
+
+function parseDate(ts) {
+  return new Date(ts);
+}
+
+function getWeekOf(date) {
+  // which plan week does this date fall in?
+  for (let i = PLAN.length - 1; i >= 0; i--) {
+    if (date >= new Date(PLAN[i].start)) return i;
+  }
+  return 0;
+}
+
+function getCurrentWeekIndex() {
+  const today = new Date('2026-11-23'); // server date
+  return getWeekOf(today);
+}
+
+function groupByWeek(rows) {
+  const weeks = {};
+  rows.forEach(r => {
+    const d = parseDate(r.ts);
+    const wi = getWeekOf(d);
+    if (!weeks[wi]) weeks[wi] = [];
+    weeks[wi].push(r);
+  });
+  return weeks;
+}
+
+function latestRHR(rows) {
+  const withRHR = rows.filter(r => r.rhr).sort((a,b) => new Date(b.ts) - new Date(a.ts));
+  return withRHR.length ? withRHR[0].rhr : null;
+}
+
+function weekAvgRHR(rows) {
+  const withRHR = rows.filter(r => r.rhr);
+  if (!withRHR.length) return null;
+  return +(withRHR.reduce((s,r)=>s+r.rhr,0)/withRHR.length).toFixed(1);
+}
+
+function latestVO2(rows) {
+  const withVO2 = rows.filter(r => r.vo2max).sort((a,b) => new Date(b.ts)-new Date(a.ts));
+  return withVO2.length ? withVO2[0].vo2max : null;
+}
+
+function latestAvgHR(rows) {
+  const withHR = rows.filter(r => r.avg_hr).sort((a,b) => new Date(b.ts)-new Date(a.ts));
+  return withHR.length ? withHR[0].avg_hr : null;
+}
+
+function weekActualKm(rows) {
+  return rows.filter(r => r.type !== 'crossfit' && r.distance_km)
+             .reduce((s,r) => s + r.distance_km, 0);
+}
+
+function daysUntilRace() {
+  const today = new Date('2026-11-23');
+  return Math.ceil((RACE_DATE - today) / 86400000);
+}
+
+// Count completed activities in a week
+function weekCompletions(rows) {
+  return {
+    quality: rows.some(r => r.type === 'running_quality'),
+    easy: rows.some(r => r.type === 'running_easy'),
+    long: rows.some(r => r.type === 'running_long'),
+    cf: rows.filter(r => r.type === 'crossfit').length,
+  };
+}
+
+// ── Score calculation ──────────────────────────────────
+function calcScore(allRows, byWeek, currentWeekIdx) {
+  // 1) volume_adherence: planned vs actual across all past weeks
+  let totalPlanned = 0, totalActual = 0;
+  for (let i = 0; i <= currentWeekIdx; i++) {
+    totalPlanned += PLAN[i].km;
+    totalActual += weekActualKm(byWeek[i] || []);
+  }
+  const volumeAdherence = totalPlanned > 0 ? Math.min(1, totalActual / totalPlanned) : 0;
+
+  // 2) easy_run_trend: slope of pace over last 6 easy runs at same HR range
+  const easyRuns = allRows
+    .filter(r => r.type === 'running_easy' && r.pace_avg && r.avg_hr)
+    .sort((a,b) => new Date(a.ts)-new Date(b.ts))
+    .slice(-8);
+
+  let easyTrend = 0.5; // default neutral
+  if (easyRuns.length >= 3) {
+    const paces = easyRuns.map(r => paceToSeconds(r.pace_avg));
+    const n = paces.length;
+    const xs = paces.map((_,i) => i);
+    const meanX = xs.reduce((s,x)=>s+x,0)/n;
+    const meanY = paces.reduce((s,y)=>s+y,0)/n;
+    const slope = xs.reduce((s,x,i)=>(s+(x-meanX)*(paces[i]-meanY)),0) /
+                  xs.reduce((s,x)=>(s+(x-meanX)**2),0.001);
+    // negative slope = improving (pace going down = faster)
+    // map slope: -2 s/run = great (1.0), 0 = neutral (0.5), +2 = worse (0.0)
+    easyTrend = Math.max(0, Math.min(1, 0.5 - slope / 4));
+  }
+
+  // 3) test_score: from latest vo2max
+  const vo2 = latestVO2(allRows) || VDOT_MIN;
+  const testScore = Math.max(0, Math.min(1, (vo2 - VDOT_MIN) / (VDOT_MAX - VDOT_MIN)));
+
+  const score = 0.4 * volumeAdherence + 0.35 * easyTrend + 0.25 * testScore;
+
+  return {
+    score: Math.round(score * 100),
+    volumeAdherence: Math.round(volumeAdherence * 100),
+    easyTrend: Math.round(easyTrend * 100),
+    testScore: Math.round(testScore * 100),
+    totalPlanned: +totalPlanned.toFixed(1),
+    totalActual: +totalActual.toFixed(1),
+    vo2
+  };
+}
+
+function paceToSeconds(pace) {
+  if (!pace) return 400;
+  const [m,s] = pace.split(':').map(Number);
+  return m * 60 + (s || 0);
+}
+
+function secondsToPace(secs) {
+  const m = Math.floor(secs / 60);
+  const s = Math.round(secs % 60);
+  return `${m}:${s.toString().padStart(2,'0')}`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════
+
+function formatDate(ts) {
+  const d = parseDate(ts);
+  const days = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+  const months = ['ינו׳','פבר׳','מרץ','אפר׳','מאי','יוני','יולי','אוג׳','ספט׳','אוק׳','נוב׳','דצמ׳'];
+  return `${d.getDate()} ${months[d.getMonth()]} (יום ${days[d.getDay()]})`;
+}
+
+function formatTs(ts) {
+  const d = parseDate(ts);
+  const h = d.getHours().toString().padStart(2,'0');
+  const m = d.getMinutes().toString().padStart(2,'0');
+  const months = ['ינו׳','פבר׳','מרץ','אפר׳','מאי','יוני','יולי','אוג׳','ספט׳','אוק׳','נוב׳','דצמ׳'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}, ${h}:${m}`;
+}
+
+function typeLabel(type) {
+  return { running_easy:'ריצה קלה', running_quality:'ריצת איכות', running_long:'ריצה ארוכה', crossfit:'קרוספיט' }[type] || type;
+}
+
+function typeIcon(type) {
+  return { running_easy:'🏃', running_quality:'⚡', running_long:'🏃‍♂️', crossfit:'💪' }[type] || '🏃';
+}
+
+function getNextWorkout(currentWeekIdx, completions, currentWeekRows) {
+  const plan = PLAN[currentWeekIdx];
+  if (!plan) return null;
+
+  // determine what's missing this week
+  const needQual = !completions.quality;
+  const needEasy = !completions.easy;
+  const needLong = !completions.long;
+
+  // priority order: quality > long > easy
+  if (needQual && plan.qual) {
+    return { type: 'ריצת איכות', desc: plan.qual, week: currentWeekIdx };
+  }
+  if (needLong) {
+    return { type: 'ריצה ארוכה', desc: plan.long, week: currentWeekIdx };
+  }
+  if (needEasy) {
+    return { type: 'ריצה קלה', desc: plan.easy, week: currentWeekIdx };
+  }
+
+  // next week
+  const nextPlan = PLAN[currentWeekIdx + 1];
+  if (nextPlan) {
+    return { type: 'ריצת איכות', desc: nextPlan.qual || nextPlan.easy, week: currentWeekIdx + 1 };
+  }
+  return null;
+}
+
+// ═══════════════════════════════════════════════════════
+//  SVG CHARTS
+// ═══════════════════════════════════════════════════════
+
+const tip = document.getElementById('tooltip');
+function showTip(e, html) { tip.innerHTML = html; tip.style.display = 'block'; moveTip(e); }
+function moveTip(e) {
+  const x = e.clientX + 14, y = e.clientY - 40;
+  tip.style.left = Math.min(x, window.innerWidth - 180) + 'px';
+  tip.style.top = Math.max(y, 8) + 'px';
+}
+function hideTip() { tip.style.display = 'none'; }
+function attachTip(el, label) {
+  el.addEventListener('mouseenter', e => showTip(e, label));
+  el.addEventListener('mousemove', moveTip);
+  el.addEventListener('mouseleave', hideTip);
+}
+
+function drawLineChart(svgEl, points, minV, maxV, color, labelFn) {
+  const W = 220, H = 90, pL = 26, pR = 6, pT = 8, pB = 20;
+  const iW = W - pL - pR, iH = H - pT - pB;
+  const n = points.length;
+  if (n === 0) { svgEl.innerHTML = `<text x="110" y="45" text-anchor="middle" font-size="10" fill="var(--fg3)">אין נתונים</text>`; return; }
+
+  const xS = i => pL + (n > 1 ? (i/(n-1)) * iW : iW/2);
+  const yS = v => pT + iH - ((v - minV) / (maxV - minV)) * iH;
+
+  // grid
+  let g = '';
+  [minV, Math.round((minV+maxV)/2), maxV].forEach(v => {
+    const y = yS(v);
+    g += `<line x1="${pL}" y1="${y}" x2="${W-pR}" y2="${y}" stroke="var(--border)" stroke-width=".5"/>`;
+    g += `<text x="${pL-3}" y="${y+3}" font-size="7" fill="var(--fg3)" text-anchor="end" font-family="'JetBrains Mono',monospace">${v}</text>`;
+  });
+
+  // area
+  let aPath = `M${xS(0)},${yS(points[0].v)}`;
+  points.forEach((p,i) => { aPath += ` L${xS(i)},${yS(p.v)}`; });
+  aPath += ` L${xS(n-1)},${pT+iH} L${xS(0)},${pT+iH} Z`;
+
+  // line
+  let lPath = `M${xS(0)},${yS(points[0].v)}`;
+  points.forEach((p,i) => { lPath += ` L${xS(i)},${yS(p.v)}`; });
+
+  // x labels
+  let xl = `<text x="${xS(0)}" y="${H-4}" font-size="7" fill="var(--fg3)" font-family="Inter,sans-serif">${points[0].d}</text>`;
+  if (n > 1) xl += `<text x="${xS(n-1)}" y="${H-4}" font-size="7" fill="var(--fg3)" text-anchor="end" font-family="Inter,sans-serif">${points[n-1].d}</text>`;
+
+  svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svgEl.innerHTML = g +
+    `<path d="${aPath}" fill="${color}" opacity=".1"/>` +
+    `<path d="${lPath}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>` +
+    xl;
+
+  // dots
+  points.forEach((p, i) => {
+    const cx = xS(i), cy = yS(p.v);
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx', cx); c.setAttribute('cy', cy);
+    c.setAttribute('r', '3.5'); c.setAttribute('fill', color);
+    c.setAttribute('stroke', 'var(--surface)'); c.setAttribute('stroke-width', '1.5');
+    c.style.cursor = 'pointer';
+    attachTip(c, `${p.d}: ${labelFn(p)}`);
+    svgEl.appendChild(c);
+  });
+}
+
+function drawBarChart(svgEl, weeks) {
+  const W = 220, H = 90, pL = 26, pR = 6, pT = 8, pB = 20;
+  const iW = W - pL - pR, iH = H - pT - pB;
+  const n = weeks.length;
+  const maxV = Math.max(...weeks.map(w => Math.max(w.plan, w.actual || 0, 1)), 1);
+  const yS = v => pT + iH - (v / maxV) * iH;
+  const bW = Math.min(iW / n * 0.35, 14);
+
+  svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svgEl.innerHTML = '';
+
+  // grid
+  [0, Math.round(maxV/2), maxV].forEach(v => {
+    const y = yS(v);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',pL); line.setAttribute('y1',y);
+    line.setAttribute('x2',W-pR); line.setAttribute('y2',y);
+    line.setAttribute('stroke','var(--border)'); line.setAttribute('stroke-width','.5');
+    svgEl.appendChild(line);
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',pL-3); t.setAttribute('y',y+3);
+    t.setAttribute('font-size','7'); t.setAttribute('fill','var(--fg3)');
+    t.setAttribute('text-anchor','end'); t.setAttribute('font-family',"'JetBrains Mono',monospace");
+    t.textContent = v;
+    svgEl.appendChild(t);
+  });
+
+  weeks.forEach((w, i) => {
+    const cx = pL + (i + 0.5) / n * iW;
+
+    // plan bar
+    const ph = (w.plan / maxV) * iH;
+    const pr = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    pr.setAttribute('x', cx - bW - 1); pr.setAttribute('y', yS(w.plan));
+    pr.setAttribute('width', bW); pr.setAttribute('height', ph);
+    pr.setAttribute('fill','var(--fg3)'); pr.setAttribute('opacity','.25');
+    pr.setAttribute('rx','2'); pr.style.cursor='pointer';
+    attachTip(pr, `ש׳${w.w}: תוכנית ${w.plan} ק״מ`);
+    svgEl.appendChild(pr);
+
+    // actual bar
+    if (w.actual > 0) {
+      const ah = (w.actual / maxV) * iH;
+      const col = w.actual >= w.plan ? 'var(--success)' : 'var(--accent)';
+      const ar = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      ar.setAttribute('x', cx + 1); ar.setAttribute('y', yS(w.actual));
+      ar.setAttribute('width', bW); ar.setAttribute('height', ah);
+      ar.setAttribute('fill', col); ar.setAttribute('rx','2'); ar.style.cursor='pointer';
+      attachTip(ar, `ש׳${w.w}: בפועל ${w.actual.toFixed(1)} ק״מ`);
+      svgEl.appendChild(ar);
+    }
+
+    // label
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', cx); t.setAttribute('y', H-4);
+    t.setAttribute('font-size','7'); t.setAttribute('fill','var(--fg3)');
+    t.setAttribute('text-anchor','middle'); t.setAttribute('font-family','Inter,sans-serif');
+    t.textContent = `ש׳${w.w}`;
+    svgEl.appendChild(t);
+  });
+
+  // legend
+  const lg = document.createElementNS('http://www.w3.org/2000/svg','g');
+  lg.innerHTML = `
+    <rect x="${pL}" y="${pT}" width="7" height="7" fill="var(--fg3)" opacity=".4" rx="1"/>
+    <text x="${pL+9}" y="${pT+6}" font-size="7" fill="var(--fg3)" font-family="Inter,sans-serif">תוכנית</text>
+    <rect x="${pL+42}" y="${pT}" width="7" height="7" fill="var(--accent)" rx="1"/>
+    <text x="${pL+51}" y="${pT+6}" font-size="7" fill="var(--fg3)" font-family="Inter,sans-serif">בפועל</text>
+  `;
+  svgEl.appendChild(lg);
+}
+
+function drawEasyRunsChart(svgEl, easyRuns) {
+  if (easyRuns.length < 2) {
+    svgEl.innerHTML = `<text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="var(--fg3)" font-family="Inter,sans-serif">אין מספיק ריצות קלות עדיין</text>`;
+    return;
+  }
+
+  const W = 700, H = 120, pL = 44, pR = 20, pT = 18, pB = 24;
+  const iW = W - pL - pR, iH = H - pT - pB;
+  const n = easyRuns.length;
+
+  const paces = easyRuns.map(r => paceToSeconds(r.pace_avg));
+  const minP = Math.floor(Math.min(...paces) / 30) * 30 - 30;
+  const maxP = Math.ceil(Math.max(...paces) / 30) * 30 + 30;
+
+  const xS = i => pL + (n > 1 ? (i/(n-1)) * iW : iW/2);
+  const yS = v => pT + ((v - minP) / (maxP - minP)) * iH;
+
+  svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svgEl.innerHTML = '';
+
+  // grid
+  const gridVals = [minP, minP + (maxP-minP)/2, maxP].map(Math.round);
+  gridVals.forEach(v => {
+    const y = yS(v);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',pL); line.setAttribute('y1',y);
+    line.setAttribute('x2',W-pR); line.setAttribute('y2',y);
+    line.setAttribute('stroke','var(--border)'); line.setAttribute('stroke-width','.5');
+    svgEl.appendChild(line);
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',pL-5); t.setAttribute('y',y+3);
+    t.setAttribute('font-size','8'); t.setAttribute('fill','var(--fg3)');
+    t.setAttribute('text-anchor','end'); t.setAttribute('font-family',"'JetBrains Mono',monospace");
+    t.textContent = secondsToPace(v);
+    svgEl.appendChild(t);
+  });
+
+  // trend line
+  const pts = easyRuns.map((r,i) => ({x: xS(i), y: yS(paceToSeconds(r.pace_avg))}));
+  const meanX = pts.reduce((s,p)=>s+p.x,0)/n;
+  const meanY = pts.reduce((s,p)=>s+p.y,0)/n;
+  const denom = pts.reduce((s,p)=>s+(p.x-meanX)**2,0.001);
+  const slope = pts.reduce((s,p)=>(s+(p.x-meanX)*(p.y-meanY)),0) / denom;
+  const intcp = meanY - slope * meanX;
+  const tl = document.createElementNS('http://www.w3.org/2000/svg','line');
+  tl.setAttribute('x1',xS(0)); tl.setAttribute('y1',slope*xS(0)+intcp);
+  tl.setAttribute('x2',xS(n-1)); tl.setAttribute('y2',slope*xS(n-1)+intcp);
+  tl.setAttribute('stroke','var(--accent)'); tl.setAttribute('stroke-width','1.5');
+  tl.setAttribute('stroke-dasharray','4 3'); tl.setAttribute('opacity','.8');
+  svgEl.appendChild(tl);
+
+  // dots
+  easyRuns.forEach((r, i) => {
+    const cx = xS(i), cy = yS(paceToSeconds(r.pace_avg));
+    const hr = r.avg_hr || 145;
+    const fill = hr < 143 ? 'var(--success)' : hr < 147 ? 'var(--accent)' : 'var(--warn)';
+
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',cx); c.setAttribute('cy',cy);
+    c.setAttribute('r','6'); c.setAttribute('fill',fill);
+    c.setAttribute('stroke','var(--surface)'); c.setAttribute('stroke-width','1.5');
+    c.style.cursor='pointer';
+    const months = ['ינו׳','פבר׳','מרץ','אפר׳','מאי','יוני','יולי','אוג׳','ספט׳','אוק׳','נוב׳','דצמ׳'];
+    const d = parseDate(r.ts);
+    const dLabel = `${d.getDate()} ${months[d.getMonth()]}`;
+    attachTip(c, `${dLabel} · ${r.pace_avg}/ק״מ · דופק ${hr}`);
+    svgEl.appendChild(c);
+
+    // x label (every 2nd)
+    if (i % 2 === 0 || i === n-1) {
+      const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x',cx); t.setAttribute('y',H-6);
+      t.setAttribute('font-size','7'); t.setAttribute('fill','var(--fg3)');
+      t.setAttribute('text-anchor','middle'); t.setAttribute('font-family','Inter,sans-serif');
+      t.textContent = dLabel;
+      svgEl.appendChild(t);
+    }
+  });
+
+  // legend
+  const lg = document.createElementNS('http://www.w3.org/2000/svg','g');
+  lg.innerHTML = `
+    <circle cx="${pL}" cy="${pT-5}" r="4" fill="var(--success)"/>
+    <text x="${pL+8}" y="${pT-2}" font-size="8" fill="var(--fg3)" font-family="Inter,sans-serif">דופק &lt;143</text>
+    <circle cx="${pL+68}" cy="${pT-5}" r="4" fill="var(--accent)"/>
+    <text x="${pL+76}" y="${pT-2}" font-size="8" fill="var(--fg3)" font-family="Inter,sans-serif">143–147</text>
+    <circle cx="${pL+136}" cy="${pT-5}" r="4" fill="var(--warn)"/>
+    <text x="${pL+144}" y="${pT-2}" font-size="8" fill="var(--fg3)" font-family="Inter,sans-serif">&gt;147</text>
+    <line x1="${pL+200}" y1="${pT-5}" x2="${pL+218}" y2="${pT-5}" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <text x="${pL+222}" y="${pT-2}" font-size="8" fill="var(--fg3)" font-family="Inter,sans-serif">מגמה</text>
+  `;
+  svgEl.appendChild(lg);
+}
+
+// ═══════════════════════════════════════════════════════
+//  BUILD PAGE
+// ═══════════════════════════════════════════════════════
+
+function buildPage(rows, isDemo) {
+  const main = document.getElementById('main-content');
+  main.innerHTML = '';
+
+  if (isDemo) {
+    const banner = document.createElement('div');
+    banner.className = 'demo-banner';
+    banner.innerHTML = `<span>⚠️</span> מצב הדגמה — Supabase ריק. הנתונים המוצגים הם לדוגמה בלבד.`;
+    main.appendChild(banner);
+  }
+
+  const byWeek = groupByWeek(rows);
+  const curWi = getCurrentWeekIndex();
+  const curRows = byWeek[curWi] || [];
+  const completions = weekCompletions(curRows);
+  const scoreData = calcScore(rows, byWeek, curWi);
+  const rhr = latestRHR(rows);
+  const rhrWeek = weekAvgRHR(curRows.length ? curRows : rows.slice(-7));
+  const vo2 = latestVO2(rows);
+  const avgHR = latestAvgHR(rows);
+  const days = daysUntilRace();
+  const curPlan = PLAN[curWi];
+
+  // last update
+  const lastRow = rows.length ? rows.slice().sort((a,b) => new Date(b.ts)-new Date(a.ts))[0] : null;
+  document.getElementById('last-update').textContent = lastRow
+    ? `עדכון: ${formatTs(lastRow.ts)}`
+    : 'אין נתונים';
+
+  // ── 1. Hero Card ──
+  const heroCard = document.createElement('div');
+  heroCard.className = 'card';
+  const curWeekKm = weekActualKm(curRows);
+  const adherencePct = curPlan ? Math.min(100, Math.round(curWeekKm / curPlan.km * 100)) : 0;
+  const forecastChip = scoreData.score >= 70
+    ? `<span class="chip success">1:42 בהישג יד 🎯</span>`
+    : scoreData.score >= 50
+    ? `<span class="chip warn">~1:46–1:49</span>`
+    : `<span class="chip danger">יעד בסכנה</span>`;
+
+  heroCard.innerHTML = `
+    <div class="card-title">סטטוס נוכחי — שבוע ${curWi} מתוך 15 (${curPlan?.dates || ''})</div>
+    <div class="hero-grid">
+      <div class="score-block">
+        <div class="score-label">
+          סיכוי להגיע ליעד
+          <button class="info-btn" id="info-btn" title="איך מחושב?">ℹ</button>
+        </div>
+        <div class="score-num">${scoreData.score}<sup>%</sup></div>
+        <div class="score-desc">עמידה בנפח · מגמת ריצות קלות · VDot</div>
+        <div class="score-breakdown" id="score-breakdown" hidden>
+          <div class="breakdown-row">
+            <span>עמידה בנפח (40%)</span>
+            <span class="breakdown-val">${scoreData.volumeAdherence}% <small style="color:var(--fg3);font-size:.68rem">${scoreData.totalActual}/${scoreData.totalPlanned} ק״מ</small></span>
+          </div>
+          <div class="breakdown-row">
+            <span>מגמת ריצות קלות (35%)</span>
+            <span class="breakdown-val">${scoreData.easyTrend}%</span>
+          </div>
+          <div class="breakdown-row">
+            <span>מבחן VDot (25%)</span>
+            <span class="breakdown-val">${scoreData.testScore}% <small style="color:var(--fg3);font-size:.68rem">VDot ${scoreData.vo2}</small></span>
+          </div>
+          <div class="breakdown-formula">0.4×${scoreData.volumeAdherence} + 0.35×${scoreData.easyTrend} + 0.25×${scoreData.testScore} = <strong>${scoreData.score}%</strong></div>
+        </div>
+      </div>
+      <div class="target-block">
+        <div class="target-row">
+          <span class="target-label">יעד</span>
+          <span class="target-val">1:42:00</span>
+        </div>
+        <div class="target-row">
+          <span class="target-label">קצב נדרש</span>
+          <span class="target-val">4:50 / ק״מ</span>
+        </div>
+        <div class="target-row">
+          <span class="target-label">תחזית נוכחית</span>
+          ${forecastChip}
+        </div>
+        <div class="target-row">
+          <span class="target-label">עמידה שבוע זה</span>
+          <span class="target-val">${adherencePct}% (${curWeekKm.toFixed(1)} / ${curPlan?.km || '?'} ק״מ)</span>
+        </div>
+        <div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:${adherencePct}%"></div></div>
+        </div>
+        <div class="target-row">
+          <span class="target-label">נותרו עד המירוץ</span>
+          <span class="target-val">${days} ימים</span>
+        </div>
+      </div>
+    </div>
+  `;
+  main.appendChild(heroCard);
+  heroCard.querySelector('#info-btn').addEventListener('click', () => {
+    const el = heroCard.querySelector('#score-breakdown');
+    el.hidden = !el.hidden;
+  });
+
+  // ── 2. Metrics ──
+  const metricsCard = document.createElement('div');
+  metricsCard.className = 'card';
+  const rhrDelta = rhr && rhrWeek ? rhr - rhrWeek : 0;
+  const rhrDeltaHtml = rhrDelta > 0
+    ? `<span class="metric-delta up">+${rhrDelta}</span>`
+    : rhrDelta < 0
+    ? `<span class="metric-delta down">${rhrDelta}</span>`
+    : '';
+  metricsCard.innerHTML = `
+    <div class="card-title">מדדים עכשוויים</div>
+    <div class="metrics-grid">
+      <div class="metric-tile">
+        <div class="metric-label">דופק מנוחה היום</div>
+        <div class="metric-val">${rhr ?? '—'} ${rhrDeltaHtml}</div>
+        <div class="metric-unit">פעימות / דקה</div>
+      </div>
+      <div class="metric-tile">
+        <div class="metric-label">ממוצע RHR (שבוע)</div>
+        <div class="metric-val">${rhrWeek ?? '—'}</div>
+        <div class="metric-unit">פעימות / דקה</div>
+      </div>
+      <div class="metric-tile">
+        <div class="metric-label">VO2max</div>
+        <div class="metric-val">${vo2 ?? '—'}</div>
+        <div class="metric-unit">מ״ל / ק״ג / דקה</div>
+      </div>
+      <div class="metric-tile">
+        <div class="metric-label">דופק ממוצע — פעילות אחרונה</div>
+        <div class="metric-val">${avgHR ?? '—'}</div>
+        <div class="metric-unit">פעימות / דקה</div>
+      </div>
+    </div>
+  `;
+  main.appendChild(metricsCard);
+
+  // ── 3. Last activity + week status ──
+  if (lastRow) {
+    const actCard = document.createElement('div');
+    actCard.className = 'card';
+    const weekItems = [
+      { done: completions.quality, label: 'ריצת איכות' },
+      { done: completions.easy, label: 'ריצה קלה' },
+      { done: completions.long, label: `ריצה ארוכה ${curPlan?.long || ''}` },
+      { done: completions.cf >= (curPlan?.cf || 3), label: `קרוספיט ${completions.cf}/${curPlan?.cf || 3}` },
+    ];
+    const weekHtml = weekItems.map(w =>
+      `<div class="week-item"><span>${w.done ? '✅' : '⏳'}</span> ${w.label}</div>`
+    ).join('');
+    actCard.innerHTML = `
+      <div class="card-title">פעילות אחרונה ומצב שבוע ${curWi}</div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.95rem">${typeIcon(lastRow.type)} ${typeLabel(lastRow.type)}</span>
+        ${lastRow.distance_km ? `<span style="font-size:.82rem;color:var(--fg2)"><strong>${lastRow.distance_km.toFixed(2)} ק״מ</strong></span>` : ''}
+        ${lastRow.pace_avg ? `<span style="font-size:.82rem;color:var(--fg2)">קצב <strong>${lastRow.pace_avg}/ק״מ</strong></span>` : ''}
+        ${lastRow.avg_hr ? `<span style="font-size:.82rem;color:var(--fg2)">דופק ממוצע <strong>${lastRow.avg_hr}</strong></span>` : ''}
+        <span style="font-size:.82rem;color:var(--fg3)">${formatDate(lastRow.ts)}</span>
+      </div>
+      <div class="week-status-row">${weekHtml}</div>
+    `;
+    main.appendChild(actCard);
+  }
+
+  // ── 4. Charts row ──
+  const chartsDiv = document.createElement('div');
+  chartsDiv.className = 'charts-3col';
+
+  // RHR chart data
+  const rhrPoints = rows
+    .filter(r => r.rhr)
+    .sort((a,b) => new Date(a.ts)-new Date(b.ts))
+    .reduce((acc, r) => {
+      const d = parseDate(r.ts);
+      const months = ['ינו׳','פבר׳','מרץ','אפר׳','מאי','יוני','יולי','אוג׳','ספט׳','אוק׳','נוב׳','דצמ׳'];
+      const lbl = `${d.getDate()} ${months[d.getMonth()]}`;
+      // deduplicate by date
+      const existing = acc.find(x => x.d === lbl);
+      if (!existing) acc.push({ d: lbl, v: r.rhr });
+      return acc;
+    }, []);
+
+  // VO2max points by week
+  const vo2Points = Object.keys(byWeek).sort((a,b)=>+a-+b).map(wi => {
+    const wRows = byWeek[wi].filter(r => r.vo2max);
+    if (!wRows.length) return null;
+    const avg = wRows.reduce((s,r)=>s+r.vo2max,0)/wRows.length;
+    return { d: `ש׳${wi}`, v: +avg.toFixed(1) };
+  }).filter(Boolean);
+
+  // Volume by week
+  const volWeeks = PLAN.slice(0, curWi+2).map(p => ({
+    w: p.week,
+    plan: p.km,
+    actual: weekActualKm(byWeek[p.week] || [])
+  }));
+
+  chartsDiv.innerHTML = `
+    <div class="chart-card"><div class="chart-name">דופק מנוחה — RHR</div><svg class="chart-svg" id="rhr-chart"></svg></div>
+    <div class="chart-card"><div class="chart-name">VO2max לפי שבוע</div><svg class="chart-svg" id="vo2-chart"></svg></div>
+    <div class="chart-card"><div class="chart-name">נפח שבועי מול תוכנית</div><svg class="chart-svg" id="vol-chart"></svg></div>
+  `;
+  main.appendChild(chartsDiv);
+
+  // draw after DOM insertion
+  requestAnimationFrame(() => {
+    if (rhrPoints.length) {
+      const minRHR = Math.min(...rhrPoints.map(p=>p.v)) - 3;
+      const maxRHR = Math.max(...rhrPoints.map(p=>p.v)) + 3;
+      drawLineChart(document.getElementById('rhr-chart'), rhrPoints, minRHR, maxRHR, 'var(--accent)', p => `${p.v} bpm`);
+    } else {
+      document.getElementById('rhr-chart').innerHTML = `<text x="110" y="45" text-anchor="middle" font-size="10" fill="var(--fg3)" font-family="Inter,sans-serif">אין נתוני RHR</text>`;
+    }
+    if (vo2Points.length) {
+      drawLineChart(document.getElementById('vo2-chart'), vo2Points, 40, 52, 'var(--success)', p => p.v);
+    } else {
+      document.getElementById('vo2-chart').innerHTML = `<text x="110" y="45" text-anchor="middle" font-size="10" fill="var(--fg3)" font-family="Inter,sans-serif">אין נתוני VO2max</text>`;
+    }
+    drawBarChart(document.getElementById('vol-chart'), volWeeks);
+  });
+
+  // ── 5. Easy runs chart ──
+  const easyCard = document.createElement('div');
+  easyCard.className = 'card';
+  const easyRuns = rows
+    .filter(r => r.type === 'running_easy' && r.pace_avg && r.avg_hr && r.avg_hr >= 135 && r.avg_hr <= 155)
+    .sort((a,b) => new Date(a.ts)-new Date(b.ts));
+  easyCard.innerHTML = `
+    <div class="card-title">ריצות קלות — שיפור קצב באותו דופק (135–155)</div>
+    <svg class="chart-svg" id="easy-chart" style="max-height:140px"></svg>
+    <div style="font-size:.75rem;color:var(--fg3);margin-top:6px">הקו צפוי לרדת ככל שהסיבולת משתפרת — אותו דופק, קצב מהיר יותר</div>
+  `;
+  main.appendChild(easyCard);
+  requestAnimationFrame(() => {
+    const easySvg = document.getElementById('easy-chart');
+    easySvg.setAttribute('viewBox','0 0 700 120');
+    drawEasyRunsChart(easySvg, easyRuns);
+  });
+
+  // ── 6. Next workout ──
+  const next = getNextWorkout(curWi, completions, curRows);
+  if (next) {
+    const nextCard = document.createElement('div');
+    nextCard.className = 'card accent-card';
+    const plan = PLAN[next.week];
+
+    // parse workout structure for visual display
+    const workoutFlow = buildWorkoutFlow(next.desc, next.type);
+
+    nextCard.innerHTML = `
+      <div class="card-title">האימון הבא 🏃</div>
+      <div class="workout-layout">
+        <div class="workout-desc">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:6px">${next.type} — שבוע ${next.week}</div>
+          <div style="font-size:.82rem;color:var(--fg2);margin-bottom:4px">📅 שבוע ${plan?.dates || ''}</div>
+          <div style="font-size:.82rem;color:var(--fg2);margin-bottom:12px">📋 ${next.desc}</div>
+          <div class="workout-flow">${workoutFlow}</div>
+          ${next.type === 'ריצת איכות' ? `<div class="warning-chip">💡 זכור: חימום מלא של 15 דקות לפני האינטרוולים. שתייה: 500 מ״ל לפחות.</div>` : ''}
+        </div>
+      </div>
+    `;
+    main.appendChild(nextCard);
+  }
+
+  // ── 7. Plan table ──
+  const tableCard = document.createElement('div');
+  tableCard.className = 'card';
+  tableCard.innerHTML = `
+    <div class="card-title">תכנון מול ביצוע — 16 שבועות</div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>שבוע</th>
+            <th>תאריכים</th>
+            <th>ק״מ תוכנית</th>
+            <th>ק״מ בפועל</th>
+            <th>ריצת איכות</th>
+            <th>ריצה קלה</th>
+            <th>ריצה ארוכה</th>
+            <th>CF</th>
+            <th>עמידה</th>
+          </tr>
+        </thead>
+        <tbody id="plan-tbody"></tbody>
+      </table>
+    </div>
+  `;
+  main.appendChild(tableCard);
+
+  const tbody = tableCard.querySelector('#plan-tbody');
+  PLAN.forEach(p => {
+    const wRows = byWeek[p.week] || [];
+    const actual = weekActualKm(wRows);
+    const comp = weekCompletions(wRows);
+    const isPast = p.week < curWi;
+    const isCurrent = p.week === curWi;
+
+    const pct = isPast || isCurrent
+      ? Math.min(100, Math.round(actual / p.km * 100))
+      : null;
+
+    let pctHtml = `<span class="pct-pill na">—</span>`;
+    if (pct !== null) {
+      const cls = isCurrent ? 'current' : pct >= 80 ? 'good' : 'warn';
+      pctHtml = `<span class="pct-pill ${cls}">${pct}%</span>`;
+    }
+
+    const tr = document.createElement('tr');
+    if (isCurrent) tr.className = 'row-current';
+    else if (isPast) tr.className = 'row-past';
+
+    const qualStatus = isPast || isCurrent ? (comp.quality ? '✅' : '❌') : '—';
+    const easyStatus = isPast || isCurrent ? (comp.easy ? '✅' : '❌') : '—';
+    const longStatus = isPast || isCurrent ? (comp.long ? '✅' : '❌') : '—';
+    const cfStatus = isPast || isCurrent ? `${comp.cf}/${p.cf}` : '—';
+
+    tr.innerHTML = `
+      <td style="font-weight:600;color:var(--fg);white-space:nowrap">${p.label}${isCurrent ? ' <span class="chip accent" style="font-size:.65rem;padding:2px 6px">עכשיו</span>' : ''}</td>
+      <td style="white-space:nowrap">${p.dates}</td>
+      <td>${p.km}</td>
+      <td>${(isPast || isCurrent) ? actual.toFixed(1) : '—'}</td>
+      <td>${qualStatus}</td>
+      <td>${easyStatus}</td>
+      <td>${longStatus}</td>
+      <td>${cfStatus}</td>
+      <td>${pctHtml}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function buildWorkoutFlow(desc, type) {
+  if (!desc) return '';
+
+  if (type === 'ריצה ארוכה') {
+    const kmMatch = desc.match(/(\d+) ק[״"]מ/);
+    const km = kmMatch ? kmMatch[1] : '?';
+    return `
+      <div class="workout-segment"><div class="seg-label">חימום</div><div class="seg-val">10 דק׳</div><div class="seg-sub">קל</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="workout-segment main"><div class="seg-label">ריצה</div><div class="seg-val">${km} ק״מ</div><div class="seg-sub">דופק &lt;145</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="workout-segment"><div class="seg-label">שחרור</div><div class="seg-val">5 דק׳</div><div class="seg-sub">קל</div></div>
+    `;
+  }
+
+  if (type === 'ריצה קלה') {
+    const minMatch = desc.match(/(\d+) דק[׳']/);
+    const mins = minMatch ? minMatch[1] : '40';
+    const hasStrides = desc.includes('סטריידים');
+    return `
+      <div class="workout-segment main"><div class="seg-label">ריצה</div><div class="seg-val">${mins} דק׳</div><div class="seg-sub">דופק &lt;145</div></div>
+      ${hasStrides ? `<div class="flow-arrow">→</div><div class="workout-segment"><div class="seg-label">סטריידים</div><div class="seg-val">4–6 × 20"</div><div class="seg-sub">מהיר ורגוע</div></div>` : ''}
+    `;
+  }
+
+  // Quality run — parse intervals
+  const timesMatch = desc.match(/(\d+)×(\d+) דק[׳']/);
+  const kmMatch = desc.match(/(\d+)×(\d+) ק[״"]מ/);
+  const paceMatch = desc.match(/ב-(\d+:\d+)/);
+  const pace = paceMatch ? paceMatch[1] : '4:45';
+
+  if (timesMatch) {
+    const reps = timesMatch[1], dur = timesMatch[2];
+    return `
+      <div class="workout-segment"><div class="seg-label">חימום</div><div class="seg-val">15 דק׳</div><div class="seg-sub">קל, 6:30+</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="workout-segment main"><div class="seg-label">×${reps} חזרות</div><div class="seg-val">${dur} דק׳</div><div class="seg-sub">קצב ${pace}</div></div>
+      <div class="flow-rest" style="font-size:.7rem;color:var(--fg3)">מנוחה 2 דק׳</div>
+      <div class="flow-arrow">→</div>
+      <div class="workout-segment"><div class="seg-label">שחרור</div><div class="seg-val">10 דק׳</div><div class="seg-sub">קל</div></div>
+    `;
+  }
+  if (kmMatch) {
+    const reps = kmMatch[1], dist = kmMatch[2];
+    return `
+      <div class="workout-segment"><div class="seg-label">חימום</div><div class="seg-val">15 דק׳</div><div class="seg-sub">קל</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="workout-segment main"><div class="seg-label">×${reps} חזרות</div><div class="seg-val">${dist} ק״מ</div><div class="seg-sub">קצב ${pace}</div></div>
+      <div class="flow-rest" style="font-size:.7rem;color:var(--fg3)">מנוחה 2 דק׳</div>
+      <div class="flow-arrow">→</div>
+      <div class="workout-segment"><div class="seg-label">שחרור</div><div class="seg-val">10 דק׳</div><div class="seg-sub">קל</div></div>
+    `;
+  }
+
+  return `<div style="font-size:.82rem;color:var(--fg2)">${desc}</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  THEME + SKINS
+// ═══════════════════════════════════════════════════════
+function toggleTheme() {
+  const root = document.documentElement;
+  const cur = root.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+}
+
+// מחיל ערכת עיצוב מקומית בלבד
+function applySkin(skin) {
+  const s = SKINS.includes(skin) ? skin : 'bento';
+  document.documentElement.setAttribute('data-skin', s);
+  const sel = document.getElementById('skin-select');
+  if (sel) sel.value = s;
+  localStorage.setItem('skin', s);
+}
+
+// מחיל ושומר — גם ב-localStorage וגם ב-profiles.theme_id
+async function setSkin(skin) {
+  applySkin(skin);
+  if (SESSION && PROFILE) {
+    const { error } = await sb.from('profiles')
+      .update({ theme_id: skin })
+      .eq('id', SESSION.user.id);
+    if (error) console.warn('שמירת ערכת העיצוב נכשלה:', error.message);
+    else PROFILE.theme_id = skin;
+  }
+}
+
+(function initTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
+  applySkin(localStorage.getItem('skin') || 'bento');
+})();
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+(async function init() {
+  // 1) יש session?
+  let session = null;
+  try {
+    const { data } = await sb.auth.getSession();
+    session = data.session;
+  } catch (e) { console.error(e); }
+
+  if (!session) { showScreen('login'); return; }
+  SESSION = session;
+
+  // 2) טעינת הפרופיל (ה-trigger ב-DB יוצר אותו בהרשמה)
+  const { data: prof, error: profErr } = await sb
+    .from('profiles').select('*').eq('id', session.user.id).maybeSingle();
+
+  if (profErr || !prof) {
+    showScreen('login');
+    setLoginNote('⚠️ לא נמצא פרופיל לחשבון הזה. נסה להתחבר שוב או פנה למנהל.');
+    return;
+  }
+  PROFILE = prof;
+
+  // 3) שער האישור
+  if (prof.approval_status !== 'approved') {
+    document.getElementById('pending-sub').textContent =
+      prof.approval_status === 'suspended'
+        ? 'החשבון הושהה. פנה למנהל המערכת.'
+        : `נרשמת בהצלחה עם ${prof.email}. מנהל המערכת צריך לאשר את החשבון לפני הכניסה הראשונה.`;
+    showScreen('pending');
+    return;
+  }
+
+  // 4) דשבורד אישי
+  applySkin(prof.theme_id || localStorage.getItem('skin') || 'bento');
+  document.getElementById('runner-chip').textContent =
+    (prof.full_name || prof.email).split(' ')[0];
+  document.getElementById('logout-btn').style.display = '';
+  showScreen('app');
+
+  try {
+    let rows = await fetchRows();
+    let isDemo = false;
+    if (rows.length === 0) { rows = getDemoRows(); isDemo = true; }
+    buildPage(rows, isDemo);
+  } catch (err) {
+    console.error(err);
+    buildPage(getDemoRows(), true);
+    const main = document.getElementById('main-content');
+    const errBanner = document.createElement('div');
+    errBanner.className = 'error-banner';
+    errBanner.textContent = `⚠️ לא ניתן לטעון נתונים (${err.message}). מוצגים נתוני הדגמה.`;
+    main.prepend(errBanner);
+  }
+})();
+</script>
+
+</body>
+</html>
