@@ -979,6 +979,54 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .flow-arrow { color: var(--muted); font-weight: 700; font-size: 1.25rem; user-select: none; }
+
+    /* ==========================================================================
+       MOBILE + TABLE FIXES + CLICKABLE DETAILS (stage 6)
+       ========================================================================== */
+    .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+
+    /* Root cause of the broken table: .font-mono-num is inline-block, which
+       turned every <td class="font-mono-num"> into a non-table-cell. */
+    .ds-table th.font-mono-num,
+    .ds-table td.font-mono-num { display: table-cell; }
+    .ds-table th, .ds-table td { white-space: nowrap; }
+
+    /* Sticky first column (week label) so it stays visible while scrolling sideways */
+    .ds-table th:first-child, .ds-table td:first-child {
+      position: sticky; right: 0; z-index: 1;
+      background-color: var(--modal-bg);
+    }
+    .ds-table th:first-child { z-index: 2; background-image: linear-gradient(var(--table-head-bg), var(--table-head-bg)); }
+    .ds-table td:first-child { box-shadow: -6px 0 8px -7px rgba(0, 0, 0, 0.25); }
+    .ds-table tr.row-current td:first-child { background-image: linear-gradient(var(--table-current-bg), var(--table-current-bg)); }
+    .ds-table tbody tr:not(.row-current):hover td:first-child { background-image: linear-gradient(var(--table-row-hover), var(--table-row-hover)); }
+    .ds-table tbody tr[data-act] { cursor: pointer; }
+    .ds-table td[data-act]:hover { background-color: var(--accent-soft); }
+
+    .table-scroll-hint { display: none; }
+
+    /* Clickable details */
+    [data-act] { cursor: pointer; }
+    [data-act]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .link-date { text-decoration: underline dotted; text-underline-offset: 3px; }
+    .svg-hit { cursor: pointer; fill: transparent; }
+    .svg-hit:hover + .svg-point { r: 7; }
+    .svg-point { pointer-events: none; }
+    .detail-row-btn {
+      display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+      width: 100%; text-align: right; padding: 0.7rem 0.85rem; color: inherit; font-family: inherit;
+    }
+
+    @media (max-width: 640px) {
+      .switcher-bar .ds-btn, .switcher-bar .style-pill { font-size: 0.72rem; }
+      .ds-table { min-width: 660px; }
+      .ds-table th { padding: 9px 8px; font-size: 0.74rem; }
+      .ds-table td { padding: 9px 8px; font-size: 0.8rem; }
+      .ds-table td:first-child { white-space: normal; min-width: 86px; max-width: 112px; line-height: 1.25; }
+      .table-scroll-hint { display: block; }
+      .modal-backdrop { padding: 0.6rem; align-items: flex-end; }
+      .modal-box { max-height: 88vh; border-radius: var(--radius-card) var(--radius-card) 0 0; }
+    }
   </style>
 </head>
 <body>
@@ -1026,14 +1074,14 @@
   <!-- ========================================================================
        STICKY TOP BAR: THEME PILLS + THEME GALLERY + GOAL SETTINGS
        ======================================================================== -->
-  <nav class="switcher-bar px-3 sm:px-6 py-2.5" id="app-switcher" style="display:none" aria-label="סרגל בקרה ראשי">
-    <div class="max-w-7xl mx-auto space-y-2">
-      <div class="flex items-center justify-between gap-2 flex-wrap">
+  <nav class="switcher-bar px-3 sm:px-6 py-2" id="app-switcher" style="display:none" aria-label="סרגל בקרה ראשי">
+    <div class="max-w-7xl mx-auto space-y-1.5">
+      <div class="flex items-center gap-2">
         <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 flex-1 min-w-0">
           <button id="open-theme-modal-btn" class="ds-btn px-3 py-1.5 text-xs shrink-0">
-            🎨 בחר ערכה (תחושה)
+            🎨 <span class="hidden sm:inline">בחר ערכה (תחושה)</span><span class="sm:hidden">ערכה</span>
           </button>
-          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar" id="style-pills-container">
+          <div class="flex items-center gap-1.5 shrink-0" id="style-pills-container">
             <button class="style-pill" data-style-id="bento">Bento</button>
             <button class="style-pill" data-style-id="glass">Glass</button>
             <button class="style-pill" data-style-id="swiss">Swiss</button>
@@ -1046,17 +1094,17 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-2 shrink-0">
-          <button id="open-goal-modal-btn" class="ds-btn ds-btn-secondary px-3.5 py-1.5 text-xs">
-            🎯 הגדרת יעד
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button id="open-goal-modal-btn" class="ds-btn ds-btn-secondary px-3 py-1.5 text-xs">
+            🎯 <span class="hidden sm:inline">הגדרת יעד</span><span class="sm:hidden">יעד</span>
           </button>
           <button id="signout-btn" class="ds-btn ds-btn-secondary px-3 py-1.5 text-xs" style="display:none">יציאה</button>
         </div>
       </div>
 
-      <div class="flex items-center justify-between gap-2 text-xs" style="color: var(--muted);">
+      <div class="hidden sm:flex items-center justify-between gap-2 text-xs" style="color: var(--muted);">
         <p id="style-vibe-bar" class="font-medium truncate"></p>
-        <span id="active-goal-pill-bar" class="font-bold text-[11px] shrink-0 hidden sm:inline"></span>
+        <span id="active-goal-pill-bar" class="font-bold text-[11px] shrink-0"></span>
       </div>
     </div>
   </nav>
@@ -1181,6 +1229,19 @@
           </div>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 3: DETAILS (opened by clicking any date / completion mark / chart point)
+       ======================================================================== -->
+  <div id="detail-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+    <div class="modal-box max-w-xl p-4 sm:p-6 space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <h2 id="detail-title" class="text-lg sm:text-xl font-black"></h2>
+        <button id="close-detail-btn" class="ds-btn ds-btn-secondary px-3 py-1 text-xs shrink-0">✕ סגור</button>
+      </div>
+      <div id="detail-body" class="space-y-3"></div>
     </div>
   </div>
 
@@ -1710,14 +1771,15 @@
     for (let i = PLAN.length - 1; i >= 0; i--) {
       if (date >= new Date(PLAN[i].start + 'T00:00:00')) return i;
     }
-    return 0;
+    return -1; // before PLAN[0].start — belongs to no plan week
   }
-  function getCurrentWeekIndex() { return getWeekOf(todayStart()); }
+  function getCurrentWeekIndex() { return Math.max(0, getWeekOf(todayStart())); }
 
   function groupByWeek(rows) {
     const weeks = {};
     rows.forEach(r => {
       const wi = getWeekOf(new Date(r.ts));
+      if (wi < 0) return; // history from before the plan: kept out of week 0
       if (!weeks[wi]) weeks[wi] = [];
       weeks[wi].push(r);
     });
@@ -1727,6 +1789,10 @@
   function latestBy(rows, field) {
     const withVal = rows.filter(r => r[field]).sort((a, b) => new Date(b.ts) - new Date(a.ts));
     return withVal.length ? withVal[0][field] : null;
+  }
+  function latestRowBy(rows, field) {
+    const withVal = rows.filter(r => r[field]).sort((a, b) => new Date(b.ts) - new Date(a.ts));
+    return withVal.length ? withVal[0] : null;
   }
   function weekAvgRHR(rows) {
     const withRHR = rows.filter(r => r.rhr);
@@ -1795,11 +1861,11 @@
   function getNextWorkout(currentWeekIdx, completions) {
     const plan = PLAN[currentWeekIdx];
     if (!plan) return null;
-    if (!completions.quality && plan.qual) return { type:'ריצת איכות', desc: plan.qual, week: currentWeekIdx };
-    if (!completions.long) return { type:'ריצה ארוכה', desc: plan.long, week: currentWeekIdx };
-    if (!completions.easy) return { type:'ריצה קלה', desc: plan.easy, week: currentWeekIdx };
+    if (!completions.quality && plan.qual) return { kind:'quality', type:'ריצת איכות', desc: plan.qual, week: currentWeekIdx };
+    if (!completions.long) return { kind:'long', type:'ריצה ארוכה', desc: plan.long, week: currentWeekIdx };
+    if (!completions.easy) return { kind:'easy', type:'ריצה קלה', desc: plan.easy, week: currentWeekIdx };
     const nextPlan = PLAN[currentWeekIdx + 1];
-    if (nextPlan) return { type:'ריצת איכות', desc: nextPlan.qual || nextPlan.easy, week: currentWeekIdx + 1 };
+    if (nextPlan) return { kind: nextPlan.qual ? 'quality' : 'easy', type:'ריצת איכות', desc: nextPlan.qual || nextPlan.easy, week: currentWeekIdx + 1 };
     return null;
   }
 
@@ -1833,6 +1899,15 @@
     };
   }
 
+  function chartDims(container) {
+    const cw = container && container.clientWidth ? container.clientWidth : 520;
+    const W = Math.max(300, Math.min(520, Math.round(cw)));
+    return { W: W, H: W < 420 ? 200 : 220 };
+  }
+  function labelStep(count, plotW) {
+    const maxLabels = Math.max(2, Math.floor(plotW / 62));
+    return Math.max(1, Math.ceil(count / maxLabels));
+  }
   function emptyChart(container, msg) {
     const p = getChartPalette();
     container.innerHTML = '<svg viewBox="0 0 520 220" class="w-full h-auto"><text x="260" y="110" text-anchor="middle" ' +
@@ -1845,7 +1920,7 @@
     if (!data.length) { emptyChart(container, 'אין נתונים להצגה'); return; }
 
     const p = getChartPalette();
-    const W = 520, H = 220;
+    const D = chartDims(container), W = D.W, H = D.H;
     const pad = { top: 18, right: 18, bottom: 32, left: 42 };
     const plotW = W - pad.left - pad.right, plotH = H - pad.top - pad.bottom;
 
@@ -1855,11 +1930,12 @@
     const margin = span === 0 ? Math.max(1, Math.abs(yMax) * 0.05) : span * 0.25;
     yMin -= margin; yMax += margin;
 
-    const xStep = data.length > 1 ? plotW / (data.length - 1) : 0;
-    const getX = i => data.length > 1 ? pad.left + i * xStep : pad.left + plotW / 2;
+    const xInset = 12;
+    const xStep = data.length > 1 ? (plotW - xInset * 2) / (data.length - 1) : 0;
+    const getX = i => data.length > 1 ? pad.left + xInset + i * xStep : pad.left + plotW / 2;
     const getY = v => pad.top + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
 
-    const pts = data.map((d, i) => ({ x: getX(i), y: getY(d.val), label: d.label, val: d.val }));
+    const pts = data.map((d, i) => ({ x: getX(i), y: getY(d.val), label: d.label, val: d.val, act: d.act }));
     const linePath = pts.map((pt, i) => (i === 0 ? 'M' : 'L') + ' ' + pt.x + ' ' + pt.y).join(' ');
     const areaPath = linePath + ' L ' + pts[pts.length - 1].x + ' ' + (pad.top + plotH) +
                      ' L ' + pts[0].x + ' ' + (pad.top + plotH) + ' Z';
@@ -1875,18 +1951,20 @@
         '" font-family="Space Mono" font-size="10.5">' + val.toFixed(decimals || 0) + '</text>';
     }
 
-    const stepLabel = data.length > 8 ? Math.ceil(data.length / 6) : 1;
+    const stepLabel = labelStep(data.length, plotW);
     let xLabelsHtml = '';
     pts.forEach((pt, i) => {
-      if (i % stepLabel === 0 || i === pts.length - 1) {
+      if ((i % stepLabel === 0 && pts.length - 1 - i >= Math.ceil(stepLabel / 2)) || i === pts.length - 1) {
         xLabelsHtml += '<text x="' + pt.x + '" y="' + (H - 8) + '" text-anchor="middle" fill="' + p.muted +
           '" font-family="Space Mono" font-size="10">' + pt.label + '</text>';
       }
     });
 
     const dotsHtml = pts.map(pt =>
+      '<circle class="svg-hit" cx="' + pt.x + '" cy="' + pt.y + '" r="15" data-tip="' + pt.label + ': ' + pt.val + ' ' + unitLabel + '"' +
+      (pt.act ? ' data-act="' + pt.act + '" tabindex="0" role="button"' : '') + ' />' +
       '<circle class="svg-point" cx="' + pt.x + '" cy="' + pt.y + '" r="4.8" fill="' + lineColor +
-      '" stroke="' + p.ink + '" stroke-width="1.8" data-tip="' + pt.label + ': ' + pt.val + ' ' + unitLabel + '" />'
+      '" stroke="' + p.ink + '" stroke-width="1.8" />'
     ).join('');
 
     container.innerHTML =
@@ -1911,7 +1989,7 @@
     if (!data.length) { emptyChart(container, 'אין נתונים להצגה'); return; }
 
     const p = getChartPalette();
-    const W = 520, H = 220;
+    const D = chartDims(container), W = D.W, H = D.H;
     const pad = { top: 18, right: 18, bottom: 32, left: 42 };
     const plotW = W - pad.left - pad.right, plotH = H - pad.top - pad.bottom;
     const rawMax = Math.max.apply(null, data.map(d => Math.max(d.planned, d.actual || 0)));
@@ -1938,13 +2016,13 @@
       const yP = getY(d.planned), hP = pad.top + plotH - yP;
       let out = '<rect class="svg-bar" x="' + (cx - barW - 2) + '" y="' + yP + '" width="' + barW + '" height="' + hP +
         '" rx="' + p.barRadius + '" fill="' + p.c3 + '" ' + strokeAttr +
-        ' data-tip="שבוע ' + d.week + ' מתוכנן: ' + d.planned + ' ק״מ" />';
+        ' data-act="week:' + d.week + '" tabindex="0" role="button" data-tip="שבוע ' + d.week + ' מתוכנן: ' + d.planned + ' ק״מ" />';
       if (d.actual > 0) {
         const yA = getY(d.actual), hA = pad.top + plotH - yA;
         const col = d.actual >= d.planned ? p.c2 : p.c1;
         out += '<rect class="svg-bar" x="' + (cx + 2) + '" y="' + yA + '" width="' + barW + '" height="' + hA +
           '" rx="' + p.barRadius + '" fill="' + col + '" ' + strokeAttr +
-          ' data-tip="שבוע ' + d.week + ' בפועל: ' + d.actual.toFixed(1) + ' ק״מ" />';
+          ' data-act="week:' + d.week + '" tabindex="0" role="button" data-tip="שבוע ' + d.week + ' בפועל: ' + d.actual.toFixed(1) + ' ק״מ" />';
       }
       out += '<text x="' + cx + '" y="' + (H - 8) + '" text-anchor="middle" fill="' + p.muted +
         '" font-family="Heebo" font-size="11" font-weight="700">ש׳ ' + d.week + '</text>';
@@ -1965,7 +2043,7 @@
     if (data.length < 2) { emptyChart(container, 'אין מספיק ריצות קלות עדיין'); return; }
 
     const p = getChartPalette();
-    const W = 520, H = 220;
+    const D = chartDims(container), W = D.W, H = D.H;
     const pad = { top: 18, right: 18, bottom: 32, left: 48 };
     const plotW = W - pad.left - pad.right, plotH = H - pad.top - pad.bottom;
 
@@ -1973,8 +2051,8 @@
     const yMin = Math.floor((Math.min.apply(null, paces) - 10) / 10) * 10;
     const yMax = Math.ceil((Math.max.apply(null, paces) + 10) / 10) * 10;
 
-    const xStep = plotW / (data.length - 1);
-    const getX = i => pad.left + i * xStep;
+    const xStep = (plotW - 24) / (data.length - 1);
+    const getX = i => pad.left + 12 + i * xStep;
     const getY = sec => pad.top + plotH - ((sec - yMin) / (yMax - yMin)) * plotH;
 
     const n = data.length;
@@ -1997,10 +2075,12 @@
     data.forEach((d, i) => {
       const x = getX(i), y = getY(d.paceSec);
       const fill = d.hr <= 143 ? p.c2 : d.hr <= 146 ? p.c4 : p.trend;
-      dotsHtml += '<circle class="svg-point" cx="' + x + '" cy="' + y + '" r="5.5" fill="' + fill +
-        '" stroke="' + p.ink + '" stroke-width="1.8" data-tip="' + d.label + ' · קצב ' + formatPace(d.paceSec) +
-        ' · דופק ' + d.hr + '" />';
-      if (i % 2 === 0 || i === n - 1) {
+      dotsHtml += '<circle class="svg-hit" cx="' + x + '" cy="' + y + '" r="15" data-tip="' + d.label + ' · קצב ' + formatPace(d.paceSec) +
+        ' · דופק ' + d.hr + '"' + (d.act ? ' data-act="' + d.act + '" tabindex="0" role="button"' : '') + ' />' +
+        '<circle class="svg-point" cx="' + x + '" cy="' + y + '" r="5.5" fill="' + fill +
+        '" stroke="' + p.ink + '" stroke-width="1.8" />';
+      const lblStep = labelStep(n, plotW);
+      if ((i % lblStep === 0 && n - 1 - i >= Math.ceil(lblStep / 2)) || i === n - 1) {
         xLabelsHtml += '<text x="' + x + '" y="' + (H - 8) + '" text-anchor="middle" fill="' + p.muted +
           '" font-family="Space Mono" font-size="10">' + d.label + '</text>';
       }
@@ -2026,6 +2106,14 @@
   }
 
   let CHART_DATA = { rhr: [], vo2: [], volume: [], easy: [] };
+
+  let _resizeTimer = null, _lastChartW = window.innerWidth;
+  window.addEventListener('resize', () => {
+    clearTimeout(_resizeTimer);
+    _resizeTimer = setTimeout(() => {
+      if (window.innerWidth !== _lastChartW) { _lastChartW = window.innerWidth; redrawCharts(); }
+    }, 150);
+  });
 
   function redrawCharts() {
     if (!document.getElementById('chart-rhr')) return;
@@ -2086,6 +2174,199 @@
   }
 
   /* ========================================================================
+     12b. DETAILS MODAL — click any date, completion mark, metric or chart point
+     ======================================================================== */
+  const KIND_META = {
+    quality: { type: 'running_quality', label: 'ריצת איכות', icon: '⚡' },
+    easy:    { type: 'running_easy',    label: 'ריצה קלה',    icon: '🏃' },
+    long:    { type: 'running_long',    label: 'ריצה ארוכה',  icon: '🏃‍♂️' },
+    cf:      { type: 'crossfit',        label: 'קרוספיט',     icon: '💪' }
+  };
+  const SOURCE_LABEL = { agent: 'הסוכן היומי', manual: 'הזנה ידנית', csv: 'ייבוא קובץ', webhook: 'Webhook' };
+  let DETAIL_ROWS = [];
+  const detailModal = document.getElementById('detail-modal');
+
+  function esc(t) { return String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+  function ltr(t) { return '<bdi dir="ltr">' + t + '</bdi>'; }
+  function openDetail(titleHtml, bodyHtml) {
+    hideTooltip();
+    document.getElementById('detail-title').innerHTML = titleHtml;
+    document.getElementById('detail-body').innerHTML = bodyHtml;
+    detailModal.classList.add('open');
+    const box = detailModal.querySelector('.modal-box');
+    if (box) box.scrollTop = 0;
+  }
+  function closeDetail() { detailModal.classList.remove('open'); }
+  document.getElementById('close-detail-btn').addEventListener('click', closeDetail);
+  detailModal.addEventListener('click', e => { if (e.target === detailModal) closeDetail(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+
+  function statTile(label, value, unit) {
+    return '<div class="ds-subbox p-3 text-center">' +
+      '<div class="text-[11px] font-bold" style="color: var(--muted);">' + label + '</div>' +
+      '<div class="font-mono-num text-xl font-bold mt-0.5">' + value + '</div>' +
+      (unit ? '<div class="text-[11px]" style="color: var(--muted);">' + unit + '</div>' : '') +
+    '</div>';
+  }
+  function tilesGrid(tiles) {
+    if (tiles.length % 2 === 1) tiles[tiles.length - 1] = tiles[tiles.length - 1].replace('ds-subbox p-3', 'ds-subbox col-span-2 sm:col-span-1 p-3');
+    return tiles.length ? '<div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">' + tiles.join('') + '</div>' : '';
+  }
+  function backToWeekBtn(wi) {
+    return '<button type="button" class="ds-btn ds-btn-secondary px-3 py-1.5 text-xs" data-act="week:' + wi + '">← לשבוע ' + wi + ' המלא</button>';
+  }
+
+  function rowCard(r) {
+    const tiles = [];
+    if (r.distance_km) tiles.push(statTile('מרחק', Number(r.distance_km).toFixed(2), 'ק״מ'));
+    if (r.pace_avg) tiles.push(statTile('קצב', r.pace_avg, 'דק׳ / ק״מ'));
+    if (r.avg_hr) tiles.push(statTile('דופק ממוצע', r.avg_hr, 'פעימות / דק׳'));
+    if (r.rhr) tiles.push(statTile('דופק מנוחה', r.rhr, 'פעימות / דק׳'));
+    if (r.vo2max) tiles.push(statTile('VO2max', r.vo2max, 'מ״ל / ק״ג / דק׳'));
+    return '<div class="ds-subbox p-4 space-y-3">' +
+      '<div class="flex items-center justify-between gap-2 flex-wrap">' +
+        '<span class="text-base font-extrabold">' + typeIcon(r.type) + ' ' + typeLabel(r.type) + '</span>' +
+        '<span class="ds-chip text-xs">' + formatTs(r.ts) + '</span>' +
+      '</div>' +
+      tilesGrid(tiles) +
+      '<p class="text-xs" style="color: var(--muted);">' + formatDate(r.ts) +
+        (r.source && SOURCE_LABEL[r.source] ? ' · נרשם על ידי ' + SOURCE_LABEL[r.source] : '') + '</p>' +
+    '</div>';
+  }
+
+  function showRowDetail(idx) {
+    const r = DETAIL_ROWS[idx];
+    if (!r) return;
+    const wi = getWeekOf(new Date(r.ts));
+    openDetail('פירוט פעילות — ' + esc(shortDate(r.ts)),
+      rowCard(r) +
+      (wi >= 0 ? '<div>' + backToWeekBtn(wi) + '</div>'
+               : '<p class="text-xs" style="color: var(--muted);">הפעילות מתאריך שלפני תחילת התוכנית, ולכן אינה נספרת באף שבוע.</p>'));
+  }
+
+  function plannedText(pl, kind) {
+    if (kind === 'quality') return pl.qual || 'אין ריצת איכות בשבוע הזה';
+    if (kind === 'easy') return pl.easy;
+    if (kind === 'long') return pl.long;
+    return pl.cf + ' אימוני קרוספיט';
+  }
+  function weekState(wi) {
+    const cur = getCurrentWeekIndex();
+    return wi < cur ? 'past' : (wi === cur ? 'current' : 'future');
+  }
+
+  function showKindDetail(wi, kind) {
+    const pl = PLAN[wi], meta = KIND_META[kind];
+    if (!pl || !meta) return;
+    const st = weekState(wi);
+    const wRows = (groupByWeek(DETAIL_ROWS)[wi] || [])
+      .filter(r => r.type === meta.type).sort((a, b) => new Date(a.ts) - new Date(b.ts));
+    const needed = kind === 'cf' ? pl.cf : 1;
+    const done = kind === 'cf' ? wRows.length >= needed : wRows.length > 0;
+    let status;
+    if (st === 'future') status = '<span class="ds-chip">⏳ עדיין לא הגיע זמנו</span>';
+    else if (done) status = '<span class="ds-chip ds-chip-success">✅ בוצע' + (kind === 'cf' ? ' (' + wRows.length + '/' + needed + ')' : '') + '</span>';
+    else if (kind === 'cf' && wRows.length) status = '<span class="ds-chip ds-chip-warn">⏳ ' + wRows.length + '/' + needed + ' בוצעו</span>';
+    else status = '<span class="ds-chip ds-chip-danger">' + (st === 'current' ? '⏳ עוד לא בוצע' : '❌ לא בוצע') + '</span>';
+    openDetail(meta.icon + ' ' + meta.label + ' — שבוע ' + wi,
+      '<div class="ds-subbox p-4 space-y-2">' +
+        '<div class="flex items-center justify-between gap-2 flex-wrap">' +
+          '<span class="text-xs font-bold" style="color: var(--muted);">מתוכנן · ' + ltr(pl.dates) + '</span>' + status +
+        '</div>' +
+        '<p class="text-sm font-bold">' + plannedText(pl, kind) + '</p>' +
+      '</div>' +
+      (wRows.length ? wRows.map(rowCard).join('')
+        : '<p class="text-sm" style="color: var(--muted);">' +
+          (st === 'future' ? 'אין עדיין נתונים לשבוע הזה.' : 'לא נמצאה פעילות מסוג זה בשבוע הזה.') + '</p>') +
+      '<div>' + backToWeekBtn(wi) + '</div>');
+  }
+
+  function showWeekDetail(wi) {
+    const pl = PLAN[wi];
+    if (!pl) return;
+    const st = weekState(wi), started = st !== 'future';
+    const wRows = (groupByWeek(DETAIL_ROWS)[wi] || []).slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
+    const comp = weekCompletions(wRows);
+    const actual = weekActualKm(wRows);
+    const pct = started ? Math.min(100, Math.round(actual / pl.km * 100)) : null;
+    const runs = wRows.filter(r => r.type !== 'crossfit' && r.distance_km);
+    const hrRows = wRows.filter(r => r.type !== 'crossfit' && r.avg_hr);
+    const avgHr = hrRows.length ? Math.round(hrRows.reduce((a, r) => a + r.avg_hr, 0) / hrRows.length) : null;
+    const rhr = weekAvgRHR(wRows), vo2 = latestBy(wRows, 'vo2max');
+
+    const stateChip = st === 'current' ? '<span class="ds-chip ds-chip-accent">שבוע נוכחי</span>'
+      : st === 'past' ? '<span class="ds-chip">הסתיים</span>' : '<span class="ds-chip">⏳ עתידי</span>';
+    const tiles = [statTile('מתוכנן', pl.km, 'ק״מ')];
+    if (started) {
+      tiles.push(statTile('בפועל', actual.toFixed(1), 'ק״מ'));
+      tiles.push(statTile('עמידה בנפח', pct + '%', ''));
+      tiles.push(statTile('ריצות', runs.length, 'בשבוע'));
+    }
+    if (avgHr) tiles.push(statTile('דופק ממוצע בריצות', avgHr, 'פעימות / דק׳'));
+    if (rhr) tiles.push(statTile('דופק מנוחה ממוצע', rhr, 'פעימות / דק׳'));
+    if (vo2) tiles.push(statTile('VO2max אחרון', vo2, ''));
+
+    const planItems = ['quality', 'easy', 'long', 'cf'].map(kind => {
+      const meta = KIND_META[kind];
+      const done = kind === 'cf' ? comp.cf >= pl.cf : comp[kind];
+      const mark = !started ? '⏳' : (kind === 'long' && wi === 15) ? '🏁' : (done ? '✅' : '❌');
+      const extra = kind === 'cf' && started ? ' · ' + comp.cf + '/' + pl.cf : '';
+      return '<button type="button" class="ds-subbox detail-row-btn" data-act="kind:' + wi + ':' + kind + '">' +
+        '<span><span class="font-bold text-sm">' + meta.icon + ' ' + meta.label + extra + '</span>' +
+        '<span class="block text-xs mt-0.5" style="color: var(--muted);">' + plannedText(pl, kind) + '</span></span>' +
+        '<span class="text-lg shrink-0">' + mark + '</span></button>';
+    }).join('');
+
+    const activities = wRows.length
+      ? wRows.map(r =>
+          '<button type="button" class="ds-subbox detail-row-btn" data-act="row:' + DETAIL_ROWS.indexOf(r) + '">' +
+            '<span class="text-sm font-bold">' + typeIcon(r.type) + ' ' + typeLabel(r.type) + '</span>' +
+            '<span class="text-xs font-mono-num" style="color: var(--muted);">' + shortDate(r.ts) +
+              (r.distance_km ? ' · ' + Number(r.distance_km).toFixed(2) + ' ק״מ' : '') + '</span>' +
+          '</button>').join('')
+      : '<p class="text-sm" style="color: var(--muted);">' + (started ? 'לא נרשמו פעילויות בשבוע הזה.' : 'אין עדיין נתונים לשבוע הזה.') + '</p>';
+
+    openDetail('שבוע ' + pl.label + ' · ' + ltr(pl.dates),
+      '<div class="flex flex-wrap gap-2">' + stateChip + '</div>' +
+      tilesGrid(tiles) +
+      '<p class="text-xs font-bold uppercase pt-1" style="color: var(--muted);">תוכנית השבוע (לחיצה לפירוט)</p>' + planItems +
+      '<p class="text-xs font-bold uppercase pt-1" style="color: var(--muted);">הפעילויות שנרשמו</p>' + activities);
+  }
+
+  function showRaceDetail() {
+    const g = getActiveGoal();
+    const days = calcDaysUntil(g.raceDate);
+    const raceWi = PLAN.length - 1;
+    openDetail('🏁 ' + esc(g.raceName),
+      tilesGrid([
+        statTile('תאריך', formatDateIL(g.raceDate), ''),
+        statTile('מרחק', Number(g.distanceKm.toFixed(2)), 'ק״מ'),
+        statTile('זמן יעד', formatTotalTime(g.targetTimeSec), ''),
+        statTile('קצב יעד', formatPace(g.targetPaceSec), 'דק׳ / ק״מ'),
+        statTile(days >= 0 ? 'נותרו' : 'עברו', Math.abs(days), 'ימים')
+      ]) +
+      '<div><button type="button" class="ds-btn ds-btn-secondary px-3 py-1.5 text-xs" data-act="week:' + raceWi + '">לשבוע המירוץ (' + raceWi + ')</button></div>');
+  }
+
+  function handleAct(act) {
+    const p = String(act).split(':');
+    if (p[0] === 'row') showRowDetail(+p[1]);
+    else if (p[0] === 'week') showWeekDetail(+p[1]);
+    else if (p[0] === 'kind') showKindDetail(+p[1], p[2]);
+    else if (p[0] === 'race') showRaceDetail();
+  }
+  document.addEventListener('click', e => {
+    const el = e.target.closest ? e.target.closest('[data-act]') : null;
+    if (el) handleAct(el.getAttribute('data-act'));
+  });
+  document.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('[data-act]') && e.target.tagName !== 'BUTTON') {
+      e.preventDefault();
+      handleAct(e.target.getAttribute('data-act'));
+    }
+  });
+
+  /* ========================================================================
      12. BUILD PAGE
      ======================================================================== */
   function rerender() {
@@ -2095,6 +2376,7 @@
   }
 
   function buildPage(rows, isDemo) {
+    DETAIL_ROWS = rows;
     const main = document.getElementById('main-content');
     const goal = getActiveGoal();
     const targetTimeStr = formatTotalTime(goal.targetTimeSec);
@@ -2121,11 +2403,15 @@
     const vo2 = latestBy(rows, 'vo2max');
     const avgHR = latestBy(rows, 'avg_hr');
     const lastRow = rows.length ? rows.slice().sort((a, b) => new Date(b.ts) - new Date(a.ts))[0] : null;
+    const rowAct = r => (r ? 'row:' + rows.indexOf(r) : null);
+    const actAttr = (a) => a ? ' data-act="' + a + '" tabindex="0" role="button"' : '';
+    const rhrRow = latestRowBy(rows, 'rhr'), vo2Row = latestRowBy(rows, 'vo2max'), hrRow = latestRowBy(rows, 'avg_hr');
 
     // Current pace estimate from the most recent quality run
     const qualityRuns = rows.filter(r => r.type === 'running_quality' && r.pace_avg)
       .sort((a, b) => new Date(b.ts) - new Date(a.ts));
     const curPaceStr = qualityRuns.length ? qualityRuns[0].pace_avg : '—';
+    const qualityAct = qualityRuns.length ? rowAct(qualityRuns[0]) : null;
 
     // Forecast
     let forecastChip, forecastText, forecastColor;
@@ -2159,8 +2445,8 @@
     ) : '';
 
     // ── metric card helper
-    const metricCard = (label, value, unit, color) =>
-      '<div class="ds-card ds-card-hover p-4 sm:p-5">' +
+    const metricCard = (label, value, unit, color, act) =>
+      '<div class="ds-card ds-card-hover p-4 sm:p-5"' + actAttr(act) + '>' +
         '<span class="text-xs font-bold" style="color: var(--muted);">' + label + '</span>' +
         '<div class="mt-2 flex items-baseline gap-2">' +
           '<span class="font-mono-num text-3xl sm:text-4xl font-bold" style="color: ' + color + ';">' + value + '</span>' +
@@ -2170,11 +2456,11 @@
 
     // ── week status chips
     const weekChips = [
-      { done: completions.quality, label: 'ריצת איכות' },
-      { done: completions.easy, label: 'ריצה קלה' },
-      { done: completions.long, label: 'ריצה ארוכה' },
-      { done: completions.cf >= (curPlan ? curPlan.cf : 3), label: 'קרוספיט ' + completions.cf + '/' + (curPlan ? curPlan.cf : 3) }
-    ].map(w => '<span class="ds-chip ' + (w.done ? 'ds-chip-success' : '') + '">' + (w.done ? '✅' : '⏳') + ' ' + w.label + '</span>').join('');
+      { kind: 'quality', done: completions.quality, label: 'ריצת איכות' },
+      { kind: 'easy', done: completions.easy, label: 'ריצה קלה' },
+      { kind: 'long', done: completions.long, label: 'ריצה ארוכה' },
+      { kind: 'cf', done: completions.cf >= (curPlan ? curPlan.cf : 3), label: 'קרוספיט ' + completions.cf + '/' + (curPlan ? curPlan.cf : 3) }
+    ].map(w => '<span class="ds-chip ' + (w.done ? 'ds-chip-success' : '') + '"' + actAttr('kind:' + curWi + ':' + w.kind) + '>' + (w.done ? '✅' : '⏳') + ' ' + w.label + '</span>').join('');
 
     // ── next workout
     const next = getNextWorkout(curWi, completions);
@@ -2187,8 +2473,8 @@
             '<h2 class="text-xl sm:text-2xl font-black mt-1">' + next.type + ' — שבוע ' + next.week + '</h2>' +
           '</div>' +
           '<div class="flex flex-wrap gap-2">' +
-            '<span class="ds-chip text-xs">📅 שבוע ' + (nextPlan ? nextPlan.dates : '') + '</span>' +
-            '<span class="ds-chip text-xs">📋 ' + next.desc + '</span>' +
+            '<span class="ds-chip text-xs link-date"' + actAttr('week:' + next.week) + '>📅 שבוע ' + (nextPlan ? nextPlan.dates : '') + '</span>' +
+            '<span class="ds-chip text-xs"' + actAttr('kind:' + next.week + ':' + next.kind) + '>📋 ' + next.desc + '</span>' +
           '</div>' +
         '</div>' +
         '<div>' +
@@ -2209,14 +2495,14 @@
     CHART_DATA.rhr = rows.filter(r => r.rhr).sort((a, b) => new Date(a.ts) - new Date(b.ts))
       .reduce((acc, r) => {
         const lbl = shortDate(r.ts);
-        if (!rhrSeen[lbl]) { rhrSeen[lbl] = true; acc.push({ label: lbl, val: r.rhr }); }
+        if (!rhrSeen[lbl]) { rhrSeen[lbl] = true; acc.push({ label: lbl, val: r.rhr, act: rowAct(r) }); }
         return acc;
       }, []).slice(-14);
 
     CHART_DATA.vo2 = Object.keys(byWeek).sort((a, b) => +a - +b).map(wi => {
       const wRows = byWeek[wi].filter(r => r.vo2max);
       if (!wRows.length) return null;
-      return { label: 'ש׳ ' + wi, val: +(wRows.reduce((s2, r) => s2 + r.vo2max, 0) / wRows.length).toFixed(1) };
+      return { label: 'ש׳ ' + wi, val: +(wRows.reduce((s2, r) => s2 + r.vo2max, 0) / wRows.length).toFixed(1), act: 'week:' + wi };
     }).filter(Boolean);
 
     CHART_DATA.volume = PLAN.slice(0, Math.min(PLAN.length, curWi + 2)).map(pl => ({
@@ -2226,7 +2512,8 @@
     CHART_DATA.easy = rows
       .filter(r => r.type === 'running_easy' && r.pace_avg && r.avg_hr && r.avg_hr >= 135 && r.avg_hr <= 155)
       .sort((a, b) => new Date(a.ts) - new Date(b.ts))
-      .map(r => ({ label: shortDate(r.ts), paceSec: paceToSeconds(r.pace_avg), hr: r.avg_hr }));
+      .slice(-14)
+      .map(r => ({ label: shortDate(r.ts), paceSec: paceToSeconds(r.pace_avg), hr: r.avg_hr, act: rowAct(r) }));
 
     // ── plan table rows
     const tableRows = PLAN.map(pl => {
@@ -2242,15 +2529,16 @@
         adhCell = '<span class="ds-chip ' + cls + ' font-mono-num text-xs py-0.5 px-2">' + pct + '%</span>';
       }
       const mark = v => (isPast || isCurrent) ? (v ? '✅' : '❌') : '⏳';
-      return '<tr class="' + rowClass + '">' +
-        '<td class="font-bold" style="white-space:nowrap">' + pl.label + '</td>' +
-        '<td class="font-mono-num text-xs" style="white-space:nowrap">' + pl.dates + '</td>' +
+      const kcell = (kind, inner, cls) => '<td' + (cls ? ' class="' + cls + '"' : '') + actAttr('kind:' + pl.week + ':' + kind) + '>' + inner + '</td>';
+      return '<tr class="' + rowClass + '"' + actAttr('week:' + pl.week) + '>' +
+        '<td class="font-bold">' + pl.label + '</td>' +
+        '<td class="font-mono-num text-xs">' + pl.dates + '</td>' +
         '<td class="font-mono-num">' + pl.km + ' ק״מ</td>' +
         '<td class="font-mono-num">' + ((isPast || isCurrent) ? actual.toFixed(1) + ' ק״מ' : '—') + '</td>' +
-        '<td>' + mark(comp.quality) + '</td>' +
-        '<td>' + mark(comp.easy) + '</td>' +
-        '<td>' + (pl.week === 15 ? '🏁' : mark(comp.long)) + '</td>' +
-        '<td class="font-mono-num">' + ((isPast || isCurrent) ? comp.cf + '/' + pl.cf : '0/' + pl.cf) + '</td>' +
+        kcell('quality', mark(comp.quality)) +
+        kcell('easy', mark(comp.easy)) +
+        kcell('long', (pl.week === 15 ? '🏁' : mark(comp.long))) +
+        kcell('cf', ((isPast || isCurrent) ? comp.cf + '/' + pl.cf : '0/' + pl.cf), 'font-mono-num') +
         '<td>' + adhCell + '</td>' +
       '</tr>';
     }).join('');
@@ -2262,17 +2550,17 @@
       '<header class="ds-card p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">' +
         '<div class="space-y-2">' +
           '<div class="flex flex-wrap items-center gap-3">' +
-            '<h1 class="text-2xl sm:text-4xl font-black">מעקב ' + goal.raceName + ' — ' + goal.runnerName +
+            '<h1 class="text-xl sm:text-4xl font-black">מעקב ' + goal.raceName + ' — ' + goal.runnerName +
               '<span class="terminal-cursor"></span></h1>' +
             '<span class="ds-chip ds-chip-accent text-xs">VDot ' + VDOT_MIN + ' → ' + VDOT_MAX + '</span>' +
           '</div>' +
           '<p class="text-xs sm:text-sm font-medium" style="color: var(--muted);">' +
-            'שבוע ' + curWi + ' מתוך 15 · ' + (lastRow ? 'עדכון אחרון: ' + formatTs(lastRow.ts) : 'אין נתונים') +
+            'שבוע ' + curWi + ' מתוך 15 · ' + (lastRow ? '<span class="link-date"' + actAttr(rowAct(lastRow)) + '>עדכון אחרון: ' + formatTs(lastRow.ts) + '</span>' : 'אין נתונים') +
             ' · ' + goal.raceName + ' · ' + raceDateIL + ' (' + distDisplay + ' ק״מ)' +
           '</p>' +
         '</div>' +
         '<div class="flex flex-wrap items-center gap-2">' + statusChip +
-          '<span class="ds-chip">🏁 ' + daysLabel + '</span>' +
+          '<span class="ds-chip"' + actAttr('race') + '>🏁 ' + daysLabel + '</span>' +
         '</div>' +
       '</header>' +
 
@@ -2280,8 +2568,8 @@
       '<section class="grid grid-cols-1 lg:grid-cols-12 gap-5">' +
         '<div class="lg:col-span-5 ds-card overflow-hidden flex flex-col justify-between">' +
           '<div class="ds-hero-top p-5 sm:p-6">' +
-            '<div class="flex items-start justify-between gap-2">' +
-              '<div>' +
+            '<div class="flex items-start justify-between gap-2 flex-wrap">' +
+              '<div class="min-w-0">' +
                 '<p class="text-sm font-bold opacity-90">סיכוי להגיע ליעד</p>' +
                 '<p class="text-xs mt-0.5" style="color: var(--hero-muted);">עמידה בנפח · מגמת ריצות קלות · VDot</p>' +
               '</div>' + forecastChip +
@@ -2321,7 +2609,7 @@
         '</div>' +
 
         '<div class="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-4">' +
-          '<div class="ds-card ds-card-hover p-4 flex flex-col justify-between">' +
+          '<div class="ds-card ds-card-hover p-4 flex flex-col justify-between"' + actAttr('race') + '>' +
             '<span class="text-xs font-bold" style="color: var(--muted);">יעד</span>' +
             '<div class="mt-2 font-mono-num text-2xl sm:text-3xl font-bold">' + targetTimeStr + '</div>' +
             '<span class="text-xs mt-1 truncate" style="color: var(--muted);">' + goal.raceName + ' (' + distDisplay + ' ק״מ)</span>' +
@@ -2331,7 +2619,7 @@
             '<div class="mt-2 font-mono-num text-2xl sm:text-3xl font-bold">' + targetPaceStr + '</div>' +
             '<span class="text-xs mt-1" style="color: var(--muted);">דק׳ / ק״מ</span>' +
           '</div>' +
-          '<div class="ds-card ds-card-hover p-4 flex flex-col justify-between">' +
+          '<div class="ds-card ds-card-hover p-4 flex flex-col justify-between"' + actAttr(qualityAct) + '>' +
             '<span class="text-xs font-bold" style="color: var(--muted);">קצב ריצת איכות אחרונה</span>' +
             '<div class="mt-2 font-mono-num text-2xl sm:text-3xl font-bold">' + curPaceStr + '</div>' +
             '<span class="text-xs mt-1" style="color: var(--muted);">דק׳ / ק״מ</span>' +
@@ -2343,7 +2631,7 @@
             '<div class="mt-2 font-mono-num text-2xl sm:text-3xl font-bold" style="color: ' + forecastColor + ';">' + forecastText + '</div>' +
             '<span class="text-xs mt-1" style="color: var(--muted);">לפי נפח, מגמה ו-VDot</span>' +
           '</div>' +
-          '<div class="ds-card ds-card-hover p-4 flex flex-col justify-between">' +
+          '<div class="ds-card ds-card-hover p-4 flex flex-col justify-between"' + actAttr('week:' + curWi) + '>' +
             '<div class="flex items-center justify-between">' +
               '<span class="text-xs font-bold" style="color: var(--muted);">עמידה בשבוע ' + curWi + '</span>' +
               '<span class="font-mono-num text-sm font-bold">' + weekAdherence + '%</span>' +
@@ -2351,7 +2639,7 @@
             '<div class="ds-progress-track my-2.5"><div class="ds-progress-fill" style="width: ' + weekAdherence + '%; background: var(--success);"></div></div>' +
             '<span class="text-xs" style="color: var(--muted);">' + curWeekKm.toFixed(1) + ' / ' + (curPlan ? curPlan.km : '?') + ' ק״מ</span>' +
           '</div>' +
-          '<div class="ds-card ds-card-hover p-4 flex flex-col justify-between">' +
+          '<div class="ds-card ds-card-hover p-4 flex flex-col justify-between"' + actAttr('race') + '>' +
             '<span class="text-xs font-bold" style="color: var(--muted);">נותרו עד המירוץ</span>' +
             '<div class="mt-2 font-mono-num text-2xl sm:text-3xl font-bold" style="color: var(--accent);">' + Math.max(0, daysLeft) + '</div>' +
             '<span class="text-xs mt-1" style="color: var(--muted);">ימים ל-' + raceDateIL + '</span>' +
@@ -2363,10 +2651,10 @@
       '<section class="space-y-3">' +
         '<h2 class="text-lg sm:text-xl font-black">מדדים נוכחיים</h2>' +
         '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">' +
-          metricCard('דופק מנוחה היום', (rhr != null ? rhr : '—'), 'פעימות / דקה', 'var(--success)') +
-          metricCard('ממוצע RHR (שבוע)', (rhrWeek != null ? rhrWeek : '—'), 'פעימות / דקה', 'var(--accent)') +
-          metricCard('VO2max', (vo2 != null ? vo2 : '—'), 'מ״ל / ק״ג / דקה', 'var(--warn)') +
-          metricCard('דופק ממוצע — פעילות אחרונה', (avgHR != null ? avgHR : '—'), 'פעימות / דקה', 'var(--danger)') +
+          metricCard('דופק מנוחה היום', (rhr != null ? rhr : '—'), 'פעימות / דקה', 'var(--success)', rowAct(rhrRow)) +
+          metricCard('ממוצע RHR (שבוע)', (rhrWeek != null ? rhrWeek : '—'), 'פעימות / דקה', 'var(--accent)', 'week:' + curWi) +
+          metricCard('VO2max', (vo2 != null ? vo2 : '—'), 'מ״ל / ק״ג / דקה', 'var(--warn)', rowAct(vo2Row)) +
+          metricCard('דופק ממוצע — פעילות אחרונה', (avgHR != null ? avgHR : '—'), 'פעימות / דקה', 'var(--danger)', rowAct(hrRow)) +
         '</div>' +
       '</section>' +
 
@@ -2376,10 +2664,10 @@
           '<div class="space-y-4">' +
             '<h2 class="text-lg sm:text-xl font-black">פעילות אחרונה ומצב שבוע ' + curWi + '</h2>' +
             (lastRow ?
-              '<div class="ds-subbox p-4 space-y-2">' +
+              '<div class="ds-subbox p-4 space-y-2"' + actAttr(rowAct(lastRow)) + '>' +
                 '<div class="flex items-center justify-between gap-2">' +
                   '<span class="text-base sm:text-lg font-extrabold">' + typeIcon(lastRow.type) + ' ' + typeLabel(lastRow.type) + '</span>' +
-                  '<span class="ds-chip font-mono-num text-xs">' + shortDate(lastRow.ts) + '</span>' +
+                  '<span class="ds-chip font-mono-num text-xs link-date">' + shortDate(lastRow.ts) + '</span>' +
                 '</div>' +
                 '<div class="flex flex-wrap items-baseline gap-4 pt-1">' +
                   (lastRow.distance_km ?
@@ -2446,6 +2734,7 @@
             '<span class="ds-chip text-[11px]">⏳ עתידי</span>' +
           '</div>' +
         '</div>' +
+        '<p class="table-scroll-hint text-xs font-medium" style="color: var(--muted);">👈 גלול הצידה לצפייה בכל העמודות · לחיצה על שבוע או על ✅/❌ פותחת פירוט</p>' +
         '<div class="ds-table-wrap"><table class="ds-table"><thead><tr>' +
           '<th>שבוע</th><th>תאריכים</th><th>ק״מ מתוכנן</th><th>ק״מ בפועל</th>' +
           '<th>ריצת איכות</th><th>ריצה קלה</th><th>ריצה ארוכה</th><th>CF</th><th>עמידה</th>' +
